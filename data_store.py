@@ -112,7 +112,7 @@ def _localize_url(url: str) -> str:
     return url
 
 
-def parse_trae_master_files() -> dict:
+def parse_master_files() -> dict:
     """
     读取大师知识库目录（KB_DIR）下的 MD 文件，返回 {master_name: {...}} 索引
 
@@ -198,7 +198,7 @@ def parse_trae_master_files() -> dict:
 
 
 # 全局缓存：启动时解析一次
-MASTER_INDEX = parse_trae_master_files()
+MASTER_INDEX = parse_master_files()
 MASTER_TO_REC = {}  # master_name → 第一条作品的图片 URL
 for m_name, m_data in MASTER_INDEX.items():
     if m_data["works"]:
