@@ -478,7 +478,7 @@ def api_today_theme():
 
 @app.route("/api/masters")
 def api_masters():
-    """返回大师知识库索引（TRAE-01 数据）"""
+    """返回大师知识库索引"""
     return jsonify({
         "masters": {k: {
             "name": v["name"],

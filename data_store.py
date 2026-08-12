@@ -82,7 +82,7 @@ def get_funnel_stats() -> dict:
         "total_events": len(events),
         "total_users": total_users,
     }
-# ── 练习参考图（TRAE-06 下载）────
+# ── 练习参考图 ────
 RECOMMENDATION_IMAGES = {}
 _rec_img_file = DATA_DIR / "recommendation_images.json"
 if _rec_img_file.exists():
@@ -91,7 +91,7 @@ if _rec_img_file.exists():
     except Exception:
         pass
 
-# ── 大师知识库（从 TRAE-01 MD 文件解析）────
+# ── 大师知识库（从外部 MD 文件解析）────
 
 
 # ── 大师图片本地化映射 ─────────────────────────────────
