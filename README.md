@@ -4,6 +4,10 @@ AI 陪伴式绘画 App——**手机 + 纸 + 笔 + AI**，每次画完拍下来�
 
 没有账号、没有对错、不需要画得多好。拍下纸上的画，AI 陪你一起看画面。
 
+[![绘心 Flow 真实体验录屏](docs/video-cover.jpg)](https://leerobert.site/flow/flow-demo-video.mp4)
+
+> ▶ 点开上方封面，观看 **2 分钟真实体验录屏**：从纸上画小熊到 AI 画者身份确认的完整闭环（真实运行，非 Mock）。
+
 ## 快速开始
 
 ```bash
