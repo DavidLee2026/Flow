@@ -1,3 +1,76 @@
+
+/* 高亮脉冲动画 */
+.modal-reflection-block.pulse-highlight,
+#modalReflection.pulse-highlight .modal-reflection-block{
+  animation: reflectionPulse 2s var(--ease-out);
+}
+@keyframes reflectionPulse{
+  0%{background: color-mix(in srgb, var(--color-accent) 25%, transparent);}
+  100%{background: color-mix(in srgb, var(--color-accent) 8%, transparent);}
+}
+@keyframes reflectionFadeIn{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* 空态 */
+.modal-reflection-empty{
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px var(--space-md);
+  margin: 10px 0;
+  text-align: center;
+}
+.modal-reflection-empty-text{
+  font-size: var(--font-size-md);
+  color: var(--color-text-tertiary);
+  margin-bottom: 4px;
+}
+.modal-reflection-empty-hint{
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+/* ── 时空穿梭：AI 反馈分层（弹窗内） ── */
+.tt-ai-section { margin: 10px 0; }
+.tt-ai-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.tt-ai-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--color-primary-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-sm);
+}
+.tt-ai-name {
+  font-size: var(--font-size-sm); font-weight: 600;
+  color: var(--color-text-primary);
+}
+.tt-ai-layer {
+  font-size: var(--font-size-lg); color: var(--color-text-secondary);
+  line-height: 1.6; margin-bottom: 8px;
+}
+.tt-ai-tag {
+  font-size: var(--font-size-xs); font-weight: 600;
+  padding: 1px 7px; border-radius: 8px;
+  margin-right: 5px; display: inline-block;
+  vertical-align: middle;
+}
+.tt-ai-tag.rec { background: #E8F5E9; color: #2E7D32; }
+.tt-ai-tag.obs { background: #E3F2FD; color: #1565C0; }
+.tt-ai-tag.prog { background: #FFF3E0; color: #E65100; }
+.tt-ai-tag.sugg { background: #F3E5F5; color: #6A1B9A; }
+.tt-ai-tag.enc { background: #E0F7FA; color: #00838F; }
+.tt-ai-tip {
+  font-size: var(--font-size-sm); color: var(--color-text-secondary);
+  background: var(--color-bg-subtle);
+  padding: 8px 12px; border-radius: 8px;
+  margin: -4px 0 8px 28px;
+  border-left: 2px solid var(--color-primary-light);
+}
+
 /* "现在的你看" 区块 */
 .modal-now-review-block{
   background: color-mix(in srgb, var(--color-primary) 5%, transparent);
@@ -383,89 +456,3 @@ body.pre-path .bottom-nav,
 body.pre-path .header {
     display: none !important;
 }
-
-/* ── Bottom nav ── */
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  z-index:500;
-  display:flex;
-  justify-content:center;
-  gap: 60px;
-  background: var(--card-bg);
-  border-top:1px solid var(--color-border-light);
-  padding:4px 0;
-  padding-bottom:max(4px,env(safe-area-inset-bottom));
-}
-.bottom-nav button{
-  flex:0 0 auto;
-  border:none;
-  background:none;
-  padding:4px 20px;
-  font-size:var(--font-size-sm);
-  color: var(--color-text-secondary);
-  cursor:pointer;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:1px;
-}
-.bottom-nav button .icon{font-size:var(--font-size-2xl);}
-.bottom-nav button.active{
-  color: var(--color-primary);
-  font-weight:600;
-}
-.reset-link{
-  position:absolute;
-  right:14px;
-  bottom:14px;
-  font-size:var(--font-size-xs);
-  color: var(--color-text-tertiary, #bbb);
-  cursor:pointer;
-  opacity:0.4;
-  transition:opacity .2s;
-  padding:4px 8px;
-}
-.reset-link:hover{opacity:0.8;}
-
-/* ── Page / Tab switching ── */
-.page{display:none;}
-.page.active{
-  display:block;
-  animation: pageEnter var(--motion-page) var(--ease-out);
-}
-@keyframes pageEnter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── 路径选择页 ── */
-.path-select-overlay{
-  position:fixed;
-  inset:0;
-  background: var(--gradient-primary);
-  z-index:250;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-}
-.path-select-overlay.visible{display:flex;}
-.path-select-container{max-width:400px;width:100%;text-align:center;}
-.path-select-title{
-  color: var(--color-text-inverse);
-  font-size:var(--font-size-3xl);
-  font-weight: 600;
-  margin-bottom:8px;
-}
-.path-select-subtitle{
-  color:rgba(255,255,255,.6);
-  font-size:var(--font-size-md);
-  margin-bottom:32px;
-}
-.path-card{
-  background: var(--card-bg);
-  border-radius: var(--radius-xl);
-  padding:28px 24px;

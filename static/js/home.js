@@ -148,8 +148,9 @@ function openRecordDetail(recordId) {
   if (typeof switchTab === 'function') {
     switchTab('timeline');
     setTimeout(() => {
-      if (typeof openDetailModal === 'function') {
-        openDetailModal(recordId);
+      const rec = (typeof records !== 'undefined' ? records : []).find(r => r.id === recordId);
+      if (rec && typeof openModal === 'function') {
+        openModal(rec);
       }
     }, 300);
   }

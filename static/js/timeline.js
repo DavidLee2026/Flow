@@ -138,7 +138,7 @@ function renderTimelineListItem(r, recordIndex) {
     <div class="timeline-item" onclick="openModal(records[${safeIdx}])" style="cursor:pointer;">
       <div class="thumb"><img src="${API_BASE}/data/${r.image}" alt="第${records.length - safeIdx}张"></div>
       <div class="info">
-        <div class="preview">${(r.feedback || '').replace(/\n/g, ' · ').slice(0, 80)}</div>
+        <div class="preview">${(r.feedback || '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/\n/g, ' · ').slice(0, 80)}</div>
         <div class="time">第 ${records.length - safeIdx} 张 · ${formatTime(r.timestamp)}</div>
       </div>
     </div>`;

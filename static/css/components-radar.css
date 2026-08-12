@@ -1,3 +1,205 @@
+
+/* ================================================================
+   防移动端双击缩放 · v43
+   说明：iOS Safari 10+ 忽略 viewport 的 user-scalable=no（无障碍政策），
+   双击缩放必须靠 touch-action 抑制。manipulation = 允许滚动/捏合，
+   仅移除双击缩放。社区弹窗信息区保留 pan-y（纵向锁定）。
+   ================================================================ */
+* { touch-action: manipulation; }
+.community-modal .modal-info { touch-action: pan-y; }
+
+/* ================================================================
+   2.0 MVP 新增样式 · 绘心 Flow
+   ================================================================ */
+
+/* ── 创作前奏 · 静默入口仪式 ── */
+.creative-prelude {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
+}
+.creative-prelude.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 800ms var(--ease-out), visibility 0s 0s;
+}
+.creative-prelude.done {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
+}
+.creative-prelude-window {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-page);
+  background-image: var(--bg-page-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* 暖光中心 — 呼吸感渐变 */
+.creative-prelude-window::before {
+  content: '';
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  max-width: 280px;
+  max-height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217, 164, 65, 0.12) 0%, rgba(201, 125, 91, 0.06) 40%, transparent 70%);
+  animation: preludeBreath 2s var(--ease-out) forwards;
+}
+/* 画笔图标 — 缓慢浮现再消散 */
+.creative-prelude-window::after {
+  content: '✏️';
+  position: absolute;
+  font-size: var(--font-size-5xl);
+  opacity: 0;
+  animation: preludeIconFloat 2s var(--ease-out) forwards;
+}
+@keyframes preludeBreath {
+  0% { opacity: 0; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+@keyframes preludeIconFloat {
+  0% { opacity: 0; transform: translateY(12px) scale(0.9); }
+  30% { opacity: 0.5; transform: translateY(0) scale(1); }
+  70% { opacity: 0.5; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(1.05); }
+}
+/* 首页内容在创作前奏期间隐藏 */
+body.in-prelude .header,
+body.in-prelude #page-home,
+body.in-prelude #page-timeline { visibility: hidden; }
+
+/* ── 首页顶部信息聚合栏 ── */
+.home-top-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.home-date {
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+}
+.home-greeting {
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+}
+.home-greeting span {
+  font-weight: 600;
+}
+.home-stage-tag {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.home-flow-value {
+  margin-left: auto;
+  color: var(--raw-ochre-700);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+}
+
+/* ── 画者之问 · 主入口 ── */
+.home-main-entry {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+}
+.home-question {
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-sm);
+  letter-spacing: 2px;
+}
+.home-flow-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0 0 var(--space-xl);
+  letter-spacing: 1px;
+}
+.home-camera-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: 320px;
+  height: 56px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--raw-white);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: transform var(--motion-press) var(--ease-press), box-shadow var(--motion-press) var(--ease-press);
+  box-shadow: var(--shadow-lifted);
+}
+.home-camera-btn:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-card);
+}
+.home-camera-icon {
+  font-size: var(--font-size-2xl);
+}
+.home-upload-btn {
+  display: block;
+  margin: var(--space-md) auto 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: var(--space-sm) var(--space-md);
+  transition: color var(--motion-fast);
+}
+.home-upload-btn:active {
+  color: var(--color-primary);
+}
+
+/* ── 折叠灵感区 ── */
+.inspiration-toggle {
+  text-align: center;
+  padding: var(--space-md);
+  font-size: var(--font-size-md);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--motion-fast);
+  user-select: none;
+}
+.inspiration-toggle:active {
+  color: var(--color-primary);
+}
+.inspiration-toggle.expanded {
+  color: var(--color-primary);
+}
+.inspiration-area {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--motion-slow) var(--ease-out), opacity var(--motion-slow) var(--ease-out);
+}
+.inspiration-area.expanded {
+  max-height: 2000px;
+  opacity: 1;
+}
+
 /* ── 首页底部栏 ── */
 .home-bottom-bar {
   padding: var(--space-lg) var(--space-md) var(--space-xl);
@@ -245,255 +447,4 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
-}
-.exploration-bar-fill.flash-up { animation: expFlashUp 0.6s ease-out; }
-@keyframes expFlashUp { 0%{filter:brightness(1)} 50%{filter:brightness(1.4)} 100%{filter:brightness(1)} }
-.exploration-bar-delta { font-size: var(--font-size-xs); margin-left: 6px; }
-.exploration-bar-delta.down { color: var(--color-text-tertiary); }
-.exploration-bar-delta.up { color: var(--color-success); }
-.exploration-bar-info { display: flex; gap: 8px; }
-.exploration-bar-area { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
-.exploration-bar-first { font-size: var(--font-size-xs); color: var(--color-success); font-weight: bold; }
-.exploration-bar-achievement { margin-top: 8px; padding: 8px 12px; background: var(--color-primary-light); border-radius: 8px; font-size: var(--font-size-sm); }
-.exploration-bar-num { font-weight: bold; color: var(--raw-ochre-500); }
-
-/* ── 首页探索进度（静态） ── */
-.home-exploration-bar {
-  margin-bottom: var(--space-sm);
-}
-.home-exploration-bar-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  margin-bottom: 6px;
-}
-.home-exploration-bar-label {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-.home-exploration-bar-help {
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--color-text-tertiary);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-  transition: border-color var(--motion-fast), color var(--motion-fast);
-}
-.home-exploration-bar-help:active {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-.home-exploration-bar-value {
-  margin-left: auto;
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--raw-ochre-700);
-  font-family: var(--font-display);
-}
-.home-exploration-bar-track {
-  height: 8px;
-  background: var(--raw-paper-300);
-  border-radius: var(--radius-pill);
-  overflow: hidden;
-}
-.home-exploration-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--raw-ochre-300) 0%, var(--raw-ochre-500) 100%);
-  border-radius: var(--radius-pill);
-  transition: width var(--motion-slow) var(--ease-out);
-}
-
-/* ── 身份确认语卡片 ── */
-.identity-statement-slot {
-  margin: var(--space-sm) 0;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity var(--motion-slow) var(--ease-out), transform var(--motion-slow) var(--ease-out);
-}
-.identity-statement-slot.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.identity-statement-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  background: linear-gradient(135deg, var(--raw-clay-100) 0%, var(--raw-ochre-100) 100%);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--raw-ochre-500);
-}
-.identity-statement-icon {
-  font-size: var(--font-size-2xl);
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.identity-statement-text {
-  font-family: var(--font-display);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  line-height: 1.7;
-  text-shadow: 0 0 20px rgba(217, 164, 65, 0.08);
-}
-
-/* ================================================================
-   2.0 新增组件 · 心流银行储蓄罐 (§4.4)
-   ================================================================ */
-.flow-bank-slot { margin-top: var(--space-md); }
-.flow-bank {
-  display: flex; align-items: center; gap: var(--space-md);
-  background: var(--color-bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-light);
-  box-shadow: var(--shadow-card);
-  padding: var(--space-md);
-}
-.flow-bank-jar-wrap { flex-shrink: 0; width: 80px; height: 100px; }
-.flow-bank-svg { width: 100%; height: 100%; }
-.jar-outline { fill: var(--color-bg-card); stroke: var(--color-border); stroke-width: 2; }
-.jar-liquid { transition: y var(--motion-slow) var(--ease-out), height var(--motion-slow) var(--ease-out); }
-.jar-liquid-wave { animation: liquidWave 3s var(--ease-out) infinite; }
-@keyframes liquidWave { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-3px); } }
-.jar-amount { font-family: var(--font-display); font-size: var(--font-size-2xl); font-weight: 700; fill: var(--color-text-primary); }
-.jar-unit { font-family: var(--font-body); font-size: var(--font-size-xs); fill: var(--color-text-secondary); }
-.flow-bank-info { flex: 1; }
-.flow-bank-label { font-family: var(--font-display); font-size: var(--font-size-lg); font-weight: 600; color: var(--color-text-primary); margin-bottom: var(--space-xs); }
-.flow-bank-status { font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-bottom: var(--space-xs); }
-.flow-bank-status.low { color: var(--color-primary); }
-.flow-bank-history { font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
-.flow-bank.depositing .flow-bank-svg { animation: jarPulse var(--motion-slow) var(--ease-out); }
-@keyframes jarPulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
-
-/* ================================================================
-   2.0 新增组件 · 档案归档动画 (§4.5)
-   ================================================================ */
-.archive-pill-slot { margin-top: var(--space-sm); }
-.archive-filing {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-}
-.archive-pill {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-pill);
-  padding: 8px 14px;
-  font-size: var(--font-size-xs); font-weight: 600;
-  box-shadow: var(--shadow-paper);
-  animation: archivePillIn var(--motion-slow) var(--ease-out) forwards;
-  opacity: 0;
-}
-@keyframes archivePillIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.archive-pill.filing { border-left: 3px solid var(--color-success); }
-.archive-pill.flow-bank-pill { border-left: 3px solid var(--color-accent); }
-.archive-pill-icon { font-size: var(--font-size-base); flex-shrink: 0; }
-.archive-pill-text { color: var(--color-text-primary); }
-.archive-pill-text .num { font-family: var(--font-mono); color: var(--color-accent-dark); font-weight: 700; }
-
-/* ================================================================
-   2.0 新增组件 · 7 阶段用户旅程指示器 (§6 旅程可视化)
-   移动端横向滚动，不挤压反馈主体
-   ================================================================ */
-.journey-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 10px 12px;
-  margin: 8px var(--space-md);
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.journey-indicator::-webkit-scrollbar { display: none; }
-.journey-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
-  position: relative;
-  min-width: 42px;
-}
-.journey-step-dot {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  background: var(--color-bg-subtle);
-  color: var(--color-text-tertiary);
-  transition: all var(--motion-normal) var(--ease-out);
-  flex-shrink: 0;
-}
-.journey-step-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-  white-space: nowrap;
-  transition: color var(--motion-normal);
-}
-/* 连接线 */
-.journey-step:not(:last-child) .journey-step-dot::after {
-  content: '';
-  position: absolute;
-  top: 11px;
-  left: 22px;
-  width: 20px;
-  height: 1.5px;
-  background: var(--color-border);
-  transition: background var(--motion-normal);
-}
-/* 已完成状态 */
-.journey-step.done .journey-step-dot {
-  background: var(--color-success);
-  color: var(--raw-white);
-}
-.journey-step.done .journey-step-dot::after {
-  background: var(--color-success);
-}
-.journey-step.done .journey-step-label {
-  color: var(--color-text-secondary);
-}
-/* 当前活跃状态 */
-.journey-step.active .journey-step-dot {
-  background: var(--color-accent);
-  color: var(--raw-white);
-  transform: scale(1.15);
-  box-shadow: 0 0 8px rgba(217,164,65,.4);
-  animation: journeyPulse 1.5s var(--ease-out) infinite;
-}
-.journey-step.active .journey-step-label {
-  color: var(--color-accent-dark);
-  font-weight: 600;
-}
-@keyframes journeyPulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(217,164,65,.3); }
-  50% { box-shadow: 0 0 12px rgba(217,164,65,.5); }
-}
-/* 入场动画 */
-.journey-indicator.entering {
-  animation: journeyEnter var(--motion-slow) var(--ease-out);
-}
-@keyframes journeyEnter {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
 }

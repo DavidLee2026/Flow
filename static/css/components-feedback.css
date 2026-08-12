@@ -1,3 +1,55 @@
+
+/* ── 重现动画仪式感增强 (2.0) ── */
+.replay-wow-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--raw-ochre-500);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  z-index: 10;
+}
+.replay-container.active .replay-wow-tag { opacity: 1; }
+
+.replay-pen-tip { opacity: 0; pointer-events: none; transition: opacity 100ms ease-out; }
+
+.replay-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 5px rgba(217,164,65,0.25));
+}
+.replay-path.flashing {
+  filter: drop-shadow(0 0 14px rgba(217,164,65,0.45));
+}
+
+.replay-completion-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(217,164,65,0.10) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+  pointer-events: none;
+  border-radius: 8px;
+}
+.replay-completion-glow.show { opacity: 1; }
+
+.replay-label {
+  text-align: center;
+  margin-top: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+  padding-bottom: 12px;
+}
+
 .replay-identity-text {
   text-align: center;
   padding: 0 16px 16px;
@@ -406,76 +458,3 @@
   color: var(--color-text-tertiary);
   margin-top: 8px;
 }
-
-/* 高亮脉冲动画 */
-.modal-reflection-block.pulse-highlight,
-#modalReflection.pulse-highlight .modal-reflection-block{
-  animation: reflectionPulse 2s var(--ease-out);
-}
-@keyframes reflectionPulse{
-  0%{background: color-mix(in srgb, var(--color-accent) 25%, transparent);}
-  100%{background: color-mix(in srgb, var(--color-accent) 8%, transparent);}
-}
-@keyframes reflectionFadeIn{
-  from{opacity:0;transform:translateY(6px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-/* 空态 */
-.modal-reflection-empty{
-  background: var(--color-bg-subtle);
-  border-radius: var(--radius-sm);
-  padding: 14px var(--space-md);
-  margin: 10px 0;
-  text-align: center;
-}
-.modal-reflection-empty-text{
-  font-size: var(--font-size-md);
-  color: var(--color-text-tertiary);
-  margin-bottom: 4px;
-}
-.modal-reflection-empty-hint{
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
-  opacity: 0.7;
-}
-
-/* ── 时空穿梭：AI 反馈分层（弹窗内） ── */
-.tt-ai-section { margin: 10px 0; }
-.tt-ai-header {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 8px;
-}
-.tt-ai-avatar {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--color-primary-bg);
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--font-size-sm);
-}
-.tt-ai-name {
-  font-size: var(--font-size-sm); font-weight: 600;
-  color: var(--color-text-primary);
-}
-.tt-ai-layer {
-  font-size: var(--font-size-lg); color: var(--color-text-secondary);
-  line-height: 1.6; margin-bottom: 8px;
-}
-.tt-ai-tag {
-  font-size: var(--font-size-xs); font-weight: 600;
-  padding: 1px 7px; border-radius: 8px;
-  margin-right: 5px; display: inline-block;
-  vertical-align: middle;
-}
-.tt-ai-tag.rec { background: #E8F5E9; color: #2E7D32; }
-.tt-ai-tag.obs { background: #E3F2FD; color: #1565C0; }
-.tt-ai-tag.prog { background: #FFF3E0; color: #E65100; }
-.tt-ai-tag.sugg { background: #F3E5F5; color: #6A1B9A; }
-.tt-ai-tag.enc { background: #E0F7FA; color: #00838F; }
-.tt-ai-tip {
-  font-size: var(--font-size-sm); color: var(--color-text-secondary);
-  background: var(--color-bg-subtle);
-  padding: 8px 12px; border-radius: 8px;
-  margin: -4px 0 8px 28px;
-  border-left: 2px solid var(--color-primary-light);
-}
-

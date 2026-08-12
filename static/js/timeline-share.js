@@ -1,6 +1,8 @@
 // renderGrowth / drawRadarChart removed in v3.0 (growth page hidden for MVP)
 // ─── Modal ───
 function openModal(record) {
+  // 详情页全屏覆盖时隐藏底部导航（避免按钮被盖住但可见不可点）
+  document.body.classList.add('detail-open');
   const modal = document.getElementById('recordDetailPage');
   document.getElementById('modalImg').src = `${API_BASE}/data/${record.image}`;
   currentRecordId = record.id;  // 保存当前记录 ID，用于删除
@@ -212,6 +214,7 @@ function openModal(record) {
 }
 
 function closeModal() {
+  document.body.classList.remove('detail-open');
   const modal = document.getElementById('recordDetailPage');
   // 移除滚动监听
   if (modal._scrollHandler && modal._scrollTarget) {

@@ -1,3 +1,131 @@
+.chat-meta.user { text-align: right; padding-right: 6px; }
+.chat-meta.ai   { text-align: left;  padding-left: 6px; }
+
+/* ── 操作按钮（延迟出现） ── */
+.fb-actions { margin: 12px var(--space-md); display: none; }
+.fb-actions.visible { display: block; animation: fadeUp .4s ease-out; }
+.action-btns { display: flex; flex-direction: column; gap: 8px; }
+.action-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all .15s;
+  text-align: left;
+  width: 100%;
+}
+.action-btn:active {
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+.action-btn .ab-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-base); flex-shrink: 0;
+}
+.action-btn .ab-icon.i-primary { background: var(--color-primary-bg); }
+.action-btn .ab-icon.i-green   { background: var(--color-success-bg); }
+.action-btn .ab-icon.i-warm    { background: var(--color-accent-bg); }
+.action-btn .ab-icon.i-orange  { background: #FFF0E5; }
+.action-btn .ab-icon.i-subtle  { background: var(--color-bg-subtle); }
+.action-btn .ab-body { flex: 1; }
+.action-btn .ab-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--color-text-primary); }
+.action-btn .ab-desc  { font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: 2px; }
+.action-btn .ab-badge {
+  display: inline-block;
+  font-size: var(--font-size-xs); font-weight: 600;
+  background: var(--color-accent-bg); color: var(--color-accent-dark);
+  padding: 1px 6px; border-radius: 6px;
+  margin-left: 4px;
+}
+
+/* ── 术语上下文弹窗增强 ── */
+.glossary-tip .tip-context {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.08);
+  border-radius: 6px;
+  font-size: var(--font-size-xs); line-height: 1.5;
+  color: var(--raw-sage-300);
+  display: none;
+}
+.glossary-tip .tip-context.visible { display: block; }
+.glossary-tip .tip-context .ctx-label {
+  font-weight: 600; color: var(--raw-sage-300);
+  margin-bottom: 2px; display: block;
+}
+
+/* ── 反馈后区域标题 ── */
+.fb-section-title {
+  font-size: var(--font-size-xs); font-weight: 600;
+  color: var(--color-text-tertiary);
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+/* ── 通用动画 ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   统一按钮系统 · 对齐设计规范（6 种变体 × 3 种尺寸）
+   ================================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-press),
+              background-color var(--motion-fast) var(--ease-press),
+              opacity var(--motion-fast) var(--ease-press);
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+}
+.btn-lg { height: 52px; padding: 0 24px; font-size: var(--font-size-xl); }
+.btn-md { height: 44px; padding: 0 20px; font-size: var(--font-size-base); }
+.btn-sm { height: 38px; padding: 0 16px; font-size: var(--font-size-md); }
+
+/* ① 主按钮 */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 2px 8px rgba(201, 125, 91, 0.25), 0 1px 3px rgba(154, 87, 56, 0.12);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+  background: var(--btn-primary-bg-active);
+  box-shadow: 0 1px 4px rgba(201, 125, 91, 0.15);
+}
+/* ② 次按钮 */
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-weight: 600;
+}
+.btn-secondary:active {
+  transform: scale(0.97);
+  background: var(--btn-secondary-bg-active);
+}
 /* ③ 虚线按钮 */
 .btn-dashed {
   background: linear-gradient(135deg, var(--raw-paper-100), var(--raw-clay-100));
@@ -327,145 +455,6 @@
   display: flex;
   gap: 10px;
 }
-.confirm-actions .btn { flex: 1; }
-.confirm-actions .btn-cancel {
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-text);
-  font-weight: 600;
-}
-.confirm-actions .btn-cancel:active {
-  transform: scale(0.97);
-  background: var(--btn-secondary-bg-active);
-}
-.confirm-actions .btn-danger {
-  background: var(--raw-clay-600);
-  color: var(--raw-white);
-  font-weight: 600;
-}
-.confirm-actions .btn-danger:active {
-  transform: scale(0.97);
-  background: var(--raw-clay-700);
-}
 
-/* ── 应用内相机拍摄页 ── */
-.camera-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: #1a1714;
-  z-index: 200;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.camera-overlay.visible { display: flex; }
-.camera-header {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  z-index: 10;
-  background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
-}
-.camera-header .cam-title {
-  color: #fff;
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-}
-.camera-close-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,.2);
-  color: #fff;
-  font-size: var(--font-size-2xl);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background .2s, transform .15s;
-}
-.camera-close-btn:active { transform: scale(0.90); background: rgba(255,255,255,.35); }
-.camera-video-wrap {
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.camera-video {
-  width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-.camera-flash {
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 20;
-}
-.camera-flash.active {
-  animation: cameraFlash .18s ease-out;
-}
-@keyframes cameraFlash {
-  0% { opacity: .9; }
-  100% { opacity: 0; }
-}
-.camera-guide-frame {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 85%;
-  aspect-ratio: 3/4;
-  border: 2px dashed rgba(255,255,255,.4);
-  border-radius: 8px;
-  pointer-events: none;
-}
-.camera-guide-hint {
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255,255,255,.7);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  text-align: center;
-  line-height: 1.6;
-}
-.camera-controls {
-  position: absolute;
-  bottom: 40px;
-  left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  z-index: 10;
-}
-.camera-switch-btn {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,.15);
-  color: #fff;
-  font-size: var(--font-size-2xl);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background .2s, transform .15s;
-}
-.camera-switch-btn:active { transform: scale(0.90); background: rgba(255,255,255,.3); }
-.camera-shutter {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  background: rgba(255,255,255,.3);
-  cursor: pointer;
-  transition: transform .15s, background .15s;
-  position: relative;
-}
-.camera-shutter::after {
+/* 详情页全屏时隐藏底部导航（避免被盖住却可点） */
+body.detail-open .bottom-nav { display: none; }

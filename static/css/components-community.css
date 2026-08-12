@@ -1,3 +1,145 @@
+.confirm-actions .btn { flex: 1; }
+.confirm-actions .btn-cancel {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-weight: 600;
+}
+.confirm-actions .btn-cancel:active {
+  transform: scale(0.97);
+  background: var(--btn-secondary-bg-active);
+}
+.confirm-actions .btn-danger {
+  background: var(--raw-clay-600);
+  color: var(--raw-white);
+  font-weight: 600;
+}
+.confirm-actions .btn-danger:active {
+  transform: scale(0.97);
+  background: var(--raw-clay-700);
+}
+
+/* ── 应用内相机拍摄页 ── */
+.camera-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #1a1714;
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.camera-overlay.visible { display: flex; }
+.camera-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
+}
+.camera-header .cam-title {
+  color: #fff;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+.camera-close-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: var(--font-size-2xl);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.camera-close-btn:active { transform: scale(0.90); background: rgba(255,255,255,.35); }
+.camera-video-wrap {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.camera-video {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.camera-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.camera-flash.active {
+  animation: cameraFlash .18s ease-out;
+}
+@keyframes cameraFlash {
+  0% { opacity: .9; }
+  100% { opacity: 0; }
+}
+.camera-guide-frame {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  aspect-ratio: 3/4;
+  border: 2px dashed rgba(255,255,255,.4);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.camera-guide-hint {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,.7);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.6;
+}
+.camera-controls {
+  position: absolute;
+  bottom: 40px;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  z-index: 10;
+}
+.camera-switch-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  font-size: var(--font-size-2xl);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.camera-switch-btn:active { transform: scale(0.90); background: rgba(255,255,255,.3); }
+.camera-shutter {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: rgba(255,255,255,.3);
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  position: relative;
+}
+.camera-shutter::after {
   content: '';
   position: absolute;
   inset: 4px;
@@ -314,158 +456,3 @@
   animation: brandIconBounce .8s var(--ease-spring) both;
   margin-bottom: 20px;
 }
-.ritual-title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: 8px;
-  animation: fadeUp .5s var(--ease-out) .3s both;
-}
-.ritual-desc {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
-  line-height: 1.7;
-  animation: fadeUp .5s var(--ease-out) .5s both;
-}
-.ritual-loader {
-  margin-top: 28px;
-  display: flex;
-  gap: 6px;
-  animation: fadeUp .5s var(--ease-out) .7s both;
-}
-.ritual-loader span {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--color-primary-light);
-  animation: ritualDot 1.2s infinite ease-in-out;
-}
-.ritual-loader span:nth-child(2) { animation-delay: .15s; }
-.ritual-loader span:nth-child(3) { animation-delay: .3s; }
-@keyframes ritualDot {
-  0%, 60%, 100% { opacity: .2; transform: scale(0.8); }
-  30% { opacity: 1; transform: scale(1.2); }
-}
-
-/* ── 首页迎接状态（首次进入动画） ── */
-.welcome-animate .header {
-  animation: fadeUp .5s var(--ease-out) both;
-}
-.welcome-animate .greeting {
-  animation: fadeUp .5s var(--ease-out) .1s both;
-}
-.welcome-animate .theme-today {
-  animation: fadeUp .5s var(--ease-out) .2s both;
-}
-.welcome-animate .theme-library {
-  animation: fadeUp .5s var(--ease-out) .25s both;
-}
-.welcome-animate .guide-text {
-  animation: fadeUp .5s var(--ease-out) .3s both;
-}
-.welcome-animate .main-action {
-  animation: fadeUp .5s var(--ease-out) .4s both;
-}
-
-/* ═══ 社区页面 ═══════════════════════════════════════ */
-.community-header {
-  text-align: center;
-  padding: 30px 20px 16px;
-}
-.community-title {
-  font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 6px;
-}
-.community-sub {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-.community-feed {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
-  padding: 0 3px 80px;
-}
-.community-item {
-  aspect-ratio: 1;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  border-radius: 4px;
-  background: var(--color-bg-subtle);
-  animation: fadeIn .3s ease;
-}
-.community-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform .2s;
-}
-.community-item:active img {
-  transform: scale(0.96);
-}
-.community-likes {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  background: rgba(0,0,0,.55);
-  color: #fff;
-  font-size: var(--font-size-xs);
-  padding: 2px 6px;
-  border-radius: 10px;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-}
-.community-loading {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60px 0;
-}
-.community-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 60px 24px;
-}
-.community-empty-icon {
-  font-size: var(--font-size-6xl);
-  margin-bottom: 12px;
-}
-.community-empty-title {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: 8px;
-}
-.community-empty-desc {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
-  line-height: 1.6;
-}
-
-/* ─── 社区帖子弹窗（含评论） ─── */
-.community-modal {
-  max-width: 420px;
-  max-height: 85vh;
-  height: 85vh;
-  overflow: hidden;
-  position: relative;
-}
-.community-modal img {
-  height: 38vh;
-  max-height: 38vh;
-  object-fit: cover;
-  width: 100%;
-  display: block;
-}
-.community-modal .modal-info {
-  position: absolute;
-  top: 38vh;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;

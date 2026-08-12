@@ -1,3 +1,158 @@
+.ritual-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  animation: fadeUp .5s var(--ease-out) .3s both;
+}
+.ritual-desc {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  animation: fadeUp .5s var(--ease-out) .5s both;
+}
+.ritual-loader {
+  margin-top: 28px;
+  display: flex;
+  gap: 6px;
+  animation: fadeUp .5s var(--ease-out) .7s both;
+}
+.ritual-loader span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  animation: ritualDot 1.2s infinite ease-in-out;
+}
+.ritual-loader span:nth-child(2) { animation-delay: .15s; }
+.ritual-loader span:nth-child(3) { animation-delay: .3s; }
+@keyframes ritualDot {
+  0%, 60%, 100% { opacity: .2; transform: scale(0.8); }
+  30% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── 首页迎接状态（首次进入动画） ── */
+.welcome-animate .header {
+  animation: fadeUp .5s var(--ease-out) both;
+}
+.welcome-animate .greeting {
+  animation: fadeUp .5s var(--ease-out) .1s both;
+}
+.welcome-animate .theme-today {
+  animation: fadeUp .5s var(--ease-out) .2s both;
+}
+.welcome-animate .theme-library {
+  animation: fadeUp .5s var(--ease-out) .25s both;
+}
+.welcome-animate .guide-text {
+  animation: fadeUp .5s var(--ease-out) .3s both;
+}
+.welcome-animate .main-action {
+  animation: fadeUp .5s var(--ease-out) .4s both;
+}
+
+/* ═══ 社区页面 ═══════════════════════════════════════ */
+.community-header {
+  text-align: center;
+  padding: 30px 20px 16px;
+}
+.community-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+.community-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.community-feed {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 0 3px 80px;
+}
+.community-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border-radius: 4px;
+  background: var(--color-bg-subtle);
+  animation: fadeIn .3s ease;
+}
+.community-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .2s;
+}
+.community-item:active img {
+  transform: scale(0.96);
+}
+.community-likes {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.community-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 0;
+}
+.community-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 24px;
+}
+.community-empty-icon {
+  font-size: var(--font-size-6xl);
+  margin-bottom: 12px;
+}
+.community-empty-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+.community-empty-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+}
+
+/* ─── 社区帖子弹窗（含评论） ─── */
+.community-modal {
+  max-width: 420px;
+  max-height: 85vh;
+  height: 85vh;
+  overflow: hidden;
+  position: relative;
+}
+.community-modal img {
+  height: 38vh;
+  max-height: 38vh;
+  object-fit: cover;
+  width: 100%;
+  display: block;
+}
+.community-modal .modal-info {
+  position: absolute;
+  top: 38vh;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior-y: contain;
 }
@@ -290,205 +445,3 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
-
-/* ================================================================
-   防移动端双击缩放 · v43
-   说明：iOS Safari 10+ 忽略 viewport 的 user-scalable=no（无障碍政策），
-   双击缩放必须靠 touch-action 抑制。manipulation = 允许滚动/捏合，
-   仅移除双击缩放。社区弹窗信息区保留 pan-y（纵向锁定）。
-   ================================================================ */
-* { touch-action: manipulation; }
-.community-modal .modal-info { touch-action: pan-y; }
-
-/* ================================================================
-   2.0 MVP 新增样式 · 绘心 Flow
-   ================================================================ */
-
-/* ── 创作前奏 · 静默入口仪式 ── */
-.creative-prelude {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
-}
-.creative-prelude.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 800ms var(--ease-out), visibility 0s 0s;
-}
-.creative-prelude.done {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
-}
-.creative-prelude-window {
-  width: 100%;
-  height: 100%;
-  background-color: var(--color-bg-page);
-  background-image: var(--bg-page-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-/* 暖光中心 — 呼吸感渐变 */
-.creative-prelude-window::before {
-  content: '';
-  position: absolute;
-  width: 60vw;
-  height: 60vw;
-  max-width: 280px;
-  max-height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(217, 164, 65, 0.12) 0%, rgba(201, 125, 91, 0.06) 40%, transparent 70%);
-  animation: preludeBreath 2s var(--ease-out) forwards;
-}
-/* 画笔图标 — 缓慢浮现再消散 */
-.creative-prelude-window::after {
-  content: '✏️';
-  position: absolute;
-  font-size: var(--font-size-5xl);
-  opacity: 0;
-  animation: preludeIconFloat 2s var(--ease-out) forwards;
-}
-@keyframes preludeBreath {
-  0% { opacity: 0; transform: scale(0.8); }
-  40% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.15); }
-}
-@keyframes preludeIconFloat {
-  0% { opacity: 0; transform: translateY(12px) scale(0.9); }
-  30% { opacity: 0.5; transform: translateY(0) scale(1); }
-  70% { opacity: 0.5; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-8px) scale(1.05); }
-}
-/* 首页内容在创作前奏期间隐藏 */
-body.in-prelude .header,
-body.in-prelude #page-home,
-body.in-prelude #page-timeline { visibility: hidden; }
-
-/* ── 首页顶部信息聚合栏 ── */
-.home-top-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-.home-date {
-  font-weight: 600;
-  color: var(--color-text-tertiary);
-}
-.home-greeting {
-  font-family: var(--font-body);
-  color: var(--color-text-primary);
-}
-.home-greeting span {
-  font-weight: 600;
-}
-.home-stage-tag {
-  color: var(--color-primary);
-  font-weight: 600;
-}
-.home-flow-value {
-  margin-left: auto;
-  color: var(--raw-ochre-700);
-  font-weight: 600;
-  font-size: var(--font-size-xs);
-}
-
-/* ── 画者之问 · 主入口 ── */
-.home-main-entry {
-  text-align: center;
-  padding: var(--space-xl) var(--space-md) var(--space-lg);
-}
-.home-question {
-  font-family: var(--font-display);
-  font-size: var(--font-size-4xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-sm);
-  letter-spacing: 2px;
-}
-.home-flow-hint {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
-  margin: 0 0 var(--space-xl);
-  letter-spacing: 1px;
-}
-.home-camera-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  width: 100%;
-  max-width: 320px;
-  height: 56px;
-  border: none;
-  border-radius: var(--radius-lg);
-  background: var(--color-primary);
-  color: var(--raw-white);
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: transform var(--motion-press) var(--ease-press), box-shadow var(--motion-press) var(--ease-press);
-  box-shadow: var(--shadow-lifted);
-}
-.home-camera-btn:active {
-  transform: scale(0.97);
-  box-shadow: var(--shadow-card);
-}
-.home-camera-icon {
-  font-size: var(--font-size-2xl);
-}
-.home-upload-btn {
-  display: block;
-  margin: var(--space-md) auto 0;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-md);
-  font-family: var(--font-body);
-  cursor: pointer;
-  padding: var(--space-sm) var(--space-md);
-  transition: color var(--motion-fast);
-}
-.home-upload-btn:active {
-  color: var(--color-primary);
-}
-
-/* ── 折叠灵感区 ── */
-.inspiration-toggle {
-  text-align: center;
-  padding: var(--space-md);
-  font-size: var(--font-size-md);
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  transition: color var(--motion-fast);
-  user-select: none;
-}
-.inspiration-toggle:active {
-  color: var(--color-primary);
-}
-.inspiration-toggle.expanded {
-  color: var(--color-primary);
-}
-.inspiration-area {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height var(--motion-slow) var(--ease-out), opacity var(--motion-slow) var(--ease-out);
-}
-.inspiration-area.expanded {
-  max-height: 2000px;
-  opacity: 1;
-}
-
