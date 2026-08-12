@@ -147,6 +147,59 @@ SSE 事件链：`first_impression` → `orchestrator_start` → 每个 Agent 各
 
 MIT 协议，欢迎复用与二次开发。
 
+## 快速复用示例
+
+**零成本复用（纯本地逻辑，不需要 LLM API）**：评估 Agent 和记忆 Agent 不调用任何外部 API，可独立接入你的项目。
+
+```python
+from agents import evaluation, memory
+
+# 感知结果（VLM 分析），你可以替换成自己的数据
+perception_result = {
+    "dimensions": {"edge": 6, "space": 5, "proportion": 6, "light": 3, "whole": 6},
+    "identified_subject": "风景",
+    "breakthrough_dim": "edge",
+}
+
+# 评估 Agent：对比历史 → 技能诊断 + 进步/退步判断（空历史 = 首张画作基线）
+evaluation_result = evaluation.run(perception_result, history_records=[], stage="beginner")
+
+# 记忆 Agent：更新画者画像 → 探索进度 +1、身份标签更新
+profile = {"name": "小伙伴", "exploration": {"progress": 0, "explored_areas": {}}}
+memory_context = memory.run(perception_result, evaluation_result, profile)
+print(memory_context["updated_profile"]["exploration"]["progress"])  # → 1
+```
+
+**完整编排器（SSE 事件流，需要 LLM API）**：
+
+```python
+from pathlib import Path
+from orchestrator import run
+
+profile = {"name": "小伙伴", "exploration": {"progress": 0, "explored_areas": {}}}
+record_context = {"record_id": "demo-001", "image_relpath": "demo.jpg", "timestamp": "2026-08-12", "note": "", "theme": "风景"}
+
+for event in run(Path("demo.jpg"), profile, [], record_context):
+    print(event.decode())
+# data: {"type":"first_impression","message":"小绘正在仔细看你的画…"}
+# data: {"type":"agent_done","agent":"perception","summary":"识别到：风景 + edge突出",...}
+# data: {"type":"layer","layer":{"type":"encourage",...}}
+# data: {"type":"complete","record":{...}}
+```
+
+**真实样例输出**（VLM 五维感知 + 探索进度）：
+
+```json
+{
+  "perception_analysis": {"edge": 6, "space": 5, "proportion": 6, "light": 3, "whole": 6},
+  "breakthrough_dim": "edge",
+  "identity_statement": "你开始记录眼前广阔的世界",
+  "exploration": {"progress": 1, "area": "风景", "explored_areas": {"风景": 1}}
+}
+```
+
+> 完整数据结构见 [`painter-schema.json`](./painter-schema.json)（画者画像开放标准）。
+
 ## API 接口草稿
 
 | 方法 | 路径 | 说明 |
