@@ -1,0 +1,14 @@
+# 环境变量（含 API Key，绝不提交）
+.env
+
+# 本地数据（用户画像 / 画作记录 / 分享图 / 本地素材库）
+data/
+data/master_kb/
+
+# Python
+__pycache__/
+*.pyc
+*.bak_*
+
+# macOS
+.DS_Store

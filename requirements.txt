@@ -1,0 +1,6 @@
+# 绘心 Flow · Python 依赖
+Flask>=3.0
+flask-cors>=4.0
+openai>=1.0
+python-dotenv>=1.0
+pillow>=10.0

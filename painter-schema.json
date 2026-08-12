@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/painter-schema.json",
+  "title": "画者画像 Schema (Painter Profile Schema)",
+  "description": "绘心 Flow 的画者画像数据结构。用于多 Agent 绘画陪伴系统：记忆 Agent 读写该画像，跨画作累积感知（五维技能雷达）、探索进度（累积式，永不减）、自我叙事（身份标签与自传）与心流状态（心流银行）。MIT License 开放复用。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name", "level", "interest", "goal", "onboarding_done", "onboarding_at",
+    "recommendation_index", "path", "exploration", "skill_radar",
+    "identity_labels", "autobiography_chapters", "flow_bank"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "画者称呼。默认『小伙伴』，随 Onboarding 可自定义。"
+    },
+    "level": {
+      "type": ["string", "null"],
+      "enum": [null, "beginner", "intermediate", "advanced"],
+      "description": "自报绘画水平（Onboarding 填写）。null = 未填。"
+    },
+    "interest": {
+      "type": ["string", "null"],
+      "description": "感兴趣的绘画方向（Onboarding 填写）。"
+    },
+    "goal": {
+      "type": ["string", "null"],
+      "description": "绘画目标（Onboarding 填写），记忆 Agent 用于激励话术。"
+    },
+    "onboarding_done": {
+      "type": "boolean",
+      "description": "是否完成首次引导。"
+    },
+    "onboarding_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "完成引导的时间戳。"
+    },
+    "recommendation_index": {
+      "type": "integer",
+      "description": "今日主题推荐游标（顺序推进主题库）。"
+    },
+    "path": {
+      "type": "string",
+      "enum": ["creation", "observation", "master"],
+      "description": "成长路径取向：creation=自由创作 / observation=观察练习 / master=大师临摹。"
+    },
+    "exploration": {
+      "type": "object",
+      "description": "探索进度——累积式机制核心。每次完成画作 = 探索 +1，永不扣分。首次探索新方向触发成就与正强化。explored_areas 的方向分类体系为未来个人创作图谱（Obsidian 式）的节点类型。",
+      "required": ["progress", "explored_areas", "first_explorations"],
+      "properties": {
+        "progress": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "探索进度（累计，永不减）。每次完成画作 +1。"
+        },
+        "explored_areas": {
+          "type": "object",
+          "description": "已探索方向及其计数（复赛地图的数据底座）。方向枚举：动物 / 植物 / 人物 / 静物 / 风景 / 建筑 / 想象 / 抽象 / 其他。",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "first_explorations": {
+          "type": "array",
+          "description": "首次探索里程碑（每次首次探索新方向时追加一条）。",
+          "items": {
+            "type": "object",
+            "required": ["area", "record_id", "timestamp"],
+            "properties": {
+              "area": { "type": "string", "description": "首次探索的方向名称。" },
+              "record_id": { "type": "string", "description": "关联画作记录 ID。" },
+              "timestamp": { "type": "string", "format": "date-time", "description": "首次探索时间。" }
+            }
+          }
+        }
+      }
+    },
+    "skill_radar": {
+      "type": "object",
+      "description": "五维技能雷达（基于 VLM 感知结果），每维度含当前分、趋势与历史。",
+      "required": ["edge", "space", "proportion", "light", "whole"],
+      "properties": {
+        "edge":       { "$ref": "#/definitions/skillDimension", "description": "边缘（Edge）观察力。" },
+        "space":      { "$ref": "#/definitions/skillDimension", "description": "空间（Space）关系。" },
+        "proportion": { "$ref": "#/definitions/skillDimension", "description": "比例（Proportion）控制。" },
+        "light":      { "$ref": "#/definitions/skillDimension", "description": "光影（Light）理解。" },
+        "whole":      { "$ref": "#/definitions/skillDimension", "description": "整体（Whole）构图。" }
+      }
+    },
+    "identity_labels": {
+      "type": "array",
+      "description": "身份标签——叙事身份重塑。画者获得的不只是分数，而是可累积的身份认同（如『观察型画者』）。",
+      "items": {
+        "type": "object",
+        "required": ["label", "description", "earned_at", "source", "stage"],
+        "properties": {
+          "label": { "type": "string", "description": "身份标签名，如『观察型画者』。" },
+          "description": { "type": "string", "description": "标签含义的一句话解释。" },
+          "earned_at": { "type": "string", "format": "date-time", "description": "获得时间。" },
+          "source": { "type": "string", "enum": ["perception", "evaluation", "memory", "synthesis"], "description": "授予来源 Agent。" },
+          "stage": { "type": "string", "description": "授予时的成长阶段（新手期/入门期/成长期/进阶期/熟练期）。" }
+        }
+      }
+    },
+    "autobiography_chapters": {
+      "type": "array",
+      "description": "画者自传章节——把零散画作连成叙事线，每次创作追加一章，长期形成『我的绘画人生』。",
+      "items": {
+        "type": "object",
+        "required": ["title", "summary", "record_id", "created_at"],
+        "properties": {
+          "title": { "type": "string", "description": "章节标题。" },
+          "summary": { "type": "string", "description": "本章叙事摘要（画了什么、状态如何、有何成长）。" },
+          "record_id": { "type": "string", "description": "关联画作记录 ID。" },
+          "created_at": { "type": "string", "format": "date-time", "description": "章节创建时间。" }
+        }
+      }
+    },
+    "flow_bank": {
+      "type": "object",
+      "description": "心流银行——把沉浸创作时长与连续心流累积为可查看的『储蓄』，鼓励投入而非结果。",
+      "required": ["total_flow_minutes", "best_streak_flow", "flow_history"],
+      "properties": {
+        "total_flow_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "累计心流时长（分钟）。"
+        },
+        "best_streak_flow": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "历史最佳连续心流次数。"
+        },
+        "flow_history": {
+          "type": "array",
+          "description": "每次创作的心流记录（时长/状态/画作 ID）。",
+          "items": {
+            "type": "object",
+            "required": ["duration_minutes", "record_id", "timestamp"],
+            "properties": {
+              "duration_minutes": { "type": "integer", "minimum": 0, "description": "本次心流时长（分钟）。" },
+              "record_id": { "type": "string", "description": "关联画作记录 ID。" },
+              "timestamp": { "type": "string", "format": "date-time", "description": "记录时间。" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "skillDimension": {
+      "type": "object",
+      "required": ["score", "trend", "history"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "当前五维得分（1-10）。"
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["up", "down", "stable"],
+          "description": "趋势：up=进步 / down=退步（不惩罚，映射为成长故事）/ stable=持平。"
+        },
+        "history": {
+          "type": "array",
+          "description": "历史得分（按创作顺序追加，用于进步对比）。",
+          "items": { "type": "integer", "minimum": 1, "maximum": 10 }
+        }
+      }
+    }
+  }
+}

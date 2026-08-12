@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#C97D5B">
+<link rel="manifest" href="/manifest.json">
+<title>绘心 Flow</title>
+<link rel="stylesheet" href="static/css/style.css?v=20260809v22">
+</head>
+<body class="booting">
+
+<!-- ─── 过渡仪式（onboarding 完成后 → 首页） ─── -->
+<div id="ritualOverlay" class="ritual-overlay">
+  <div class="ritual-icon" id="ritualIcon">🎨</div>
+  <div class="ritual-title" id="ritualTitle">准备好了！</div>
+  <div class="ritual-desc" id="ritualDesc">小绘正在为你准备今日主题...</div>
+  <div class="ritual-loader"><span></span><span></span><span></span></div>
+</div>
+
+<!-- ─── Onboarding（全屏页面切换，非弹窗） ─── -->
+<div id="onboardingOverlay" class="onboarding-overlay">
+  <div class="onboarding">
+    <div class="ob-brand">
+      <div class="ob-brand-icon">✏️</div>
+      <div class="ob-brand-title">绘心 Flow</div>
+      <div class="ob-brand-sub">纸笔 × 手机 × AI 画友</div>
+    </div>
+    <div id="obContent" class="ob-content" style="text-align:center;"></div>
+    <div style="margin-top:var(--space-xl);text-align:center;font-size:12px;color:var(--color-text-tertiary);line-height:1.6;">
+      你的名字仅用于本地保存，不会上传到任何服务器。
+    </div>
+  </div>
+</div>
+
+<!-- Path Select removed in v3.0 — only creation mode -->
+
+<!-- ─── Header ─── -->
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;position:relative;width:100%;max-width:460px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <h1 onclick="switchTab('home')">✏️ 绘心 <span class="logo-craft">Flow</span></h1>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 创作前奏 (2.0 MVP) ─── -->
+<div id="creativePrelude" class="creative-prelude">
+  <div class="creative-prelude-window"></div>
+</div>
+
+<!-- ─── Page: Home ─── -->
+<div id="page-home" class="page active">
+
+  <!-- 2.0 顶部信息聚合栏 -->
+  <div class="home-top-bar">
+    <span id="homeDate" class="home-date"></span>
+    <span class="home-greeting">你好，<span id="homeUserName">画者</span></span>
+    <span id="homeStage" class="home-stage-tag"></span>
+    <span id="homeFlowValue" class="home-flow-value"></span>
+  </div>
+
+  <!-- 保留旧 greeting 元素（其他 JS 依赖，隐藏不显示） -->
+  <div class="greeting" style="display:none;">
+    <div class="hi"><span id="greetingText">你好</span>，<span id="greetingName" class="name">小伙伴</span></div>
+    <div id="greetingRight" class="greeting-right">
+      <div id="streakBadge" class="streak-badge"></div>
+    </div>
+  </div>
+
+  <!-- 欢迎回来独立页面（仅老用户刷新/重新进入时显示） -->
+<div id="welcomeBackPage" class="welcome-back-page">
+  <div class="wbp-inner">
+    <div class="wbp-icon" id="wbpIcon">🎨</div>
+    <div class="wbp-title" id="wbpTitle"></div>
+    <div class="wbp-quote" id="wbpQuote"></div>
+    <button class="wbp-btn" onclick="dismissWelcomeBack()">开始画画</button>
+  </div>
+</div>
+
+  <!-- 2.0 方案A：画者之问 — 主入口 -->
+  <div class="home-main-entry">
+    <h2 class="home-question">你画了什么？</h2>
+    <p class="home-flow-hint">纸上画画 → 拍下来 → AI 反馈</p>
+    <button class="home-camera-btn" onclick="openCamera()">
+      <span class="home-camera-icon">📸</span>
+      <span class="home-camera-text">拍下来给我看</span>
+    </button>
+    <button class="home-upload-btn" onclick="openUpload()">📁 从相册选择</button>
+  </div>
+
+  <!-- 2.0 折叠灵感区 -->
+  <div id="inspirationToggle" class="inspiration-toggle" onclick="toggleInspiration()">
+    想不出画什么？展开灵感
+  </div>
+  <div id="inspirationArea" class="inspiration-area">
+
+  <!-- 今日主题卡片（对齐原型设计） -->
+  <div id="themeToday" class="theme-today card paper-layer">
+    <div class="theme-today-head">
+      <span class="theme-today-label">✨ 今日推荐</span>
+      <button class="theme-change-btn" id="themeChangeBtn" onclick="changeTodayTheme()">
+        <span class="change-icon">🔄</span> 换一换
+      </button>
+    </div>
+    <div class="theme-today-body">
+      <div class="theme-today-icon" id="themeTodayIcon">☕</div>
+      <div class="theme-today-info">
+        <div class="theme-today-title" id="themeTodayTitle">画一个杯子</div>
+        <div class="theme-today-hint" id="themeTodayHint">圆柱体加弧线把手，从最简单的形状开始</div>
+        <div class="theme-today-tags" id="themeTodayTags">
+          <span class="theme-tag easy">入门</span>
+          <span class="theme-tag cat">日常物品</span>
+        </div>
+      </div>
+    </div>
+    <div class="theme-start-row">
+      <button class="theme-start-btn" onclick="openCamera()">📸 拍照</button>
+      <button class="theme-upload-btn" onclick="openUpload()">📁 相册</button>
+    </div>
+  </div>
+
+  <!-- 主题库（难度分级 + 选择） -->
+  <div class="theme-library card paper-layer">
+    <div class="theme-library-head">
+      <span class="theme-library-title">🎨 主题库</span>
+      <span class="theme-library-sub">选一个想画的主题</span>
+    </div>
+    <!-- 难度 Tab -->
+    <div class="theme-tabs">
+      <button class="theme-tab active beginner" data-diff="beginner" onclick="switchThemeTab('beginner')">🌱 入门</button>
+      <button class="theme-tab intermediate" data-diff="intermediate" onclick="switchThemeTab('intermediate')">🖌️ 进阶</button>
+      <button class="theme-tab advanced" data-diff="advanced" onclick="switchThemeTab('advanced')">🏆 挑战</button>
+    </div>
+    <!-- 主题列表（由 JS 动态渲染） -->
+    <div id="themeGrid" class="theme-list"></div>
+    <div class="theme-library-footer">
+      点击主题可直接切换今日推荐
+    </div>
+  </div>
+
+  </div><!-- /inspiration-area -->
+
+  <!-- 引导文字（仅无画作记录时显示） -->
+  <div id="guideText" class="guide-text">
+    <div class="guide-tips">
+      💡 拍照小提示：手机从正上方平行对准纸面，光线充足，画作尽量占满取景框
+    </div>
+  </div>
+
+  <!-- 2.0 底部：探索进度 + 最近作品 -->
+  <div class="home-bottom-bar">
+    <div id="homeExplorationBarContainer"></div>
+    <div id="recentWorks" class="recent-works"></div>
+  </div>
+
+<!-- 底部小提示已移除 -->
+
+  <!-- ═══ 共享元素（两个模式都使用） ═══ -->
+
+  <!-- Preview + Upload -->
+  <div id="previewSection" class="card preview-confirm hidden">
+    <div class="preview-confirm-tag">✓ 拍到了</div>
+    <div class="preview-confirm-photo">
+      <img id="previewImg" src="" alt="我的画">
+    </div>
+    <div class="preview-quality" id="previewQuality"></div>
+    <div class="preview-confirm-hint">确认提交后，小绘会仔细看看这幅画</div>
+    <div class="preview-confirm-actions">
+      <button class="btn btn-secondary btn-md" onclick="cancelPreview()">重拍</button>
+      <button class="btn btn-primary btn-md" onclick="submitDrawing()">提交画作</button>
+    </div>
+  </div>
+
+  <!-- 拍照后的照片展示（提交后保留在顶部） -->
+  <div id="submittedPhoto" class="card hidden" style="padding:0;overflow:hidden;">
+    <img id="submittedPhotoImg" src="" alt="我的画" style="width:100%;display:block;">
+  </div>
+
+  <!-- ─── 绘画重现动画 (2.0 MVP) ─── -->
+  <div id="replayContainer" class="replay-container"></div>
+
+  <!-- Spinner（旧版 Fallback） -->
+  <div id="spinner" class="spinner">
+    <span class="spinner-dot"></span>
+    <span class="spinner-dot"></span>
+    <span class="spinner-dot"></span>
+    <div class="spinner-text">AI 正在看你的画...</div>
+  </div>
+
+  <!-- 等待陪伴动画（v3.1，替换 spinner） -->
+  <div id="waitingArea" class="waiting-area">
+    <!-- JS 动态填入等待文案 -->
+  </div>
+
+  <!-- Enhanced Feedback v3.1（5层结构 + 里程碑 + 深度指示器） -->
+  <div id="feedbackEnhanced" class="card feedback-section">
+    <div class="feedback-header">
+      <span class="avatar">🧑‍🎨</span>
+      <div class="ai-header-text">
+        <span class="ai-name" id="aiNameEnhanced">小绘</span>
+        <span class="ai-subtitle" id="aiSubtitleEnhanced">仔细看了你的画，有些想说的</span>
+      </div>
+      <span class="elapsed" id="elapsedBadgeEnhanced"></span>
+    </div>
+    <div id="fbDepthLayer"></div>
+    <div id="fbLayersContainer"></div>
+    <!-- 2.0 新增：身份确认语（identify 层渲染后自动填入） -->
+    <div id="identityStatementSlot" class="identity-statement-slot"></div>
+
+    <!-- 2.0 新增：五维感知雷达图（归位至反馈流内部） -->
+    <div id="radarChartContainer" class="radar-chart-container" style="display:none;"></div>
+
+    <!-- 2.0 新增：探索进度条（归位至反馈流内部） -->
+    <div id="explorationBarContainer" class="exploration-bar-container" style="display:none;"></div>
+
+    <!-- 2.0 新增：心流银行储蓄罐 -->
+    <div id="flowBankSlot" class="flow-bank-slot"></div>
+
+    <!-- 2.0 新增：档案归档 pill -->
+    <div id="archivePillSlot" class="archive-pill-slot"></div>
+
+    <div id="milestoneSlot"></div>
+  </div>
+
+  <!-- 反思交互 -->
+  <div id="reflectionArea" class="reflection-area">
+    <div class="reflection-prompt">
+      <div class="r-question">✍️ 这次画得最满意的地方是？</div>
+      <div class="r-quick-options" id="reflectionQuickOptions">
+        <button class="r-quick-btn" onclick="selectQuickReflection(this, '这次形状抓得比较准')">🎯 形状抓得准</button>
+        <button class="r-quick-btn" onclick="selectQuickReflection(this, '线条比上次流畅了')">〰️ 线条更流畅</button>
+        <button class="r-quick-btn" onclick="selectQuickReflection(this, '今天特别有感觉')">🎨 今天有感觉</button>
+        <button class="r-quick-btn r-quick-custom" onclick="showCustomReflection()">✏️ 自己写</button>
+      </div>
+      <!-- 确认发送条 -->
+      <div id="reflectionConfirm" class="r-confirm-bar" style="display:none;">
+        <span class="r-confirm-text" id="rConfirmText">已选：</span>
+        <button class="r-confirm-btn" onclick="confirmReflection()">✓ 确认发送</button>
+      </div>
+      <div class="r-row r-custom-row" id="reflectionCustomRow" style="display:none;">
+        <input class="r-input" id="reflectionInput" type="text" placeholder="说说这次画得最满意的地方" maxlength="200">
+        <button class="r-send" onclick="sendReflection()">记录</button>
+      </div>
+    </div>
+    <div id="reflectionResponse" class="reflection-response">
+      <div id="reflectionReply"></div>
+    </div>
+  </div>
+
+  <!-- 操作按钮（延迟出现） -->
+  <div id="fbActions" class="fb-actions">
+    <div class="fb-section-title">📌 接下来想做什么？</div>
+    <div class="action-btns" id="actionBtnsContainer"></div>
+  </div>
+
+  <!-- 旧版 Feedback（向后兼容） -->
+  <div id="feedback" class="card feedback-section">
+    <div class="feedback-header">
+      <span class="avatar">🧑‍🎨</span>
+      <span id="aiName" class="ai-name"></span>
+      <span id="elapsedBadge" class="elapsed"></span>
+    </div>
+    <div id="milestoneSlotLegacy"></div>
+    <div id="feedbackContent" class="feedback-content"></div>
+  </div>
+
+  <!-- Next recommendation after feedback -->
+  <div id="nextRec" class="card feedback-section" style="padding:14px;">
+    <div class="next-rec-label">💡 下次试试</div>
+    <div id="nextRecText" class="next-rec-text"></div>
+  </div>
+
+  <!-- Hidden inputs -->
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="uploadInput" accept="image/*" style="display:none">
+
+  <!-- Hidden Canvas for share image -->
+  <canvas id="shareCanvas" style="display:none;"></canvas>
+
+  <!-- Error -->
+  <div id="error" class="error"></div>
+</div>
+
+<!-- ─── Page: Timeline ─── -->
+<div id="page-timeline" class="page">
+  <div id="timelineList" class="timeline list-stagger"></div>
+</div>
+
+<!-- ─── Page: Community ─── -->
+<div id="page-community" class="page">
+  <div class="community-header">
+    <div class="community-title">🌍 社区</div>
+    <div class="community-sub">看看大家的画作，一起进步</div>
+  </div>
+  <div id="communityFeed" class="community-feed"></div>
+</div>
+
+<!-- ─── Bottom Navigation ─── -->
+<div class="bottom-nav">
+  <button id="tab-home" class="active" onclick="switchTab('home')">
+    <span class="icon">🏠</span>首页
+  </button>
+  <button id="tab-timeline" onclick="switchTab('timeline')">
+    <span class="icon">📖</span>记录
+  </button>
+  <button id="tab-community" onclick="switchTab('community')">
+    <span class="icon">🌍</span>社区
+  </button>
+  <span class="reset-link" onclick="resetAllData()">重置</span>
+</div>
+
+<!-- ─── 记录详情页（独立页面，非弹窗——分享才是弹窗） ─── -->
+<div id="recordDetailPage" class="record-detail-page">
+  <div class="rd-topbar">
+    <button class="rd-back" onclick="closeModal()">‹ 返回</button>
+    <span class="rd-title">画作详情</span>
+    <button class="btn-share rd-share" onclick="shareCurrentRecord()" title="生成分享图" aria-label="生成分享图">
+      <svg class="share-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="modal rd-body" onclick="event.stopPropagation()">
+    <img id="modalImg" src="" alt="">
+    <div class="modal-info">
+      <div id="modalHeader" class="modal-header"></div>
+      <div id="modalFeedback" class="modal-feedback"></div>
+      <!-- 2.0 组件容器 -->
+      <div id="modalIdentitySlot" class="identity-statement-slot"></div>
+      <div id="modalRadarChart" class="radar-chart-container" style="display:none;"></div>
+      <div id="modalExplorationBar" class="exploration-bar-container" style="display:none;"></div>
+      <div id="modalFlowBank" class="flow-bank-slot"></div>
+      <div id="modalArchivePill" class="archive-pill-slot"></div>
+      <div id="modalReflection" style="display:none;"></div>
+      <div id="modalNowReview" style="display:none;"></div>
+      <div id="modalMilestone" style="display:none;"></div>
+      <div id="modalDeleteSection" class="modal-delete-section">
+        <button class="btn-delete-record" onclick="confirmDeleteRecord()">🗑️ 删除这张画</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- refModal removed in v3.0 -->
+
+<!-- bossModal / bossResultModal removed in v3.0 (Phase 2) -->
+
+<!-- masterModal removed in v3.0 (Phase 2) -->
+
+<!-- ─── 自定义确认弹窗（替代系统 confirm） ─── -->
+<div id="confirmOverlay" class="confirm-overlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-dialog">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">确认操作</div>
+    <div class="confirm-desc" id="confirmDesc"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-md btn-cancel" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-md btn-danger" id="confirmOkBtn">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 应用内相机拍摄页 ─── -->
+<div id="cameraOverlay" class="camera-overlay">
+  <!-- 拍摄模式 -->
+  <div id="cameraShootView" class="camera-video-wrap">
+    <div class="camera-header">
+      <button class="camera-close-btn" onclick="closeCamera()">✕</button>
+      <span class="cam-title">📸 拍下我的画</span>
+      <span class="camera-placeholder"></span>
+    </div>
+    <video id="cameraVideo" class="camera-video" autoplay playsinline></video>
+    <div class="camera-flash" id="cameraFlash"></div>
+    <div class="camera-guide-frame"></div>
+    <div class="camera-guide-hint">把画作对准虚线框<br>从正上方平行拍摄效果最好</div>
+    <div class="camera-controls">
+      <span class="camera-placeholder"></span>
+      <button class="camera-shutter" id="cameraShutter" onclick="capturePhoto()"></button>
+      <button class="camera-switch-btn" onclick="switchCamera()">🔄</button>
+    </div>
+  </div>
+  <!-- 预览模式 -->
+  <div id="cameraPreviewView" class="camera-preview-wrap" style="display:none;">
+    <div class="camera-header" style="position:absolute;top:0;left:0;right:0;">
+      <button class="camera-close-btn" onclick="closeCamera()">✕</button>
+      <span class="cam-title">预览</span>
+      <span class="camera-placeholder"></span>
+    </div>
+    <img id="cameraPreviewImg" class="camera-preview-img" src="" alt="预览">
+    <div class="camera-quality" id="cameraQuality"></div>
+    <div class="camera-preview-actions">
+      <button class="btn btn-md btn-secondary" onclick="retakePhoto()">🔄 重拍</button>
+      <button class="btn btn-md btn-primary" onclick="confirmPhoto()">✅ 用这张</button>
+    </div>
+  </div>
+  <!-- 错误模式 -->
+  <div id="cameraErrorView" class="camera-error" style="display:none;">
+    <div class="err-icon">📷</div>
+    <div>无法访问摄像头<br>请检查浏览器权限设置，或使用上传方式</div>
+    <button class="err-btn" onclick="fallbackToUpload()">📁 从相册选择</button>
+  </div>
+</div>
+
+<!-- 画作分享卡模板（隐藏，用于生成分享图） -->
+<div id="shareCardTemplate" style="position:fixed; left:-9999px; top:0; z-index:-1; overflow:hidden; width:0; height:0;">
+  <div id="shareCard" class="share-card">
+    <div class="share-card-brand">
+      <span class="share-card-logo">✏️ 绘心 Flow</span>
+      <span class="share-card-date" id="shareCardDate">2026年7月31日</span>
+    </div>
+    <div class="share-card-streak" id="shareCardStreak" style="display:none;">
+      <span class="streak-flame">🔥</span>
+      <span class="streak-days" id="shareCardStreakDays">0</span>
+      <span class="streak-label">天</span>
+    </div>
+    <div class="share-card-image-wrap">
+      <img id="shareCardImg" src="" alt="">
+    </div>
+    <div class="share-card-divider"></div>
+    <div class="share-card-feedback" id="shareCardFeedback"></div>
+    <div class="share-card-footer">
+      纸笔 × 手机 × AI 画友 · 每天画一点
+    </div>
+  </div>
+</div>
+
+<!-- 分享图预览弹窗 -->
+<div id="sharePreviewOverlay" class="share-preview-overlay" onclick="if(event.target===this)closeSharePreview()">
+  <div class="share-preview-dialog">
+    <button class="share-preview-close" onclick="closeSharePreview()">✕</button>
+    <div class="share-preview-title"><span class="title-emoji">🎨</span> 分享我的画</div>
+    <div class="share-preview-img-wrap">
+      <img id="sharePreviewImg" src="" alt="分享预览">
+    </div>
+    <div class="share-preview-actions">
+      <button class="btn btn-primary btn-lg" id="shareCommunityBtn" onclick="shareToCommunityFromPreview()">
+        <span>🌍</span>
+        <span>分享到社区</span>
+      </button>
+    </div>
+    <div class="share-preview-tip">👆 长按图片可分享给微信好友 / 保存到相册</div>
+  </div>
+</div>
+
+<!-- ─── 模块化加载（顺序：依赖基础 → 功能域） ─── -->
+<script src="static/js/imagetracer.js?v=20260809v1"></script>
+<script src="static/js/state.js?v=20260809v20"></script>
+<script src="static/js/onboarding.js?v=20260809v20"></script>
+<script src="static/js/themes.js?v=20260809v20"></script>
+<script src="static/js/camera.js?v=20260809v20"></script>
+<script src="static/js/replay.js?v=20260809v3"></script>
+<script src="static/js/radar-chart.js?v=20260809v2"></script>
+<script src="static/js/exploration-bar.js?v=20260812v1"></script>
+<script src="static/js/feedback.js?v=20260809v22"></script>
+<script src="static/js/timeline.js?v=20260809v22"></script>
+<script src="static/js/community.js?v=20260809v20"></script>
+<script src="static/js/share.js?v=20260809v20"></script>
+<script src="static/js/home.js?v=20260809v1"></script>
+</body>
+</html>
