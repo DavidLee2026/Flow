@@ -203,7 +203,7 @@ MASTER_TO_REC = {}  # master_name → 第一条作品的图片 URL
 for m_name, m_data in MASTER_INDEX.items():
     if m_data["works"]:
         MASTER_TO_REC[m_name] = m_data["works"][0]["url"]
-# ── 内置推荐知识库（待 TRAE 生成百科后替换为文件查询）────
+# ── 内置推荐知识库（知识库目录生成后替换为文件查询）────
 
 RECOMMENDATION_POOL = [
     # ── Lv.1 新手 ──
