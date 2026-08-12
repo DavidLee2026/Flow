@@ -19,6 +19,7 @@ from config import (
     MASTER_DIR,
 )
 
+
 def log_event(event: str, metadata: dict = None):
     """记录用户行为事件"""
     events = []
@@ -46,16 +47,16 @@ def get_funnel_stats() -> dict:
 
     # 完整用户旅程漏斗定义
     funnel_sequence = [
-        ("onboarding_start",       "① 看到引导页"),
-        ("onboarding_complete",    "② 完成引导"),
-        ("page_home",              "③ 看到首页"),
-        ("recommendation_viewed",  "④ 看到今日推荐"),
-        ("growth_entry_clicked",   "⑤ 点击进入成长"),
-        ("page_growth",            "⑥ 进入成长页面"),
-        ("stage_detail_viewed",    "⑦ 查看关卡详情"),
-        ("camera_opened",          "⑧ 打开相机"),
-        ("image_uploaded",         "⑨ 上传画作"),
-        ("ai_feedback_viewed",     "⑩ 看到 AI 反馈"),
+        ("onboarding_start", "① 看到引导页"),
+        ("onboarding_complete", "② 完成引导"),
+        ("page_home", "③ 看到首页"),
+        ("recommendation_viewed", "④ 看到今日推荐"),
+        ("growth_entry_clicked", "⑤ 点击进入成长"),
+        ("page_growth", "⑥ 进入成长页面"),
+        ("stage_detail_viewed", "⑦ 查看关卡详情"),
+        ("camera_opened", "⑧ 打开相机"),
+        ("image_uploaded", "⑨ 上传画作"),
+        ("ai_feedback_viewed", "⑩ 看到 AI 反馈"),
     ]
 
     total_users = 1  # 至少1个用户
@@ -82,6 +83,8 @@ def get_funnel_stats() -> dict:
         "total_events": len(events),
         "total_users": total_users,
     }
+
+
 # ── 练习参考图 ────
 RECOMMENDATION_IMAGES = {}
 _rec_img_file = DATA_DIR / "recommendation_images.json"
@@ -166,9 +169,9 @@ def parse_master_files() -> dict:
             lp_section = re.search(r"\*\*临摹学什么\*\*[：:]\n((?:\s*[-•]\s*.+\n?)+)", sec)
             if lp_section:
                 learn_points = [
-                    re.sub(r"^[-•]\s*", "", l).strip()
-                    for l in lp_section.group(1).split("\n")
-                    if l.strip() and not l.strip().startswith("**")
+                    re.sub(r"^[-•]\s*", "", line).strip()
+                    for line in lp_section.group(1).split("\n")
+                    if line.strip() and not line.strip().startswith("**")
                 ]
 
             # 提取代表作
@@ -545,11 +548,11 @@ def _profile_defaults() -> dict:
         },
         # ── 2.0 新增：五维技能雷达 ──
         "skill_radar": {
-            "edge":       {"score": 5, "trend": "stable", "history": []},
-            "space":      {"score": 5, "trend": "stable", "history": []},
+            "edge": {"score": 5, "trend": "stable", "history": []},
+            "space": {"score": 5, "trend": "stable", "history": []},
             "proportion": {"score": 5, "trend": "stable", "history": []},
-            "light":      {"score": 5, "trend": "stable", "history": []},
-            "whole":      {"score": 5, "trend": "stable", "history": []},
+            "light": {"score": 5, "trend": "stable", "history": []},
+            "whole": {"score": 5, "trend": "stable", "history": []},
         },
         # ── 2.0 新增：身份标签（随阶段递进）──
         "identity_labels": [],
@@ -595,10 +598,10 @@ def get_drawing_stage(count: int) -> str:
 def get_milestone(total: int) -> dict | None:
     """根据总画作数，决定是否显示里程碑卡片"""
     milestones = {
-        1:  {"icon": "🎉", "title": "第一张画",
-             "message": "记住这一刻——再伟大的画家也是从第一根线开始的。"},
-        5:  {"icon": "🔥", "title": "坚持 5 张",
-             "message": "大多数人在第 3 张就放弃了，你已经超过了 70% 的人。"},
+        1: {"icon": "🎉", "title": "第一张画",
+            "message": "记住这一刻——再伟大的画家也是从第一根线开始的。"},
+        5: {"icon": "🔥", "title": "坚持 5 张",
+            "message": "大多数人在第 3 张就放弃了，你已经超过了 70% 的人。"},
         10: {"icon": "👑", "title": "10 张里程碑",
              "message": "翻看第一张和今天的对比——进步是真实存在的。"},
         25: {"icon": "💪", "title": "25 张·习惯成自然",
@@ -739,5 +742,3 @@ def get_recommendation(profile: dict, total_drawings: int) -> dict:
     }.get(rec["difficulty"], "进阶")
 
     return rec
-
-

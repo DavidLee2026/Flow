@@ -14,6 +14,7 @@ from data_store import (
 
 community_bp = Blueprint("community", __name__)
 
+
 @community_bp.route("/api/community")
 def api_community():
     """获取社区画作列表（按时间倒序）。"""

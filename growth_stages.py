@@ -615,7 +615,7 @@ if __name__ == "__main__":
     for lv in range(1, 21):
         stages = LEVEL_STAGES[lv]["stages"]
         assert len(stages) == 20, "Level {} should have 20 stages, got {}".format(lv, len(stages))
-        assert stages[-1]["is_boss"] == True, "Last stage of level {} should be boss".format(lv)
+        assert stages[-1]["is_boss"], "Last stage of level {} should be boss".format(lv)
         for i, s in enumerate(stages):
             assert s["id"] == "{}-{}".format(lv, i), "Stage id mismatch: {}".format(s["id"])
     print("All 20 levels x 20 stages = 400 stages verified!")

@@ -285,6 +285,8 @@ def api_delete_record(record_id):
     save_records(records)
     log_event("record_deleted", {"record_id": record_id})
     return jsonify({"ok": True})
+
+
 @app.route("/api/stats")
 def api_stats():
     records = load_records()
@@ -300,11 +302,11 @@ def api_stats():
     # 等级系统：基于最大连胜 + 总张数，不再纯看张数
     # 等级规则：[level, title, 达标所需 streak, 达标所需 total(备选)]
     LEVEL_RULES = [
-        (1, "探索者",     0,   1),    # 画了第 1 张
-        (2, "坚持者",     3,  10),    # 连续 3 天 or 累计 10 张
-        (3, "成长者",     7,  25),    # 连续 7 天 or 累计 25 张
-        (4, "磨炼者",    14,  50),    # 连续 14 天 or 累计 50 张
-        (5, "创作者",    30, 100),    # 连续 30 天 or 累计 100 张
+        (1, "探索者", 0, 1),    # 画了第 1 张
+        (2, "坚持者", 3, 10),    # 连续 3 天 or 累计 10 张
+        (3, "成长者", 7, 25),    # 连续 7 天 or 累计 25 张
+        (4, "磨炼者", 14, 50),    # 连续 14 天 or 累计 50 张
+        (5, "创作者", 30, 100),    # 连续 30 天 or 累计 100 张
     ]
 
     # 判断当前等级
@@ -384,6 +386,7 @@ def api_stats():
         "profile": {
             "name": profile.get("name", "小伙伴"),
             "onboarding_done": profile.get("onboarding_done", False),
+            "exploration": profile.get("exploration", {}),
         },
     })
 
@@ -610,6 +613,8 @@ def api_tracking_stats():
         "total_users": stats["total_users"],
         "recent_events": recent,
     })
+
+
 @app.route("/api/reflection", methods=["POST"])
 def api_reflection():
     """用户画完画后写下反思，AI 给予个性化的回应（SSE 流式）。
@@ -719,6 +724,8 @@ def api_reflection_tags():
         {"text": "整体感觉不错", "emoji": "✨"},
         {"text": "今天有感觉", "emoji": "🎨"},
     ]})
+
+
 @app.route("/data/<path:filename>")
 def serve_data(filename):
     resp = send_from_directory(str(DATA_DIR), filename)
@@ -732,6 +739,7 @@ def sw_js():
     resp = send_from_directory(BASE_DIR / 'static', 'sw.js', mimetype='application/javascript')
     resp.headers['Service-Worker-Allowed'] = '/'
     return resp
+
 
 @app.route('/manifest.json')
 def manifest_json():

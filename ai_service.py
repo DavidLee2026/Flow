@@ -19,6 +19,7 @@ from data_store import (
     load_profile,
 )
 
+
 def analyze_drawing(
     image_path: Path,
     history: list[str] | None = None,
@@ -512,7 +513,7 @@ def analyze_drawing_stream(
             print(f"[stream] ⚠️ 正则提取也失败: {e2}", flush=True)
 
     # 若流式提取没抓全但完整 JSON 解析出了更多层，补发遗漏的 layer 事件
-    sent_types = {l.get("type") for l in streamed_layers}
+    sent_types = {ly.get("type") for ly in streamed_layers}
     for layer in complete_layers:
         if layer.get("type") not in sent_types:
             yield _sse_event({"type": "layer", "layer": layer})
@@ -520,7 +521,7 @@ def analyze_drawing_stream(
 
     content = _layers_to_text(complete_layers, user_name) if complete_layers else raw
     elapsed_rounded = round(elapsed, 1)
-    
+
     # 2.0 新增：从完整 JSON 中提取五维感知、突破维度、探索进度、身份确认语
     perception_analysis = None
     breakthrough_dim = None
@@ -535,7 +536,7 @@ def analyze_drawing_stream(
             if layer.get("type") == "identify" and layer.get("identity_statement"):
                 identity_statement = layer["identity_statement"]
                 break
-    
+
     # milestone 计算容错：任何异常都不能中断记录保存与 complete 事件
     try:
         milestone = get_milestone(total_drawings)
@@ -576,7 +577,7 @@ def analyze_drawing_stream(
             try:
                 import traceback as _tb
                 with open("/tmp/craft_save_error.log", "a", encoding="utf-8") as _f:
-                    _f.write(f"=== {record.get('id','?')} @ {__import__('datetime').datetime.now()} ===\n")
+                    _f.write(f"=== {record.get('id', '?')} @ {__import__('datetime').datetime.now()} ===\n")
                     _f.write(_tb.format_exc() + "\n")
             except Exception:
                 pass
@@ -606,4 +607,3 @@ def analyze_drawing_stream(
         "identity_statement": identity_statement,
         "exploration": exploration,
     })
-

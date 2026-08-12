@@ -107,15 +107,13 @@ function renderHomeExplorationBarFromStats(stats) {
   const container = document.getElementById('homeExplorationBarContainer');
   if (!container) return;
 
-  // 从 records 中取最近一条的 exploration.explored_area_count，或用默认值
+  // 从 stats.profile.exploration 读取探索方向数（后端权威数据，不依赖 records 加载时序）
   let areaCount = 0;
-  const lastRecord = (window.records || []).slice(-1)[0];
-  if (lastRecord && lastRecord.exploration && lastRecord.exploration.explored_area_count !== undefined) {
-    areaCount = lastRecord.exploration.explored_area_count;
-  } else {
-    // 默认值 = 0（新用户默认 0 个方向）
-    areaCount = 0;
-  }
+  const exploration = (stats && stats.profile && stats.profile.exploration) || {};
+  const areas = exploration.explored_areas || {};
+  areaCount = exploration.explored_area_count !== undefined
+    ? exploration.explored_area_count
+    : Object.keys(areas).length;
 
   renderHomeExplorationBar(areaCount, container);
 }

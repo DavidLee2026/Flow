@@ -267,7 +267,7 @@ def _build_synthesis_prompt(
     dims = perception_result.get("dimensions", {})
     dim_str = "、".join(f"{k} {v}" for k, v in dims.items())
     observations = perception_result.get("observations", [])
-    obs_str = "\n".join(f"  {i+1}. {o}" for i, o in enumerate(observations)) if observations else "  无"
+    obs_str = "\n".join(f"  {i + 1}. {o}" for i, o in enumerate(observations)) if observations else "  无"
 
     prompt += (
         "【感知Agent 分析结果】\n"

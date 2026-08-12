@@ -1,6 +1,6 @@
 // ─── replay.js · 绘画重现动画模块 (2.0 仪式感增强版) ───
-// 依赖：imagetracer.js（纯JS图像矢量化库）
-// 功能：拍照后→灰度预处理→ImageTracer矢量化→SVG逐笔动画→仪式感收尾→SSE反馈
+// 依赖：无（纯JS骨架化，已移除 ImageTracer 依赖）
+// 功能：拍照后→灰度预处理→Zhang-Suen骨架化→中心线追踪→SVG逐笔动画→仪式感收尾→SSE反馈
 // 仪式感：金色渐变笔尖(3层光晕) + 金色渐变描边 + 笔尖呼吸 + 路径完成闪烁
 //         + 进度文字标签 + 完成脉冲圆 + 完成径向光晕 + WOW徽章 + 身份确认语
 // ─────────────────────────────────────────────────────────────
@@ -58,10 +58,12 @@ function playDrawingReplay(imageDataUrl, onComplete, opts) {
     if (onComplete) onComplete();
   }
 
-  // 超时保护：5秒后无论如何都回调
-  var timeoutMs = opts.timeout || 5000;
+  // 超时保护：8秒后无论如何都回调
+  var timeoutMs = opts.timeout || 8000;
   var safetyTimeout = setTimeout(function () {
     console.warn('[replay] 超时降级，跳过动画');
+    var c = document.getElementById('replayContainer');
+    if (c) c.classList.remove('active');
     _cleanupReplay();
     doneOnce();
   }, timeoutMs);
@@ -109,20 +111,360 @@ function playDrawingReplay(imageDataUrl, onComplete, opts) {
       _processAndAnimate(img, container, myToken, doneOnce);
     } catch (e) {
       console.error('[replay] 处理失败:', e);
+      container.classList.remove('active');
       _cleanupReplay();
       doneOnce();
     }
   };
   img.onerror = function () {
     console.error('[replay] 图片加载失败');
+    container.classList.remove('active');
     _cleanupReplay();
     doneOnce();
   };
   img.src = imageDataUrl;
 }
 
+// ════════════════════════════════════════════════════════
+// 骨架化 + 中心线提取（替代 ImageTracer 轮廓追踪）
+// 原理：Zhang-Suen 细化 → 中心线追踪 → 邻近度排序
+// 效果：沿笔迹中心线绘制，而非描边
+// ════════════════════════════════════════════════════════
+
 /**
- * 预处理图片并播放动画（保留 ImageTracer 矢量化逻辑）
+ * 移除横线（笔记本纸纹干扰）
+ * 检测水平方向上超过 40% 画布宽度的连续深色像素行，视为纸纹横线并清除
+ */
+function _removeHorizontalLines(imgd, w, h) {
+  var data = imgd.data;
+  for (var y = 0; y < h; y++) {
+    var runStart = -1;
+    for (var x = 0; x <= w; x++) {
+      var isDark = x < w && (data[(y * w + x) * 4] < 180);
+      if (isDark && runStart === -1) { runStart = x; }
+      else if (!isDark && runStart !== -1) {
+        if (x - runStart > w * 0.4) {
+          for (var xi = runStart; xi < x; xi++) {
+            data[(y * w + xi) * 4] = 255;
+            data[(y * w + xi) * 4 + 1] = 255;
+            data[(y * w + xi) * 4 + 2] = 255;
+          }
+        }
+        runStart = -1;
+      }
+    }
+  }
+}
+
+/**
+ * 将 ImageData 转为二值数组（1=前景/线条，0=背景）
+ */
+function _toBinaryArray(imgd, w, h) {
+  var data = imgd.data;
+  var binary = new Uint8Array(w * h);
+  for (var i = 0; i < w * h; i++) {
+    binary[i] = data[i * 4] < 180 ? 1 : 0;
+  }
+  return binary;
+}
+
+/**
+ * Zhang-Suen 细化算法
+ * 将所有笔迹细化到单像素宽的中心线（骨架）
+ */
+function _zhangSuenThinning(binary, w, h) {
+  var changed = true;
+  while (changed) {
+    changed = false;
+
+    // 子迭代 1
+    var toRemove = [];
+    for (var y = 1; y < h - 1; y++) {
+      for (var x = 1; x < w - 1; x++) {
+        var idx = y * w + x;
+        if (binary[idx] !== 1) continue;
+
+        var p2 = binary[(y - 1) * w + x];
+        var p3 = binary[(y - 1) * w + (x + 1)];
+        var p4 = binary[y * w + (x + 1)];
+        var p5 = binary[(y + 1) * w + (x + 1)];
+        var p6 = binary[(y + 1) * w + x];
+        var p7 = binary[(y + 1) * w + (x - 1)];
+        var p8 = binary[y * w + (x - 1)];
+        var p9 = binary[(y - 1) * w + (x - 1)];
+
+        var neighbors = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
+        if (neighbors < 2 || neighbors > 6) continue;
+
+        var transitions = 0;
+        var seq = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
+        for (var k = 0; k < 8; k++) {
+          if (seq[k] === 0 && seq[k + 1] === 1) transitions++;
+        }
+        if (transitions !== 1) continue;
+        if (p2 * p4 * p6 !== 0) continue;
+        if (p4 * p6 * p8 !== 0) continue;
+
+        toRemove.push(idx);
+      }
+    }
+    for (var i = 0; i < toRemove.length; i++) {
+      binary[toRemove[i]] = 0;
+      changed = true;
+    }
+
+    // 子迭代 2
+    toRemove = [];
+    for (var y = 1; y < h - 1; y++) {
+      for (var x = 1; x < w - 1; x++) {
+        var idx2 = y * w + x;
+        if (binary[idx2] !== 1) continue;
+
+        var p2 = binary[(y - 1) * w + x];
+        var p3 = binary[(y - 1) * w + (x + 1)];
+        var p4 = binary[y * w + (x + 1)];
+        var p5 = binary[(y + 1) * w + (x + 1)];
+        var p6 = binary[(y + 1) * w + x];
+        var p7 = binary[(y + 1) * w + (x - 1)];
+        var p8 = binary[y * w + (x - 1)];
+        var p9 = binary[(y - 1) * w + (x - 1)];
+
+        var neighbors = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
+        if (neighbors < 2 || neighbors > 6) continue;
+
+        var transitions = 0;
+        var seq = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
+        for (var k = 0; k < 8; k++) {
+          if (seq[k] === 0 && seq[k + 1] === 1) transitions++;
+        }
+        if (transitions !== 1) continue;
+        if (p2 * p4 * p8 !== 0) continue;
+        if (p2 * p6 * p8 !== 0) continue;
+
+        toRemove.push(idx2);
+      }
+    }
+    for (var i = 0; i < toRemove.length; i++) {
+      binary[toRemove[i]] = 0;
+      changed = true;
+    }
+  }
+}
+
+/**
+ * 从骨架中提取中心线路径
+ * 1. 找端点（1邻居）和交叉点（3+邻居）
+ * 2. 从端点出发追踪路径，在交叉点处停止
+ * 3. 处理闭环（无端点的路径）
+ */
+function _extractCenterlines(binary, w, h) {
+  var visited = new Uint8Array(w * h);
+  var paths = [];
+
+  function countNeighbors(x, y) {
+    var count = 0;
+    for (var dy = -1; dy <= 1; dy++) {
+      for (var dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        var nx = x + dx, ny = y + dy;
+        if (nx >= 0 && nx < w && ny >= 0 && ny < h && binary[ny * w + nx] === 1) count++;
+      }
+    }
+    return count;
+  }
+
+  function traceFrom(startX, startY) {
+    var path = [{ x: startX, y: startY }];
+    visited[startY * w + startX] = 1;
+    var cx = startX, cy = startY;
+
+    while (true) {
+      var nextX = -1, nextY = -1;
+      for (var dy = -1; dy <= 1; dy++) {
+        for (var dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          var nx = cx + dx, ny = cy + dy;
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h &&
+            binary[ny * w + nx] === 1 && !visited[ny * w + nx]) {
+            nextX = nx; nextY = ny;
+            break;
+          }
+        }
+        if (nextX !== -1) break;
+      }
+      if (nextX === -1) break;
+
+      var nCount = countNeighbors(nextX, nextY);
+      visited[nextY * w + nextX] = 1;
+      path.push({ x: nextX, y: nextY });
+      cx = nextX; cy = nextY;
+
+      if (nCount >= 3) break; // 交叉点停止
+    }
+    return path;
+  }
+
+  // 从端点出发追踪
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      if (binary[y * w + x] === 1 && !visited[y * w + x] && countNeighbors(x, y) === 1) {
+        var path = traceFrom(x, y);
+        if (path.length >= 3) paths.push(path);
+      }
+    }
+  }
+
+  // 处理闭环和剩余线段
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      if (binary[y * w + x] === 1 && !visited[y * w + x]) {
+        var path = traceFrom(x, y);
+        if (path.length >= 3) paths.push(path);
+      }
+    }
+  }
+
+  return paths;
+}
+
+/**
+ * Ramer-Douglas-Peucker 路径简化
+ * 减少点数，保留形状特征
+ */
+function _rdpSimplify(points, tolerance) {
+  if (points.length < 3) return points;
+
+  function perpDist(p, a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if (len === 0) return Math.sqrt((p.x - a.x) * (p.x - a.x) + (p.y - a.y) * (p.y - a.y));
+    return Math.abs(dy * p.x - dx * p.y + b.x * a.y - b.y * a.x) / len;
+  }
+
+  function rdp(pts, start, end, result) {
+    if (end - start < 2) return;
+    var maxDist = 0, maxIdx = 0;
+    for (var i = start + 1; i < end; i++) {
+      var d = perpDist(pts[i], pts[start], pts[end]);
+      if (d > maxDist) { maxDist = d; maxIdx = i; }
+    }
+    if (maxDist > tolerance) {
+      rdp(pts, start, maxIdx, result);
+      result.push(pts[maxIdx]);
+      rdp(pts, maxIdx, end, result);
+    }
+  }
+
+  var result = [points[0]];
+  rdp(points, 0, points.length - 1, result);
+  result.push(points[points.length - 1]);
+  return result;
+}
+
+/**
+ * 移动平均平滑
+ * 消除骨架化产生的锯齿
+ */
+function _smoothPoints(points, radius) {
+  if (points.length < 4) return points;
+  var result = [];
+  for (var i = 0; i < points.length; i++) {
+    var sx = 0, sy = 0, count = 0;
+    for (var j = Math.max(0, i - radius); j <= Math.min(points.length - 1, i + radius); j++) {
+      sx += points[j].x;
+      sy += points[j].y;
+      count++;
+    }
+    result.push({ x: sx / count, y: sy / count });
+  }
+  return result;
+}
+
+/**
+ * 点数组转 SVG path 字符串
+ */
+function _pointsToSvgPath(points) {
+  if (points.length === 0) return '';
+  var d = 'M' + points[0].x.toFixed(1) + ',' + points[0].y.toFixed(1);
+  for (var i = 1; i < points.length; i++) {
+    d += ' L' + points[i].x.toFixed(1) + ',' + points[i].y.toFixed(1);
+  }
+  return d;
+}
+
+/**
+ * 按邻近度排序路径（模拟自然绘制顺序）
+ * 从最长的路径开始，每次找离当前终点最近的下一条路径
+ */
+function _orderByProximity(paths) {
+  if (paths.length <= 1) return paths;
+
+  var remaining = paths.slice().sort(function (a, b) { return b.length - a.length; });
+  var ordered = [remaining.shift()];
+
+  while (remaining.length > 0) {
+    var last = ordered[ordered.length - 1];
+    var lastEnd = last[last.length - 1];
+    var minDist = Infinity, minIdx = 0, reverse = false;
+
+    for (var i = 0; i < remaining.length; i++) {
+      var start = remaining[i][0];
+      var end = remaining[i][remaining[i].length - 1];
+      var dStart = (start.x - lastEnd.x) * (start.x - lastEnd.x) + (start.y - lastEnd.y) * (start.y - lastEnd.y);
+      var dEnd = (end.x - lastEnd.x) * (end.x - lastEnd.x) + (end.y - lastEnd.y) * (end.y - lastEnd.y);
+      if (dStart < minDist) { minDist = dStart; minIdx = i; reverse = false; }
+      if (dEnd < minDist) { minDist = dEnd; minIdx = i; reverse = true; }
+    }
+
+    var next = remaining.splice(minIdx, 1)[0];
+    if (reverse) next.reverse();
+    ordered.push(next);
+  }
+
+  return ordered;
+}
+
+/**
+ * ImageTracer 降级方案
+ * 骨架化失败时回退到轮廓追踪
+ */
+function _imageTracerFallback(imgd, w) {
+  var traceOptions = {
+    ltres: 0.5, qtres: 0.5, pathomit: 4,
+    rightangleenhance: false,
+    colorsampling: 0, numberofcolors: 2, colorquantcycles: 1,
+    layering: 0, strokewidth: 1, linefilter: true,
+    scale: 1, roundcoords: 1, viewbox: true,
+    pal: [
+      { r: 255, g: 255, b: 255, a: 255 },
+      { r: 45, g: 35, b: 30, a: 255 }
+    ]
+  };
+
+  var svgString = ImageTracer.imagedataToSVG(imgd, traceOptions);
+  var parser = new DOMParser();
+  var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+  var allPaths = svgDoc.querySelectorAll('path');
+
+  var drawPaths = [];
+  allPaths.forEach(function (p) {
+    var fill = p.getAttribute('fill') || '';
+    if (fill === 'rgb(255,255,255)' || fill === '#ffffff' || fill === '#fff') return;
+    drawPaths.push({ d: p.getAttribute('d'), fill: fill });
+  });
+
+  if (drawPaths.length === 0) {
+    allPaths.forEach(function (p) {
+      drawPaths.push({ d: p.getAttribute('d'), fill: p.getAttribute('fill') || 'rgb(45,35,30)' });
+    });
+  }
+
+  drawPaths.sort(function (a, b) { return b.d.length - a.d.length; });
+  return drawPaths.slice(0, 40);
+}
+
+/**
+ * 预处理图片并播放动画（骨架化中心线提取）
  */
 function _processAndAnimate(img, container, myToken, doneOnce) {
   // ── 1. 降采样到大尺寸（保持质量但限制计算量） ──
@@ -149,84 +491,62 @@ function _processAndAnimate(img, container, myToken, doneOnce) {
   var imgd = ctx.getImageData(0, 0, w, h);
   _preprocessImage(imgd);
 
-  // ── 4. ImageTracer 矢量化 ──
-  var traceOptions = {
-    // 线条追踪
-    ltres: 0.5,              // 直线误差阈值（越小越精确）
-    qtres: 0.5,              // 曲线误差阈值（越小越精确）
-    pathomit: 8,             // 丢弃短于此长度的路径（降噪）
-    rightangleenhance: false, // 不强化直角（铅笔线条更自然）
+  // ── 4. 骨架化 + 中心线提取（替代 ImageTracer 轮廓追踪）──
+  var pathsToDraw = [];
+  try {
+    _removeHorizontalLines(imgd, w, h);
+    var binary = _toBinaryArray(imgd, w, h);
+    _zhangSuenThinning(binary, w, h);
+    var centerlinePaths = _extractCenterlines(binary, w, h);
 
-    // 颜色量化：2色（黑白线描）
-    colorsampling: 0,        // 不随机采样，使用固定调色板
-    numberofcolors: 2,
-    colorquantcycles: 1,
+    console.log('[replay] 骨架化：', centerlinePaths.length, '条原始路径');
 
-    // 图层
-    layering: 0,             // 顺序图层
+    centerlinePaths = centerlinePaths.map(function (p) {
+      p = _rdpSimplify(p, 1.5);
+      p = _smoothPoints(p, 2);
+      return p;
+    });
 
-    // SVG 渲染
-    strokewidth: 1,          // 描边宽度（我们将自定义）
-    linefilter: true,        // 线条过滤降噪
-    scale: 1,
-    roundcoords: 1,          // 坐标四舍五入到1位小数
-    viewbox: true,           // 使用 viewBox
+    centerlinePaths = centerlinePaths.filter(function (p) { return p.length >= 5; });
+    centerlinePaths = _orderByProximity(centerlinePaths);
 
-    // 固定调色板：白色背景 + 深灰铅笔色
-    pal: [
-      { r: 255, g: 255, b: 255, a: 255 },   // 白色（背景）
-      { r: 45, g: 35, b: 30, a: 255 }        // 深棕色（铅笔线条，暖调）
-    ]
-  };
+    var MAX_PATHS = 40;
+    pathsToDraw = centerlinePaths.slice(0, MAX_PATHS).map(function (p) {
+      return { d: _pointsToSvgPath(p), fill: 'none' };
+    });
 
-  // 获取 SVG 字符串
-  var svgString = ImageTracer.imagedataToSVG(imgd, traceOptions);
+    console.log('[replay] 骨架化完成：', pathsToDraw.length, '条有效路径');
+  } catch (e) {
+    console.error('[replay] 骨架化失败，降级到 ImageTracer:', e);
+    pathsToDraw = [];
+  }
 
-  // ── 5. 解析 SVG，提取路径 ──
-  var parser = new DOMParser();
-  var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-  var sourceSvg = svgDoc.querySelector('svg');
-  var allPaths = svgDoc.querySelectorAll('path');
+  // 降级：骨架化无结果时使用 ImageTracer
+  if (pathsToDraw.length === 0) {
+    console.warn('[replay] 降级到 ImageTracer 轮廓追踪');
+    try {
+      // 重新获取原始 ImageData（骨架化可能已修改 imgd）
+      var imgd2 = ctx.getImageData(0, 0, w, h);
+      _preprocessImage(imgd2);
+      pathsToDraw = _imageTracerFallback(imgd2, w);
+      console.log('[replay] ImageTracer 降级完成：', pathsToDraw.length, '条路径');
+    } catch (e2) {
+      console.error('[replay] ImageTracer 也失败:', e2);
+    }
+  }
 
-  if (!allPaths || allPaths.length === 0) {
-    console.warn('[replay] 未提取到路径，跳过动画');
+  if (pathsToDraw.length === 0) {
+    console.warn('[replay] 所有方法均未提取到路径，跳过动画');
+    container.classList.remove('active');
     _cleanupReplay();
     doneOnce();
     return;
   }
 
-  // ── 6. 过滤：只保留深色路径（铅笔线条），跳过白色背景路径 ──
-  var drawPaths = [];
-  allPaths.forEach(function (p) {
-    var fill = p.getAttribute('fill') || '';
-    if (fill === 'rgb(255,255,255)' || fill === '#ffffff' || fill === '#fff') {
-      return;
-    }
-    drawPaths.push({ d: p.getAttribute('d'), fill: fill });
-  });
-
-  // 如果没有深色路径，使用所有路径
-  if (drawPaths.length === 0) {
-    allPaths.forEach(function (p) {
-      drawPaths.push({ d: p.getAttribute('d'), fill: p.getAttribute('fill') || 'rgb(45,35,30)' });
-    });
-  }
-
-  // 按路径长度排序：长路径（轮廓）先画，短路径（细节）后画
-  drawPaths.sort(function (a, b) { return b.d.length - a.d.length; });
-
-  // 限制最大路径数（防止过多路径导致动画太慢，保证仪式感节奏可控且总时长 < 5s 超时）
-  var MAX_PATHS = 20;
-  var pathsToDraw = drawPaths.slice(0, MAX_PATHS);
-
-  // ── 7. 设置 SVG 容器 + defs（金色渐变 / 笔尖光晕渐变 / 笔尖发光 filter） ──
+  // ── 5. 设置 SVG 容器 + defs（金色渐变 / 笔尖光晕渐变 / 笔尖发光 filter） ──
   var replaySvg = document.getElementById('replaySvg');
-  var svgWidth = sourceSvg.getAttribute('viewBox')
-    ? sourceSvg.getAttribute('viewBox').split(' ')[2] : w;
-  var svgHeight = sourceSvg.getAttribute('viewBox')
-    ? sourceSvg.getAttribute('viewBox').split(' ')[3] : h;
-  svgWidth = parseFloat(svgWidth) || w;
-  svgHeight = parseFloat(svgHeight) || h;
+  var svgWidth = w;
+  var svgHeight = h;
 
   replaySvg.setAttribute('viewBox', '0 0 ' + svgWidth + ' ' + svgHeight);
   replaySvg.style.maxWidth = '100%';
@@ -382,7 +702,7 @@ function _runCeremony(pathsToDraw, svgWidth, svgHeight, els, myToken) {
     pathEl.setAttribute('class', 'replay-path');
     pathEl.setAttribute('d', pathsToDraw[i].d);
     pathEl.setAttribute('stroke', 'url(#replayGoldGradient)');
-    pathEl.setAttribute('stroke-width', '1.5');
+    pathEl.setAttribute('stroke-width', '2');
     els.drawLayer.appendChild(pathEl);
 
     var len = 0;
@@ -403,10 +723,10 @@ function _runCeremony(pathsToDraw, svgWidth, svgHeight, els, myToken) {
     pathInfos.push({ el: pathEl, len: len, startPt: startPt, endPt: endPt });
   }
 
-  // 时长预算（总动画约 3-4 秒，所有路径数下均 < 5s 超时保护）
-  var DRAW_BUDGET = 1600;
-  var perPathDraw = clamp(DRAW_BUDGET / totalPaths, 80, 220);
-  var gapMove = clamp(perPathDraw * 0.2, 30, 50);
+  // 时长预算（总动画约 4-6 秒，所有路径数下均 < 8s 超时保护）
+  var DRAW_BUDGET = 2400;
+  var perPathDraw = clamp(DRAW_BUDGET / totalPaths, 60, 220);
+  var gapMove = clamp(perPathDraw * 0.2, 20, 50);
 
   // 笔尖就位到第一条路径起点
   els.penTipGroup.setAttribute(
@@ -596,7 +916,7 @@ function _updateLabel(labelEl, current, total) {
 function _preprocessImage(imgd) {
   var data = imgd.data;
   var len = data.length;
-  var threshold = 160;    // 像素灰度 < 160 视为线条
+  var threshold = 180;    // 像素灰度 < 180 视为线条（提高以捕获浅色铅笔线）
   var contrast = 1.4;     // 对比度增强系数
 
   for (var i = 0; i < len; i += 4) {

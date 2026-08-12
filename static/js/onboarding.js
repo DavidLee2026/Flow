@@ -382,6 +382,11 @@ async function loadStats(showWelcome = false) {
       el.className = 'streak-badge streak-new';
     }
 
+    // 刷新首页探索进度条（反馈完成后 loadStats 被调用，实时更新方向数，无需刷新页面）
+    if (typeof renderHomeExplorationBarFromStats === 'function') {
+      renderHomeExplorationBarFromStats(data);
+    }
+
     updateGreeting();
   } catch (e) {
     console.error('loadStats error:', e);
