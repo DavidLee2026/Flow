@@ -1,0 +1,202 @@
+/* ================================================================
+   绘心 Flow · 样式表「温纸手记」
+   品牌视觉：暖陶土主色 + 米纸底 + 纸张质感阴影
+   三层 Token：原始值 → 语义词 → 组件词
+   ================================================================ */
+
+/* ── 第一层：原始值 (Raw Tokens) ────────────────────────────────── */
+:root {
+  /* 暖陶土色阶 */
+  --raw-clay-100: #F5E4D8;
+  --raw-clay-200: #EBC9B4;
+  --raw-clay-300: #E0AE90;
+  --raw-clay-400: #D49573;
+  --raw-clay-500: #C97D5B;
+  --raw-clay-600: #B66A48;
+  --raw-clay-700: #9A5738;
+
+  /* 鼠尾草绿色阶 */
+  --raw-sage-100: #E3EBE0;
+  --raw-sage-300: #B0C9A8;
+  --raw-sage-500: #7B9B6E;
+  --raw-sage-700: #5E7A53;
+
+  /* 赭石金色阶 */
+  --raw-ochre-100: #FAEFD5;
+  --raw-ochre-200: #F5DFB5;
+  --raw-ochre-300: #F0D49A;
+  --raw-ochre-500: #D9A441;
+  --raw-ochre-700: #B88528;
+
+  /* 暖褐色阶 */
+  --raw-brown-300: #B5A99E;
+  --raw-brown-500: #8B7E72;
+  --raw-brown-700: #5C524A;
+  --raw-brown-900: #3A322C;
+
+  /* 纸色阶 */
+  --raw-paper-100: #FDFBF7;
+  --raw-paper-200: #F7F2EA;
+  --raw-paper-300: #EFE8DC;
+  --raw-paper-400: #E8DFD3;
+
+  /* 功能色 */
+  --raw-white: #FFFFFF;
+  --raw-shadow: rgba(154, 87, 56, 0.08);
+
+  /* 字体 */
+  --font-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "STSongti-SC-Regular", "SimSun", Georgia, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-pill: 20px;
+
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* 字号 Token 体系 */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 15px;
+  --font-size-base: 16px;
+  --font-size-xl: 17px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 28px;
+  --font-size-5xl: 36px;
+  --font-size-6xl: 48px;
+  --font-size-7xl: 56px;
+
+  /* 阴影 — 纸张质感 */
+  --shadow-paper: 0 1px 3px rgba(154,87,56,.06), 0 1px 2px rgba(154,87,56,.04);
+  --shadow-card: 0 2px 8px rgba(154,87,56,.06), 0 1px 3px rgba(154,87,56,.04);
+  --shadow-lifted: 0 4px 16px rgba(154,87,56,.10), 0 2px 6px rgba(154,87,56,.06);
+
+  /* 动效 — 时序 + 缓动 */
+  --motion-instant: 100ms;
+  --motion-fast: 150ms;
+  --motion-normal: 250ms;
+  --motion-slow: 400ms;
+  --motion-page: 500ms;
+  --motion-stagger: 80ms;
+  --ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 兼容旧引用 */
+  --dur-press: 150ms;
+  --dur-modal: 250ms;
+  --dur-fade: 300ms;
+}
+
+/* ── 第二层：语义词 (Semantic Tokens) ──────────────────────────── */
+:root {
+  /* 品牌色 */
+  --color-primary: var(--raw-clay-500);
+  --color-primary-dark: var(--raw-clay-600);
+  --color-primary-light: var(--raw-clay-300);
+  --color-primary-bg: var(--raw-clay-100);
+
+  /* 成功色 */
+  --color-success: var(--raw-sage-500);
+  --color-success-dark: var(--raw-sage-700);
+  --color-success-bg: var(--raw-sage-100);
+
+  /* 强调色 */
+  --color-accent: var(--raw-ochre-500);
+  --color-accent-dark: var(--raw-ochre-700);
+  --color-accent-bg: var(--raw-ochre-100);
+
+  /* 文字色 */
+  --color-text-primary: var(--raw-brown-900);
+  --color-text-secondary: var(--raw-brown-500);
+  --color-text-tertiary: var(--raw-brown-300);
+  --color-text-inverse: var(--raw-paper-100);
+
+  /* 背景色 */
+  --color-bg-page: var(--raw-paper-200);
+  --color-bg-card: var(--raw-paper-100);
+  --color-bg-subtle: var(--raw-paper-300);
+  --color-bg-hover: var(--raw-paper-400);
+
+  /* 边框 */
+  --color-border: var(--raw-paper-400);
+  --color-border-light: var(--raw-paper-300);
+
+  /* 反馈三段色 */
+  --color-praise: var(--raw-sage-500);
+  --color-improve: var(--raw-clay-500);
+  --color-encourage: var(--raw-brown-500);
+
+  /* 渐变 */
+  --gradient-primary: linear-gradient(135deg, var(--raw-clay-400), var(--raw-clay-600));
+  --gradient-primary-soft: linear-gradient(135deg, var(--raw-clay-300), var(--raw-clay-500));
+  --gradient-paper: linear-gradient(180deg, var(--raw-paper-100), var(--raw-paper-200));
+  --gradient-progress: linear-gradient(90deg, var(--raw-sage-500), var(--raw-sage-300));
+
+  /* 页面统一背景渐变 — onboarding / 过渡仪式 / 创作前奏 / 首页共用 */
+  --bg-page-gradient:
+    radial-gradient(circle at 20% 30%, rgba(201, 125, 91, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(123, 155, 110, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(217, 164, 65, 0.02) 0%, transparent 40%),
+    linear-gradient(180deg, var(--color-bg-page) 0%, var(--color-bg-subtle) 50%, var(--raw-paper-400) 100%);
+}
+
+/* ── 第三层：组件词 (Component Tokens) ─────────────────────────── */
+:root {
+  /* 按钮 */
+  --btn-primary-bg: var(--gradient-primary);
+  --btn-primary-text: var(--raw-white);
+  --btn-primary-bg-active: linear-gradient(135deg, var(--raw-clay-500), var(--raw-clay-700));
+  --btn-secondary-bg: var(--raw-clay-100);
+  --btn-secondary-text: var(--color-primary);
+  --btn-secondary-bg-active: var(--raw-clay-200);
+  --btn-dashed-border: var(--raw-clay-300);
+  --btn-dashed-text: var(--color-primary);
+  --btn-disabled-opacity: 0.4;
+
+  /* 卡片 */
+  --card-bg: var(--color-bg-card);
+  --card-radius: var(--radius-lg);
+  --card-shadow: var(--shadow-card);
+  --card-padding: var(--space-lg);
+
+  /* 推荐卡 */
+  --rec-card-bg: var(--gradient-primary-soft);
+  --rec-card-radius: var(--radius-xl);
+
+  /* 标签 */
+  --tag-primary-bg: rgba(201,125,91,.12);
+  --tag-primary-text: var(--color-primary);
+  --tag-success-bg: rgba(123,155,110,.12);
+  --tag-success-text: var(--color-success);
+  --tag-accent-bg: rgba(217,164,65,.14);
+  --tag-accent-text: var(--color-accent-dark);
+
+  /* 关卡 */
+  --stage-done-bg: var(--color-success-bg);
+  --stage-current-bg: var(--color-primary-bg);
+  --stage-locked-bg: var(--raw-paper-300);
+  --stage-boss-bg: var(--color-accent-bg);
+
+  /* 弹窗 */
+  --modal-overlay: rgba(58,50,44,.5);
+  --modal-bg: var(--raw-white);
+  --modal-radius: var(--radius-xl);
+
+  /* AI反馈 */
+  --feedback-avatar-color: var(--color-primary);
+  --feedback-time-bg: var(--raw-paper-300);
+}
+

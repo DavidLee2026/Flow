@@ -1,0 +1,481 @@
+  margin-bottom:16px;
+  cursor:pointer;
+  transition:transform .2s, box-shadow .2s;
+}
+.path-card:active{transform:scale(0.97);}
+.path-card-icon{font-size: var(--font-size-5xl);margin-bottom:12px;}
+.path-card-name{
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom:6px;
+}
+.path-card-desc{font-size:var(--font-size-md);color: var(--color-text-secondary);margin-bottom:8px;}
+.path-card-meta{
+  font-size:var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight:600;
+  margin-bottom:16px;
+}
+.path-card-btn{
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-radius: var(--radius-md);
+  padding:10px 20px;
+  font-size:var(--font-size-md);
+  font-weight:600;
+  display:inline-block;
+}
+.path-divider{color:rgba(255,255,255,.4);font-size:var(--font-size-sm);margin:8px 0;}
+.path-select-hint{color:rgba(255,255,255,.4);font-size:var(--font-size-xs);margin-top:24px;}
+
+/* ── 成长模式（容器级别显隐：创作/成长两个独立容器）── */
+body:not(.growth-mode) #growthModeContent { display: none !important; }
+body:not(.growth-mode) #creationModeContent { display: block; }
+body.growth-mode #creationModeContent { display: none !important; }
+body.growth-mode #growthModeContent { display: block; }
+
+/* ── 成长模式顶部 ── */
+.growth-mode-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 20px 4px;
+}
+.growth-mode-greeting{
+  font-size:var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.growth-mode-path-badge{
+  font-size:var(--font-size-xs);
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  padding:4px 12px;
+  border-radius: var(--radius-pill);
+  cursor:pointer;
+  font-weight:600;
+}
+.growth-mode-path-badge:active{opacity:0.7;}
+
+/* ── 成长入口按钮（首页可见，点击进入成长模式）── */
+.growth-entry{
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--raw-paper-100), var(--color-bg-subtle));
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+    border: 1.5px dashed var(--color-border);
+    transition: background 0.2s;
+}
+.growth-entry:active { background: var(--color-bg-hover); }
+.growth-entry-arrow { font-size: var(--font-size-base); color: var(--color-success); }
+
+/* ── 成长进度区域 ── */
+.growth-section{
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow: var(--shadow-card);
+}
+.growth-header{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.growth-level-info{flex-shrink:0;}
+.growth-level-badge{
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  padding:4px 10px;
+  border-radius: var(--radius-sm);
+  font-size:var(--font-size-sm);
+  font-weight: 600;
+}
+.growth-level-title{
+  font-size:var(--font-size-md);
+  font-weight:600;
+  color: var(--color-text-primary);
+  margin-left:8px;
+}
+.growth-progress-info{flex:1;}
+.growth-stage-text{
+  font-size:var(--font-size-xs);
+  color: var(--color-text-secondary);
+  display:block;
+  margin-bottom:4px;
+}
+.growth-progress-bar{
+  height:6px;
+  background: var(--color-bg-subtle);
+  border-radius:3px;
+  overflow:hidden;
+}
+.growth-progress-fill{
+  height:100%;
+  background: var(--gradient-progress);
+  border-radius:3px;
+  transition:width .5s var(--ease-out);
+}
+.growth-toggle{
+  color: var(--color-text-tertiary);
+  font-size:var(--font-size-xs);
+  transition:transform .3s;
+}
+.growth-toggle.expanded{transform:rotate(180deg);}
+
+/* ── 关卡竖向列表 ── */
+.growth-board{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid var(--color-border-light);
+}
+.growth-board-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:60vh;
+  overflow-y:auto;
+  padding:2px 0;
+  margin-bottom:12px;
+}
+.growth-list-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  border-radius: var(--radius-md);
+  cursor:pointer;
+  transition:all .2s;
+}
+.growth-list-item.done{background: var(--stage-done-bg);}
+.growth-list-item.current{
+  background: var(--gradient-primary);
+  box-shadow:0 2px 8px rgba(154,87,56,.3);
+}
+.growth-list-item.locked{
+  background: var(--color-bg-page);
+  opacity:0.55;
+  cursor:default;
+}
+.growth-list-item .list-icon{
+  font-size: var(--font-size-2xl);
+  width:28px;
+  text-align:center;
+  flex-shrink:0;
+}
+.growth-list-item .list-body{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.growth-list-item .list-number{
+  font-size:var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  min-width:40px;
+  flex-shrink:0;
+}
+.growth-list-item.current .list-number{color: var(--color-text-inverse);}
+.growth-list-item .list-title{
+  font-size:var(--font-size-md);
+  font-weight:600;
+  color: var(--color-text-primary);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.growth-list-item.current .list-title{color: var(--color-text-inverse);}
+.growth-list-item.locked .list-title{color: var(--color-text-tertiary);}
+.growth-list-item .list-status{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.growth-list-item.current .list-status{
+  color:rgba(255,255,255,.8);
+  background:rgba(255,255,255,.13);
+  padding:2px 10px;
+  border-radius:10px;
+}
+.growth-list-item.done .list-status{color: var(--color-success);}
+
+/* ── Boss 特殊样式 ── */
+.growth-list-item.boss,
+.growth-list-item.boss-current{
+  margin-top:8px;
+  border:2px dashed var(--color-success);
+  border-radius: var(--radius-md);
+  background: var(--color-success-bg);
+  padding:16px;
+}
+.growth-list-item.boss-current{
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+  animation:bossPulse 2s infinite;
+}
+.growth-list-item.boss.locked{
+  border-color: var(--color-border);
+  background: var(--color-bg-page);
+  opacity:0.55;
+}
+.list-boss-row{display:flex;align-items:center;gap:12px;width:100%;}
+.list-boss-icon{font-size:var(--font-size-3xl);flex-shrink:0;}
+.list-boss-info{flex:1;min-width:0;}
+.list-boss-title{
+  font-family: var(--font-display);
+  font-size:var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-success-dark);
+  display:block;
+}
+.growth-list-item.boss-current .list-boss-title{color: var(--color-success-dark);}
+.growth-list-item.boss.locked .list-boss-title{color: var(--color-text-tertiary);}
+.list-boss-sub{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  display:block;
+  margin-top:2px;
+}
+.growth-list-item.boss-current .list-boss-sub{color: var(--color-text-secondary);}
+.growth-list-item.boss.locked .list-boss-sub{color: var(--color-text-tertiary);}
+.list-boss-status{
+  font-size:var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-success);
+  flex-shrink:0;
+  padding:4px 12px;
+  border-radius:10px;
+  background: var(--color-success-bg);
+}
+.growth-list-item.boss-current .list-boss-status{
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+.growth-list-item.boss.locked .list-boss-status{
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-hover);
+}
+
+@keyframes bossPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(123,155,110,.3);}
+  50%{box-shadow:0 0 0 8px rgba(123,155,110,0);}
+}
+
+/* ── 成长关卡折叠与展开 ── */
+.growth-list-collapsed{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  background: var(--color-bg-page);
+  border:1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom:4px;
+  cursor:pointer;
+  opacity:0.8;
+}
+.growth-list-collapsed:active{background: var(--color-bg-hover);}
+.growth-list-collapsed .list-title{
+  font-size:var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.growth-list-collapsed .list-status{
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  flex-shrink:0;
+}
+
+.growth-show-more{
+  text-align:center;
+  padding:8px 0 4px;
+}
+.growth-show-more-btn{
+  background:none;
+  border:none;
+  font-size:var(--font-size-sm);
+  color: var(--color-primary);
+  cursor:pointer;
+  padding:8px 16px;
+  font-weight:500;
+}
+.growth-show-more-count{
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.growth-board-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top:8px;
+}
+.legend-item{display:flex;align-items:center;gap:4px;}
+
+/* ── Growth Coming Soon ── */
+.growth-coming-soon{text-align:center;padding:32px 16px;}
+.growth-coming-soon .coming-soon-icon{font-size: var(--font-size-6xl);margin-bottom:12px;}
+.growth-coming-soon .coming-soon-title{
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom:8px;
+}
+.growth-coming-soon .coming-soon-desc{
+  font-size:var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height:1.6;
+}
+
+/* ── 路径切换按钮 ── */
+.path-switch-btn{
+  text-align:center;
+  padding:12px;
+  color: var(--color-primary);
+  font-size:var(--font-size-sm);
+  cursor:pointer;
+}
+.path-switch-btn:active{opacity:0.6;}
+
+/* ── Boss 弹窗 ── */
+.boss-modal{max-width:380px;}
+.boss-modal-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding-bottom:16px;
+  border-bottom:2px solid var(--color-border-light);
+  margin-bottom:16px;
+}
+.boss-icon{font-size: var(--font-size-4xl);}
+.boss-title-text{
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-success-dark);
+}
+.boss-desc{
+  font-size:var(--font-size-md);
+  color: var(--color-text-primary);
+  line-height:1.6;
+  margin-bottom:12px;
+}
+.boss-skill{
+  font-size:var(--font-size-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-page);
+  padding:10px;
+  border-radius: var(--radius-sm);
+  margin-bottom:16px;
+}
+.boss-actions{display:flex;gap:8px;}
+.boss-btn{
+  flex:1;
+  border:none;
+  border-radius: var(--radius-md);
+  padding:12px;
+  font-size:var(--font-size-md);
+  font-weight:600;
+  cursor:pointer;
+}
+.boss-btn-start{
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+.boss-btn-cancel{
+  background: var(--btn-secondary-bg);
+  color: var(--color-text-secondary);
+}
+
+.boss-result-modal{max-width:340px;text-align:center;}
+.boss-result-icon{font-size: var(--font-size-6xl);margin-bottom:16px;}
+.boss-result-title{
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-success);
+  margin-bottom:12px;
+}
+.boss-result-desc{
+  font-size:var(--font-size-md);
+  color: var(--color-text-primary);
+  line-height:1.6;
+  margin-bottom:20px;
+}
+
+/* ── 引导页日期选择器 ── */
+.ob-date-input{
+  text-align:center;
+  font-size:var(--font-size-base);
+  padding:12px;
+  border:2px solid var(--color-bg-hover);
+  border-radius: var(--radius-md);
+  width:100%;
+  margin-bottom:12px;
+  background: var(--card-bg);
+  color: var(--color-text-primary);
+}
+.ob-date-input:focus{
+  border-color: var(--color-primary);
+  outline:none;
+}
+.ob-radio-group{display:flex;gap:12px;}
+.ob-radio-option{
+  flex:1;
+  text-align:center;
+  padding:14px;
+  border:2px solid var(--color-bg-hover);
+  border-radius: var(--radius-md);
+  cursor:pointer;
+  font-size:var(--font-size-lg);
+  background: var(--card-bg);
+  color: var(--color-text-primary);
+}
+.ob-radio-option.selected{
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight:600;
+}
+
+/* ================================================================
+   反馈增强 v3.1 · 5层反馈 + 等待陪伴 + 里程碑 + 反思交互
+   Style: 使用已有 Token（--raw-*），不引入新色值
+   ================================================================ */
+
+/* ── 第三层扩展：反馈增强组件 ── */
+:root {
+  /* 5层反馈色（复用现有语义色） */
+  --fb-identify: var(--color-success);
+  --fb-identify-bg: var(--color-success-bg);
+  --fb-observe: var(--color-primary);
+  --fb-observe-bg: var(--color-primary-bg);
+  --fb-progress: var(--color-accent);
+  --fb-progress-bg: var(--color-accent-bg);
+  --fb-suggestion: var(--color-success-dark);
+  --fb-suggestion-bg: var(--color-success-bg);
+  --fb-encourage: var(--color-primary);
+  --fb-encourage-bg: var(--color-primary-bg);
+
+  /* 里程碑渐变（角度差异化，避免复制粘贴感） */
+  --milestone-1-bg: linear-gradient(135deg, var(--raw-clay-100), var(--raw-clay-200));
+  --milestone-5-bg: linear-gradient(150deg, var(--raw-sage-100), var(--raw-sage-300));
+  --milestone-10-bg: linear-gradient(120deg, var(--raw-ochre-100), var(--raw-ochre-200, #F5DFB5));
+  --milestone-25-bg: linear-gradient(165deg, var(--raw-sage-100), var(--raw-ochre-100));
+  --milestone-50-bg: linear-gradient(140deg, var(--raw-clay-100), var(--raw-ochre-100));
+
+  --waiting-text: var(--color-text-secondary);
+  --reflection-border: var(--color-border);
+}
+

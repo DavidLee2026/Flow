@@ -1,0 +1,494 @@
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+}
+#communityModal {
+  overscroll-behavior: contain;
+}
+.community-comments-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+.community-comments-header {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+.community-comments-list {
+  margin-bottom: 10px;
+}
+.community-comment-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.community-comment-item:last-child {
+  border-bottom: none;
+}
+.community-comment-body { flex: 1; min-width: 0; }
+.community-comment-author {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+.community-comment-content {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.community-comment-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: 2px;
+}
+.comment-like-btn {
+  flex-shrink: 0;
+  background: none; border: none;
+  font-size: var(--font-size-md); cursor: pointer; padding: 2px 4px;
+  line-height: 1; border-radius: 6px;
+  color: var(--color-text-tertiary);
+  transition: all var(--motion-fast) var(--ease-press);
+}
+.comment-like-btn:active { transform: scale(1.2); }
+.comment-like-btn.liked { color: var(--color-accent-dark); }
+.community-comment-empty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: 16px 0;
+}
+.community-comment-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.community-comment-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: var(--font-size-md);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--raw-white);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--motion-fast);
+}
+.community-comment-input:focus {
+  border-color: var(--color-primary);
+}
+.community-comment-send {
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--raw-white);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--motion-fast);
+  white-space: nowrap;
+}
+.community-comment-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.community-comment-send:active {
+  transform: scale(0.97);
+}
+/* ── 画作分享卡（用于生成分享图） ── */
+.share-card {
+  width: 1080px;
+  padding: 60px 60px 50px;
+  background: #F7F2EA;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+}
+.share-card-brand {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.share-card-logo {
+  display: block;
+  font-size: var(--font-size-6xl);
+  font-weight: 600;
+  color: #C97D5B;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+.share-card-date {
+  font-size: var(--font-size-2xl);
+  color: #8B7E72;
+  font-weight: 500;
+}
+.share-card-streak {
+  text-align: center;
+  margin: -10px auto 28px;
+  padding: 18px 36px;
+  background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 6px 24px rgba(255,107,53,0.35);
+}
+.share-card-streak .streak-flame {
+  font-size: var(--font-size-6xl);
+  line-height: 1;
+  margin-right: 6px;
+}
+.share-card-streak .streak-days {
+  font-size: var(--font-size-7xl);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.share-card-streak .streak-label {
+  font-size: var(--font-size-4xl);
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+  line-height: 1;
+}
+.share-card-image-wrap {
+  width: 960px;
+  height: 960px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 40px rgba(154,87,56,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+.share-card-image-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.share-card-divider {
+  width: 60px;
+  height: 3px;
+  background: #C97D5B;
+  margin: 36px auto;
+  border-radius: 2px;
+}
+.share-card-feedback {
+  text-align: center;
+  font-size: var(--font-size-4xl);
+  line-height: 1.7;
+  color: #3A322C;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 20px;
+  font-weight: 500;
+}
+.share-card-footer {
+  text-align: center;
+  margin-top: 36px;
+  font-size: var(--font-size-2xl);
+  color: #B5A99E;
+  letter-spacing: 2px;
+}
+
+/* ── 分享图预览弹窗 ── */
+.share-preview-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--modal-overlay);
+  z-index: 320;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+.share-preview-overlay.visible {
+  display: flex;
+}
+.share-preview-dialog {
+  background: var(--modal-bg);
+  border-radius: var(--modal-radius);
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  animation: modalSlideUp 0.35s var(--ease-out);
+}
+.share-preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  border: none;
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+.share-preview-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 20px 12px;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.share-preview-title .title-emoji {
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+.share-preview-img-wrap {
+  padding: 16px;
+  max-height: 56vh;
+  overflow-y: auto;
+  display: block;
+  background: var(--raw-white);
+}
+.share-preview-img-wrap img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  display: block;
+}
+.share-preview-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+}
+.share-preview-actions .btn {
+  flex: 1;
+}
+.share-preview-tip {
+  text-align: center;
+  padding: 0 20px 18px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ================================================================
+   防移动端双击缩放 · v43
+   说明：iOS Safari 10+ 忽略 viewport 的 user-scalable=no（无障碍政策），
+   双击缩放必须靠 touch-action 抑制。manipulation = 允许滚动/捏合，
+   仅移除双击缩放。社区弹窗信息区保留 pan-y（纵向锁定）。
+   ================================================================ */
+* { touch-action: manipulation; }
+.community-modal .modal-info { touch-action: pan-y; }
+
+/* ================================================================
+   2.0 MVP 新增样式 · 绘心 Flow
+   ================================================================ */
+
+/* ── 创作前奏 · 静默入口仪式 ── */
+.creative-prelude {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
+}
+.creative-prelude.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 800ms var(--ease-out), visibility 0s 0s;
+}
+.creative-prelude.done {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms var(--ease-out), visibility 0s 800ms;
+}
+.creative-prelude-window {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-page);
+  background-image: var(--bg-page-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* 暖光中心 — 呼吸感渐变 */
+.creative-prelude-window::before {
+  content: '';
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  max-width: 280px;
+  max-height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217, 164, 65, 0.12) 0%, rgba(201, 125, 91, 0.06) 40%, transparent 70%);
+  animation: preludeBreath 2s var(--ease-out) forwards;
+}
+/* 画笔图标 — 缓慢浮现再消散 */
+.creative-prelude-window::after {
+  content: '✏️';
+  position: absolute;
+  font-size: var(--font-size-5xl);
+  opacity: 0;
+  animation: preludeIconFloat 2s var(--ease-out) forwards;
+}
+@keyframes preludeBreath {
+  0% { opacity: 0; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+@keyframes preludeIconFloat {
+  0% { opacity: 0; transform: translateY(12px) scale(0.9); }
+  30% { opacity: 0.5; transform: translateY(0) scale(1); }
+  70% { opacity: 0.5; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(1.05); }
+}
+/* 首页内容在创作前奏期间隐藏 */
+body.in-prelude .header,
+body.in-prelude #page-home,
+body.in-prelude #page-timeline { visibility: hidden; }
+
+/* ── 首页顶部信息聚合栏 ── */
+.home-top-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.home-date {
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+}
+.home-greeting {
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+}
+.home-greeting span {
+  font-weight: 600;
+}
+.home-stage-tag {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.home-flow-value {
+  margin-left: auto;
+  color: var(--raw-ochre-700);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+}
+
+/* ── 画者之问 · 主入口 ── */
+.home-main-entry {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+}
+.home-question {
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-sm);
+  letter-spacing: 2px;
+}
+.home-flow-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0 0 var(--space-xl);
+  letter-spacing: 1px;
+}
+.home-camera-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: 320px;
+  height: 56px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--raw-white);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: transform var(--motion-press) var(--ease-press), box-shadow var(--motion-press) var(--ease-press);
+  box-shadow: var(--shadow-lifted);
+}
+.home-camera-btn:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-card);
+}
+.home-camera-icon {
+  font-size: var(--font-size-2xl);
+}
+.home-upload-btn {
+  display: block;
+  margin: var(--space-md) auto 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: var(--space-sm) var(--space-md);
+  transition: color var(--motion-fast);
+}
+.home-upload-btn:active {
+  color: var(--color-primary);
+}
+
+/* ── 折叠灵感区 ── */
+.inspiration-toggle {
+  text-align: center;
+  padding: var(--space-md);
+  font-size: var(--font-size-md);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--motion-fast);
+  user-select: none;
+}
+.inspiration-toggle:active {
+  color: var(--color-primary);
+}
+.inspiration-toggle.expanded {
+  color: var(--color-primary);
+}
+.inspiration-area {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--motion-slow) var(--ease-out), opacity var(--motion-slow) var(--ease-out);
+}
+.inspiration-area.expanded {
+  max-height: 2000px;
+  opacity: 1;
+}
+

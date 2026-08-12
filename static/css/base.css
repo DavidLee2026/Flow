@@ -1,0 +1,18 @@
+/* ── Reset & Base ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+button{ -webkit-appearance:none; appearance:none; background:none; border:none; font:inherit; color:inherit; }
+
+body{
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  line-height:1.6;
+  padding:0 0 calc(80px + env(safe-area-inset-bottom)) 0;
+  min-height:100dvh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  /* 全站统一背景：暖纸渐变 + 三层柔光，与 onboarding / 过渡仪式 / 创作前奏完全一致 */
+  background-color: var(--color-bg-page);
+  background-attachment: fixed;
+  background-image: var(--bg-page-gradient);
+}
+

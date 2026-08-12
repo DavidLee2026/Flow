@@ -1,0 +1,471 @@
+/* ③ 虚线按钮 */
+.btn-dashed {
+  background: linear-gradient(135deg, var(--raw-paper-100), var(--raw-clay-100));
+  color: var(--btn-dashed-text);
+  font-weight: 600;
+  border: 1.5px dashed var(--btn-dashed-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  width: 100%;
+  height: auto;
+}
+.btn-dashed:active {
+  transform: scale(0.97);
+  background: linear-gradient(135deg, var(--raw-clay-100), var(--raw-clay-200));
+}
+/* ④ 列表按钮 */
+.btn-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-press), background var(--motion-fast) var(--ease-press);
+}
+.btn-list:active {
+  transform: scale(0.98);
+  background: var(--color-bg-subtle);
+}
+.btn-list-arrow { color: var(--color-text-tertiary); font-size: var(--font-size-2xl); }
+.btn-list-sub { font-size: var(--font-size-xs); font-weight: 400; color: var(--color-text-secondary); }
+
+/* ⑤ 标签徽章 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+}
+.tag-primary { background: var(--tag-primary-bg); color: var(--tag-primary-text); }
+.tag-success { background: var(--tag-success-bg); color: var(--tag-success-text); }
+.tag-accent  { background: var(--tag-accent-bg); color: var(--tag-accent-text); }
+.tag-locked  { background: var(--raw-paper-300); color: var(--color-text-tertiary); }
+
+/* ⑥ 弹窗关闭按钮 */
+.btn-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--raw-paper-300);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-press), transform var(--motion-fast) var(--ease-press);
+}
+.btn-close:active { transform: scale(0.90); background: var(--raw-paper-400); }
+
+/* 禁用态 */
+.btn:disabled, .btn.is-disabled {
+  opacity: var(--btn-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+/* 加载态 */
+.btn-loading { pointer-events: none; opacity: 0.8; }
+.loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+.loading-dots span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ================================================================
+   Motion System · 动效规范（对齐设计规范）
+   ================================================================ */
+
+/* 按钮按压 */
+.btn:active {
+  transform: scale(0.97);
+  transition: transform var(--motion-fast) var(--ease-press);
+}
+
+/* 卡片抬升（3D 纸感） */
+.card-3d {
+  transition: transform var(--motion-normal) var(--ease-out),
+              box-shadow var(--motion-normal) var(--ease-out);
+  will-change: transform;
+  transform: perspective(800px) rotateX(0deg) rotateY(0deg);
+}
+.card-3d:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+  box-shadow: 0 12px 40px rgba(154,87,56,.15), 0 4px 12px rgba(154,87,56,.08);
+}
+
+/* 列表交错入场 */
+.list-stagger > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: staggerIn var(--motion-slow) var(--ease-out) forwards;
+}
+.list-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.list-stagger > *:nth-child(2) { animation-delay: var(--motion-stagger); }
+.list-stagger > *:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); }
+.list-stagger > *:nth-child(4) { animation-delay: calc(var(--motion-stagger) * 3); }
+.list-stagger > *:nth-child(5) { animation-delay: calc(var(--motion-stagger) * 4); }
+@keyframes staggerIn { to { opacity: 1; transform: translateY(0); } }
+
+/* 淡入上升（通用入场） */
+.fade-up {
+  opacity: 0; transform: translateY(12px);
+  transition: opacity var(--motion-slow) var(--ease-out),
+              transform var(--motion-slow) var(--ease-out);
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* 弹窗入场 */
+.modal-enter {
+  animation: modalSlideIn var(--motion-normal) var(--ease-out) both;
+}
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 3D 纸层效果（多层阴影模拟纸张堆叠） */
+.paper-layer {
+  position: relative;
+  background: var(--raw-white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(154,87,56,.06), 0 1px 2px rgba(154,87,56,.04);
+  transition: box-shadow var(--motion-normal) var(--ease-out);
+}
+.paper-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 4px 16px rgba(154,87,56,.10);
+  opacity: 0;
+  transition: opacity var(--motion-normal) var(--ease-out);
+  pointer-events: none;
+}
+.paper-layer:hover::after { opacity: 1; }
+
+/* 底部导航激活放大 */
+.bottom-nav button .icon { transition: font-size var(--motion-fast) var(--ease-out); }
+.bottom-nav button.active .icon { font-size: var(--font-size-3xl); transition: font-size var(--motion-fast) var(--ease-spring); }
+
+/* 无障碍：尊重系统 motion 偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .btn:active { transform: none; }
+  .card-3d:hover { transform: none; }
+}
+
+/* ── 轻提示 Toast ── */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(60, 40, 30, 0.92);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease-out), transform .3s var(--ease-out);
+  white-space: nowrap;
+  max-width: 90vw;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── 顶部成就弹窗（游戏成就式，鼠尾草绿·成长语义） ── */
+.achievement-popup {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 350;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--raw-sage-500), var(--raw-sage-300));
+  color: #fff;
+  padding: 14px 24px 14px 18px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lifted);
+  transition: top .6s var(--ease-spring), opacity .4s ease;
+  max-width: calc(100vw - 64px);
+  width: calc(100vw - 64px);
+  opacity: 0;
+}
+.achievement-popup.visible {
+  top: 20px;
+  opacity: 1;
+}
+.achievement-popup .ach-icon {
+  font-size: var(--font-size-4xl);
+  flex-shrink: 0;
+}
+.achievement-popup .ach-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.achievement-popup .ach-label {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.achievement-popup .ach-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+.achievement-popup .ach-desc {
+  font-size: var(--font-size-xs);
+  opacity: 0.9;
+}
+/* 成就通知条烟花粒子（从通知条位置向外爆开，配色走设计 token） */
+.confetti-piece {
+  position: fixed;
+  border-radius: 2px;
+  z-index: 400;
+  pointer-events: none;
+  transform: translate(0, 0) rotate(0deg);
+  opacity: 1;
+  transition: transform .95s var(--ease-out), opacity .9s ease;
+}
+
+/* ================================================================
+   v3.2 新增组件 · 自定义确认弹窗 + 应用内相机 + 布局优化
+   ================================================================ */
+
+/* ── Greeting 右侧鼓励文案 ── */
+.greeting-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.greeting-encourage {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent-dark);
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--color-accent-bg);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  animation: fadeUp .5s ease-out;
+}
+
+/* ── 自定义确认弹窗（替代系统 confirm） ── */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--modal-overlay);
+  z-index: 320;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+.confirm-overlay.visible { display: flex; }
+.confirm-dialog {
+  background: var(--modal-bg);
+  border-radius: var(--modal-radius);
+  max-width: 360px;
+  width: 100%;
+  padding: 28px 24px 20px;
+  text-align: center;
+  animation: modalSlideIn var(--motion-normal) var(--ease-out) both;
+}
+.confirm-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--color-primary-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--font-size-3xl);
+  margin: 0 auto 14px;
+}
+.confirm-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+.confirm-desc {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.confirm-desc strong { color: var(--color-primary-dark); }
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.confirm-actions .btn { flex: 1; }
+.confirm-actions .btn-cancel {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-weight: 600;
+}
+.confirm-actions .btn-cancel:active {
+  transform: scale(0.97);
+  background: var(--btn-secondary-bg-active);
+}
+.confirm-actions .btn-danger {
+  background: var(--raw-clay-600);
+  color: var(--raw-white);
+  font-weight: 600;
+}
+.confirm-actions .btn-danger:active {
+  transform: scale(0.97);
+  background: var(--raw-clay-700);
+}
+
+/* ── 应用内相机拍摄页 ── */
+.camera-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #1a1714;
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.camera-overlay.visible { display: flex; }
+.camera-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(0,0,0,.5), transparent);
+}
+.camera-header .cam-title {
+  color: #fff;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+.camera-close-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: var(--font-size-2xl);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.camera-close-btn:active { transform: scale(0.90); background: rgba(255,255,255,.35); }
+.camera-video-wrap {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.camera-video {
+  width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.camera-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.camera-flash.active {
+  animation: cameraFlash .18s ease-out;
+}
+@keyframes cameraFlash {
+  0% { opacity: .9; }
+  100% { opacity: 0; }
+}
+.camera-guide-frame {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  aspect-ratio: 3/4;
+  border: 2px dashed rgba(255,255,255,.4);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.camera-guide-hint {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,.7);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.6;
+}
+.camera-controls {
+  position: absolute;
+  bottom: 40px;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  z-index: 10;
+}
+.camera-switch-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  font-size: var(--font-size-2xl);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.camera-switch-btn:active { transform: scale(0.90); background: rgba(255,255,255,.3); }
+.camera-shutter {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: rgba(255,255,255,.3);
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  position: relative;
+}
+.camera-shutter::after {
