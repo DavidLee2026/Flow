@@ -8,19 +8,19 @@ AI 陪伴式绘画 App——**手机 + 纸 + 笔 + AI**，每次画完拍下来�
 
 ```bash
 pip install -r requirements.txt
-# 复制 .env.example 为 .env，填入你的 LLM API Key（OpenAI 兼容端点即可）
+# 复制 .env.example 为 .env，填入你的 LLM API Key
 cp .env.example .env
 python3 app.py
 ```
 
 手机连接同 Wi-Fi，浏览器访问终端显示的地址。
 
-**LLM API 接入**（Provider 无关）：绘心 Flow 通过环境变量接入任意 OpenAI 兼容的 LLM API，不绑定特定厂商。
+**LLM API 接入**（Provider 无关）：绘心 Flow 通过环境变量接入任意 LLM API，不绑定特定厂商。
 
 | 变量 | 说明 |
 |:-----|:-----|
 | `LLM_API_KEY` | 你的 API Key（必填） |
-| `LLM_BASE_URL` | 端点地址，如 `https://.../v1`（缺省用 OpenAI 默认） |
+| `LLM_BASE_URL` | 端点地址，如 `https://.../v1`（缺省用默认端点） |
 | `LLM_MODEL` | 模型名，建议用视觉语言模型（感知 Agent 需要识图） |
 
 > 感知 Agent 用 VLM 分析画作，合成 Agent 用 LLM 生成 5 层流式反馈；评估 / 记忆 Agent 为纯本地逻辑，零 API 成本。
