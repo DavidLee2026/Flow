@@ -41,7 +41,7 @@ _COACH_RULE_GUIDANCE = {
     "rule_1_first_exploration": (
         "【教练规则指导】\n"
         "🎉 用户首次探索了一个新方向！这是一个成就时刻。\n"
-        "encourage 层融入探索成就叙事，如「这是你第一次画XX方向，你的探索地图点亮了新的区域」。\n"
+        "progress 层融入探索成就叙事，如「这是你第一次画XX方向，你的探索地图点亮了新的区域」。\n"
         "语气充满热情和肯定，让用户感受到探索的乐趣。"
     ),
     "rule_2_multi_direction": (
@@ -121,7 +121,7 @@ def run(
         layer 结构与 1.0 一致：
           {"type": "identify", "content": "...", "identity_statement": "..."}
           {"type": "observe", "content": "..."}
-          {"type": "progress", "content": "..."}  # 画满 5 张后才有
+          {"type": "progress", "content": "..."}  # 永远生成（首张画=探索成就，≥2张=对比进步）
           {"type": "suggestion", "content": "...", "tip": "..."}
           {"type": "encourage", "content": "..."}
 
@@ -321,7 +321,8 @@ def _build_synthesis_prompt(
         prompt += rule_guidance + "\n\n"
 
     # ── 输出格式 ──
-    has_progress = total_drawings >= 5
+    # progress 层永远生成（首张画也包含，符合「从 0 到 1 是巨大进步」的产品哲学）
+    has_history = total_drawings >= 2
 
     # 构建 layers 定义
     layers_spec = (
@@ -335,13 +336,24 @@ def _build_synthesis_prompt(
         '      "content": "再指出你在画里注意到的具体细节（参考感知Agent的观察点）。让用户感觉到你真的很仔细看了。最多2句话，具体不空洞。",\n'
         '    },\n'
     )
-    if has_progress:
+    # progress 层指令条件化：首张画聚焦「首次探索成就」，有历史则「对比进步」
+    if has_history:
         layers_spec += (
             '    {\n'
             '      "type": "progress",\n'
             '      "content": "对比用户之前的作品（参考评估Agent的进步维度），具体指出进步在哪里。必须说出具体的对比点。",\n'
             '    },\n'
         )
+    else:
+        # 首张画：聚焦首次探索成就（从 0 到 1 是巨大进步）
+        first_exploration_area = exploration.get('area', '这个方向')
+        progress_instruction = (
+            '    {\n'
+            '      "type": "progress",\n'
+            f'      "content": "指出用户首次探索了「{first_exploration_area}」方向，这是一次重要的进步——ta 迈出了探索的第一步，探索地图点亮了新区域。从 0 到 1 是巨大的跨越。1-2句话。",\n'
+            '    },\n'
+        )
+        layers_spec += progress_instruction
     layers_spec += (
         '    {\n'
         '      "type": "suggestion",\n'
@@ -354,12 +366,8 @@ def _build_synthesis_prompt(
         '    }\n'
     )
 
-    layer_count = 5 if has_progress else 4
-    layer_order = (
-        "identify → observe → progress → suggestion → encourage"
-        if has_progress
-        else "identify → observe → suggestion → encourage"
-    )
+    layer_count = 5  # 永远 5 层
+    layer_order = "identify → observe → progress → suggestion → encourage"
 
     prompt += (
         f"请回复纯 JSON，不要用 ```json 代码块，不要额外文字，只输出 JSON 对象。\n\n"

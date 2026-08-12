@@ -2,6 +2,8 @@
 // 依赖：state.js；运行时调用 camera.js / share.js / timeline.js 的函数
 // ─── Upload → Analyze（流式 SSE）───
 async function uploadImage(file) {
+  // 清理上一次的锚点跟随 observer
+  stopFeedbackAutoScroll();
   document.getElementById('spinner').classList.remove('active');
   document.getElementById('feedback').classList.remove('visible');
   document.getElementById('feedbackEnhanced').classList.remove('visible');
@@ -14,13 +16,20 @@ async function uploadImage(file) {
   document.getElementById('fbActions').classList.remove('visible');
   document.getElementById('error').classList.remove('visible');
 
-  // 2.0 新增：重置雷达图、探索进度、身份确认语容器
+  // 2.0 新增：重置雷达图、探索进度、身份确认语容器（延迟插入策略：清空内容，仅在触发时填充）
   const radarEl = document.getElementById('radarChartContainer');
   if (radarEl) { radarEl.style.display = 'none'; radarEl.classList.remove('visible'); radarEl.innerHTML = ''; }
   const explorationEl = document.getElementById('explorationBarContainer');
   if (explorationEl) { explorationEl.style.display = 'none'; explorationEl.classList.remove('visible'); explorationEl.innerHTML = ''; }
   const identityEl = document.getElementById('identityStatementSlot');
   if (identityEl) { identityEl.innerHTML = ''; identityEl.classList.remove('visible'); }
+  // 改造三：同步清理心流银行、档案归档、里程碑（避免旧内容残留）
+  const flowEl = document.getElementById('flowBankSlot');
+  if (flowEl) flowEl.innerHTML = '';
+  const archiveEl = document.getElementById('archivePillSlot');
+  if (archiveEl) archiveEl.innerHTML = '';
+  const milestoneEl = document.getElementById('milestoneSlot');
+  if (milestoneEl) milestoneEl.innerHTML = '';
 
   // 简洁等待提示（流式反馈会逐步替代）
   showSimpleWaiting();
@@ -38,12 +47,20 @@ async function uploadImage(file) {
   // 客户端压缩
   const compressedFile = await compressImage(file);
 
+  // ═══ 2.0 改造六：7 阶段旅程 — 拍照上传阶段 ═══
+  if (typeof showJourney === 'function') {
+    showJourney();
+    setJourneyStage(3);
+  }
+
   // ═══ 2.0 MVP: 绘画重现动画（在SSE反馈前播放） ═══
   // 将拍照→反馈 变为 拍照→看见画活过来→反馈
   if (typeof playDrawingReplay === 'function') {
     // 隐藏等待提示，重现动画接管视觉焦点
     const waitingEl = document.getElementById('feedbackEnhanced');
     if (waitingEl) waitingEl.classList.remove('visible');
+    // 旅程：绘画重现阶段
+    if (typeof setJourneyStage === 'function') setJourneyStage(4);
     // 使用原始图片进行矢量化（质量更好，replay.js内部会降采样）
     const replayUrl = URL.createObjectURL(file);
     await new Promise((resolve) => {
@@ -75,6 +92,8 @@ async function uploadImage(file) {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    // 旅程：AI 处理阶段（SSE 开始）
+    if (typeof setJourneyStage === 'function') setJourneyStage(5);
     let buffer = '';
     const receivedLayers = [];   // 实时渲染，不再缓存
     let completeData = null;
@@ -109,6 +128,8 @@ async function uploadImage(file) {
 
         if (data.type === 'first_impression') {
           // ── 首层秒出：立即显示第一印象，不用干等 ──
+          // 旅程：AI 处理阶段
+          if (typeof setJourneyStage === 'function') setJourneyStage(5);
           stopSimpleWaiting();
           const container = document.getElementById('feedbackEnhanced');
           container.classList.add('visible');
@@ -126,6 +147,10 @@ async function uploadImage(file) {
           containerReady = false;  // 不标记为 ready，让首个 layer 的 ensureContainerReady 清除第一印象
         } else if (data.type === 'layer') {
           // ✅ 真流式：收到 layer 立即渲染，不等其他层
+          // 旅程：身份反馈阶段（第一层出现时）
+          if (receivedLayers.length === 0 && typeof setJourneyStage === 'function') {
+            setJourneyStage(6);
+          }
           ensureContainerReady();
           receivedLayers.push(data.layer);
           renderStreamingLayer(data.layer, receivedLayers.length);
@@ -200,7 +225,7 @@ function renderStreamingLayer(layer, layerCount) {
   document.getElementById('fbDepthLayer').innerHTML = `
     <div class="fb-depth">
       ${dotsHtml}
-      <span class="fb-depth-label">${layerCount} 层反馈深度</span>
+      <span class="fb-depth-label">${layerCount >= 5 ? '解读完成' : '正在解读第 ' + layerCount + '/5 层'}</span>
     </div>`;
 
   // 提取绘画主题
@@ -271,11 +296,15 @@ function renderStreamingLayer(layer, layerCount) {
     // 2.0 心流银行 + 档案归档
     if (window._pendingFeedbackData) {
       setTimeout(() => renderFlowBank(window._pendingFeedbackData), 600);
-      setTimeout(() => renderArchivePill(window._pendingFeedbackData), 900);
+      // 旅程：档案归档阶段
+      setTimeout(() => {
+        if (typeof setJourneyStage === 'function') setJourneyStage(7);
+        renderArchivePill(window._pendingFeedbackData);
+      }, 900);
     }
   }
 
-  // 仅在第一层时平滑滚动到反馈区（锚点固定，不跟随每层文字移动）
+  // 第一层时滚动到反馈区顶部；后续层由 MutationObserver 自动跟随
   if (layerCount === 1) {
     setTimeout(() => {
       const container = document.getElementById('feedbackEnhanced');
@@ -285,11 +314,65 @@ function renderStreamingLayer(layer, layerCount) {
         smoothScrollTo(targetY, 700);
       }
     }, 150);
+    // 启动 MutationObserver 监听后续层插入
+    startFeedbackAutoScroll();
   }
 
   // 更新全局术语上下文
   if (layer.glossary_context) {
     currentGlossaryContext = { ...currentGlossaryContext, ...layer.glossary_context };
+  }
+}
+
+// ── 锚点跟随：MutationObserver 监听反馈容器 DOM 变化 ──
+let _feedbackScrollObserver = null;
+let _userScrolledAway = false;
+
+function startFeedbackAutoScroll() {
+  const container = document.getElementById('fbLayersContainer');
+  if (!container) return;
+
+  // 清理旧 observer
+  if (_feedbackScrollObserver) {
+    _feedbackScrollObserver.disconnect();
+  }
+  _userScrolledAway = false;
+
+  // 监听用户手动滚动：如果用户上滑超过 80px，暂停跟随
+  let _lastScrollTop = window.pageYOffset;
+  function _onUserScroll() {
+    const cur = window.pageYOffset;
+    if (cur < _lastScrollTop - 80) {
+      _userScrolledAway = true;
+    }
+    _lastScrollTop = cur;
+  }
+  window.addEventListener('scroll', _onUserScroll, { passive: true });
+
+  _feedbackScrollObserver = new MutationObserver(() => {
+    if (_userScrolledAway) return;
+    // 平滑滚动到最新内容底部
+    const fbEnhanced = document.getElementById('feedbackEnhanced');
+    if (!fbEnhanced) return;
+    const rect = fbEnhanced.getBoundingClientRect();
+    const bottom = rect.bottom;
+    const winH = window.innerHeight;
+    // 只在内容超出视口时滚动
+    if (bottom > winH - 20) {
+      const targetY = window.pageYOffset + (bottom - winH) + 24;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    }
+  });
+  _feedbackScrollObserver.observe(container, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+function stopFeedbackAutoScroll() {
+  if (_feedbackScrollObserver) {
+    _feedbackScrollObserver.disconnect();
+    _feedbackScrollObserver = null;
   }
 }
 
@@ -458,9 +541,13 @@ function finalizeStreamingFeedback(completeData, receivedLayers) {
     }
   }
 
-  // 2.0 心流银行 + 档案归档（兜底）
-  setTimeout(() => renderFlowBank(completeData), 1200);
-  setTimeout(() => renderArchivePill(completeData), 1500);
+  // 2.0 心流银行 + 档案归档（兜底）— 提前延迟避免「高潮收尾」过长
+  setTimeout(() => renderFlowBank(completeData), 800);
+  setTimeout(() => {
+    // 旅程：档案归档阶段
+    if (typeof setJourneyStage === 'function' && getJourneyStage() < 7) setJourneyStage(7);
+    renderArchivePill(completeData);
+  }, 1100);
 
   // 下一幅推荐
   if (completeData.next_recommendation) {
@@ -489,6 +576,9 @@ function finalizeStreamingFeedback(completeData, receivedLayers) {
   }, 1000);
 
   // 用户名标签保持隐藏
+
+  // 所有延迟组件渲染完毕后停止锚点跟随
+  setTimeout(() => stopFeedbackAutoScroll(), 2000);
 }
 
 // ─── Show Feedback ───
@@ -630,7 +720,7 @@ function renderEnhancedFeedback(record) {
   document.getElementById('fbDepthLayer').innerHTML = `
     <div class="fb-depth">
       ${layers.map((l, i) => `<div class="dot d${i+1}" title="${LABELS[l.type] || l.type}"></div>`).join('')}
-      <span class="fb-depth-label">${layers.length} 层反馈深度</span>
+      <span class="fb-depth-label">小绘的解读</span>
     </div>`;
 
   // 渲染 5 层
@@ -712,6 +802,8 @@ function renderEnhancedFeedback(record) {
     const rect = container.getBoundingClientRect();
     const scrollTop = window.pageYOffset + rect.top - 12;
     window.scrollTo({ top: scrollTop, behavior: 'smooth' });
+    // 回放模式也启动锚点跟随
+    startFeedbackAutoScroll();
   }, 200);
 
   // 延迟 2 秒显示操作按钮
@@ -953,6 +1045,7 @@ function recordFeeling() {
 }
 
 // ─── 2.0 心流银行储蓄罐 ───
+// 属性驱动：首次创建结构，后续仅更新液面属性触发 CSS transition
 function renderFlowBank(data, container) {
   const slot = container || document.getElementById('flowBankSlot');
   if (!slot) return;
@@ -990,6 +1083,31 @@ function renderFlowBank(data, container) {
     statusClass = 'low';
   }
 
+  // 检查是否已有结构（属性驱动更新 vs 首次创建）
+  const existingLiquid = slot.querySelector('.jar-liquid');
+  if (existingLiquid) {
+    // ── 属性驱动更新：仅改液面属性，CSS transition 自动过渡 ──
+    existingLiquid.setAttribute('y', liquidY);
+    existingLiquid.setAttribute('height', liquidHeight);
+    const waveEl = slot.querySelector('.jar-liquid-wave');
+    if (waveEl) {
+      waveEl.setAttribute('d', `M 18 ${liquidY} Q 28 ${liquidY - 2}, 40 ${liquidY} T 62 ${liquidY} L 62 ${liquidY + 3} L 18 ${liquidY + 3} Z`);
+    }
+    const amountEl = slot.querySelector('.jar-amount');
+    if (amountEl) amountEl.textContent = totalFlow;
+    const statusEl = slot.querySelector('.flow-bank-status');
+    if (statusEl) {
+      statusEl.textContent = statusText;
+      statusEl.className = `flow-bank-status ${statusClass}`;
+    }
+    const historyEl = slot.querySelector('.flow-bank-history');
+    if (historyEl) historyEl.textContent = flowChange > 0 ? `本次 +${flowChange}` : '本次无变化';
+    const bankEl = slot.querySelector('.flow-bank');
+    if (bankEl && flowChange > 0) bankEl.classList.add('depositing');
+    return;
+  }
+
+  // ── 首次创建：构建完整结构 ──
   slot.innerHTML = `
     <div class="flow-bank ${flowChange > 0 ? 'depositing' : ''}">
       <div class="flow-bank-jar-wrap">

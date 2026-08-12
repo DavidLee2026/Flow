@@ -10,6 +10,11 @@ let cameraBusy = false;
 
 function openCamera() {
   track('camera_opened', {source: 'creation'});
+  // 旅程：静默创作阶段（用户开始拍照流程）
+  if (typeof showJourney === 'function') {
+    showJourney();
+    setJourneyStage(2);
+  }
   // 尝试使用应用内相机
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     startInAppCamera();
@@ -164,6 +169,11 @@ function fallbackToUpload() {
 }
 
 function openUpload() {
+  // 旅程：静默创作阶段
+  if (typeof showJourney === 'function') {
+    showJourney();
+    setJourneyStage(2);
+  }
   document.getElementById('uploadInput').click();
 }
 

@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#C97D5B">
 <link rel="manifest" href="/manifest.json">
 <title>绘心 Flow</title>
-<link rel="stylesheet" href="static/css/style.css?v=20260809v22">
+<link rel="stylesheet" href="static/css/style.css?v=20260812v2">
 </head>
 <body class="booting">
 
@@ -179,6 +179,17 @@
 
   <!-- ─── 绘画重现动画 (2.0 MVP) ─── -->
   <div id="replayContainer" class="replay-container"></div>
+
+  <!-- ─── 7 阶段用户旅程指示器 (2.0 改造六) ─── -->
+  <div id="journeyIndicator" class="journey-indicator" style="display:none;">
+    <div class="journey-step" data-stage="1"><div class="journey-step-dot">1</div><span class="journey-step-label">入口</span></div>
+    <div class="journey-step" data-stage="2"><div class="journey-step-dot">2</div><span class="journey-step-label">创作</span></div>
+    <div class="journey-step" data-stage="3"><div class="journey-step-dot">3</div><span class="journey-step-label">拍照</span></div>
+    <div class="journey-step" data-stage="4"><div class="journey-step-dot">4</div><span class="journey-step-label">重现</span></div>
+    <div class="journey-step" data-stage="5"><div class="journey-step-dot">5</div><span class="journey-step-label">AI</span></div>
+    <div class="journey-step" data-stage="6"><div class="journey-step-dot">6</div><span class="journey-step-label">反馈</span></div>
+    <div class="journey-step" data-stage="7"><div class="journey-step-dot">7</div><span class="journey-step-label">归档</span></div>
+  </div>
 
   <!-- Spinner（旧版 Fallback） -->
   <div id="spinner" class="spinner">
@@ -452,14 +463,15 @@
 <script src="static/js/state.js?v=20260809v20"></script>
 <script src="static/js/onboarding.js?v=20260809v20"></script>
 <script src="static/js/themes.js?v=20260809v20"></script>
-<script src="static/js/camera.js?v=20260809v20"></script>
+<script src="static/js/camera.js?v=20260812v1"></script>
 <script src="static/js/replay.js?v=20260809v3"></script>
 <script src="static/js/radar-chart.js?v=20260809v2"></script>
 <script src="static/js/exploration-bar.js?v=20260812v1"></script>
-<script src="static/js/feedback.js?v=20260809v22"></script>
+<script src="static/js/feedback.js?v=20260812v2"></script>
 <script src="static/js/timeline.js?v=20260809v22"></script>
 <script src="static/js/community.js?v=20260809v20"></script>
 <script src="static/js/share.js?v=20260809v20"></script>
+<script src="static/js/journey.js?v=20260812v1"></script>
 <script src="static/js/home.js?v=20260809v1"></script>
 </body>
 </html>
