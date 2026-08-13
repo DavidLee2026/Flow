@@ -146,14 +146,14 @@ SSE 事件链：`first_impression` → `orchestrator_start` → 每个 Agent 各
 
 **核心机制**：探索进度（累积式，永不扣分）+ 心流银行 + 叙事身份重塑——不按画作打分，每次完成画作 = 探索 +1，把「画得不好」转化为「探索世界的新方向」；首次探索新方向触发成就与正强化，让画者在探索中建立身份认同。
 
-## 开源模块（MIT）
+## 开源（MIT 协议）
+
+**本项目全部代码开源**（MIT 协议），完整代码见 `github.com/DavidLee2026/Flow`，欢迎复用与二次开发。其中两个模块可独立复用：
 
 | 模块 | 文件 | 说明 |
 |:-----|:-----|:-----|
 | 画者画像 Schema | [`painter-schema.json`](./painter-schema.json) | 画者画像 JSON Schema（五维雷达 / 探索进度 / 身份标签 / 自传 / 心流银行），记忆 Agent 读写 |
 | 多 Agent 绘画评估模块 | `agents/` + `orchestrator.py` | 4-Agent 编排的绘画陪伴评估管线，可独立复用 |
-
-MIT 协议，欢迎复用与二次开发。
 
 ## 快速复用示例
 
