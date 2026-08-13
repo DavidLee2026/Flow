@@ -140,6 +140,8 @@ python3 app.py
 | 记忆 Memory | 更新画者画像 → 探索进度 + 身份标签 + 教练规则判断 | 纯本地逻辑 |
 | 合成 Synthesis | 整合三 Agent 上下文 → 5 层流式反馈（认出/观察/进步/建议/期待） | LLM API（流式） |
 
+> **理论支撑**：多 Agent 编排增益参考 SketchMind（arXiv:2507.22904，NeurIPS 2025）——认知图谱 SRG 贡献草图评估准确率 +21.4%，多 Agent 编排再增益 +8.9%。
+
 SSE 事件链：`first_impression` → `orchestrator_start` → 每个 Agent 各一对 `agent_start/done` → `layer`（5 层流式反馈逐层推送）→ `complete`。
 
 **核心机制**：探索进度（累积式，永不扣分）+ 心流银行 + 叙事身份重塑——不按画作打分，每次完成画作 = 探索 +1，把「画得不好」转化为「探索世界的新方向」；首次探索新方向触发成就与正强化，让画者在探索中建立身份认同。
