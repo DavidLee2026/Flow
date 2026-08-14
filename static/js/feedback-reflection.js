@@ -117,7 +117,7 @@ function sendReflection(presetText) {
   const bubble = replyEl.querySelector('.chat-bubble.chat-ai');
   bubble.textContent = '…';
 
-  fetch('/api/reflection', {
+  fetch(`${API_BASE}/api/reflection`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({text: text, subject: currentDrawingSubject}),

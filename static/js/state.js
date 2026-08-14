@@ -1,7 +1,7 @@
 // ─── state.js · 全局状态 + 通用工具 ──────────────
 // 最先加载：其他模块都依赖这里的全局变量与工具函数
 // ─── State ───
-const API_BASE = '';
+const API_BASE = '/flow/app';
 let records = [];
 let currentGlossaryContext = {};  // 当前反馈的术语上下文（反馈增强 v3.1）
 let waitingTimer = null;
@@ -34,7 +34,7 @@ function smoothScrollTo(targetY, duration) {
 
 // ─── 埋点 ───
 function track(event, metadata) {
-  fetch('/api/track', {
+  fetch(`${API_BASE}/api/track`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({event, metadata: metadata || {}}),

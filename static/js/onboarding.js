@@ -237,7 +237,7 @@ async function setName() {
       return;
     }
     try {
-      await fetch('/api/profile', {
+      await fetch(`${API_BASE}/api/profile`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({name: newName.slice(0, 8)}),

@@ -9,7 +9,7 @@ function loadReflectionTags() {
   snippet = snippet.trim().slice(0, 200);
   console.log(`[reflection-tags] 请求 subject='${subject}' layers=${layers.length} snippet_len=${snippet.length}`);
 
-  fetch('/api/reflection-tags', {
+  fetch(`${API_BASE}/api/reflection-tags`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({subject, feedback_snippet: snippet}),

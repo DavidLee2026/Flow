@@ -244,7 +244,7 @@ function submitDrawing() {
   const formData = new FormData();
   formData.append('image', pendingFile);
 
-  fetch('/api/check-drawing', { method: 'POST', body: formData })
+  fetch(`${API_BASE}/api/check-drawing`, { method: 'POST', body: formData })
     .then(r => r.json())
     .then(data => {
       if (data.is_drawing === false) {
