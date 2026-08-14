@@ -111,6 +111,7 @@ def api_stats():
             "name": profile.get("name", "小伙伴"),
             "onboarding_done": profile.get("onboarding_done", False),
             "exploration": profile.get("exploration", {}),
+            "flow_bank": profile.get("flow_bank", {}),
         },
     })
 

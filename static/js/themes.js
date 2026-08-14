@@ -146,9 +146,6 @@ function switchTab(tab) {
   if (tab === 'timeline') {
     track('timeline_viewed', {});
     renderTimeline();
-  } else if (tab === 'community') {
-    track('community_viewed', {});
-    renderCommunityFeed();
   }
 }
 

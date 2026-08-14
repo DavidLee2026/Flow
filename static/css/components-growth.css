@@ -32,19 +32,6 @@
   color: var(--color-primary);
   font-weight:600;
 }
-.reset-link{
-  position:absolute;
-  right:14px;
-  bottom:14px;
-  font-size:var(--font-size-xs);
-  color: var(--color-text-tertiary, #bbb);
-  cursor:pointer;
-  opacity:0.4;
-  transition:opacity .2s;
-  padding:4px 8px;
-}
-.reset-link:hover{opacity:0.8;}
-
 /* ── Page / Tab switching ── */
 .page{display:none;}
 .page.active{
@@ -456,4 +443,130 @@ body.growth-mode #growthModeContent { display: block; }
   color: var(--color-text-primary);
   line-height:1.6;
   margin-bottom:12px;
+}
+
+/* ── 画者成长档案（探索地图 + 心流银行）── */
+.growth-overlay{
+  position:fixed;inset:0;z-index:800;
+  background:rgba(74,59,51,.45);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(3px);
+}
+.growth-panel{
+  width:min(420px,100%);
+  max-height:82vh;overflow-y:auto;
+  background:var(--color-bg-card,#FDFBF7);
+  border-radius:20px;
+  box-shadow:var(--shadow-lifted);
+  padding:20px;
+}
+.growth-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.growth-panel-title{
+  font-family:var(--font-display);
+  font-size:18px;font-weight:700;
+  color:var(--color-text-primary);
+}
+.growth-panel-close{
+  border:none;background:none;
+  font-size:16px;color:var(--color-text-tertiary);
+  cursor:pointer;padding:4px 8px;
+}
+.growth-panel-section{margin-bottom:20px;}
+.growth-panel-section-title{
+  font-size:14px;font-weight:700;
+  color:var(--color-accent-dark);
+  margin-bottom:4px;
+}
+.growth-panel-section-sub{
+  font-size:12px;color:var(--color-text-tertiary);
+  margin-bottom:12px;
+}
+.growth-map-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.growth-area-card{
+  background:var(--color-bg-subtle,#F5EEE4);
+  border:1px solid var(--color-border,#E8DFD3);
+  border-radius:12px;
+  padding:12px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.growth-area-card.lit{
+  background:var(--raw-ochre-100,#F8E8C8);
+  border-color:var(--raw-ochre-300,#E5C078);
+}
+.growth-area-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-card);}
+.growth-area-icon{font-size:22px;}
+.growth-area-name{font-size:12px;font-weight:600;color:var(--color-text-primary);}
+.growth-area-count{font-size:11px;color:var(--raw-ochre-700,#B0761F);font-weight:700;}
+.growth-area-lock{font-size:11px;opacity:.5;}
+
+/* 心流银行 */
+.growth-flow-bank{
+  display:flex;gap:16px;align-items:center;
+  background:var(--color-bg-subtle,#F5EEE4);
+  border-radius:16px;padding:16px;
+}
+.flow-bank-jar{
+  position:relative;width:70px;height:90px;
+  background:linear-gradient(180deg,var(--raw-paper-100),var(--raw-paper-200));
+  border:2px solid var(--raw-ochre-300,#E5C078);
+  border-radius:0 0 24px 24px;
+  overflow:hidden;flex-shrink:0;
+}
+.flow-bank-jar::before{
+  content:'';position:absolute;top:-10px;left:10px;right:10px;height:14px;
+  background:var(--raw-ochre-400,#D9A441);
+  border-radius:50%;
+}
+.flow-bank-liquid{
+  position:absolute;left:0;right:0;bottom:0;
+  background:linear-gradient(180deg,var(--raw-ochre-400),var(--raw-ochre-500));
+  transition:height .8s cubic-bezier(.16,1,.3,1);
+}
+.flow-bank-coin{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:20px;z-index:2;
+}
+.flow-bank-stats{
+  display:flex;flex-direction:column;gap:12px;flex:1;
+}
+.flow-bank-stat{
+  display:flex;align-items:baseline;gap:8px;
+}
+.flow-bank-stat-value{
+  font-family:var(--font-display);
+  font-size:24px;font-weight:700;
+  color:var(--raw-ochre-600,#C08A2E);
+}
+.flow-bank-stat-label{
+  font-size:11px;color:var(--color-text-secondary);
+}
+.flow-history-list{
+  margin-top:12px;
+  max-height:120px;overflow-y:auto;
+}
+.flow-history-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 4px;
+  border-bottom:1px dashed var(--color-border);
+  font-size:12px;
+}
+.flow-history-date{color:var(--color-text-secondary);}
+.flow-history-min{color:var(--raw-ochre-600,#C08A2E);font-weight:600;}
+.flow-history-empty{
+  font-size:12px;color:var(--color-text-tertiary);
+  padding:12px;text-align:center;
+}
+.growth-panel-footer{
+  text-align:center;
+  font-size:11px;color:var(--color-text-tertiary);
+  padding-top:12px;border-top:1px solid var(--color-border);
 }

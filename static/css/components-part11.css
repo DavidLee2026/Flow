@@ -63,6 +63,24 @@
   border-radius: var(--radius-pill);
   transition: width var(--motion-slow) var(--ease-out);
 }
+.home-exploration-bar-growth {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px 0;
+  border: 1.5px dashed var(--raw-ochre-300);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--raw-ochre-700);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-press);
+}
+.home-exploration-bar-growth:active {
+  transform: translateY(-1px);
+  border-color: var(--raw-ochre-500);
+  background: var(--raw-ochre-100);
+}
 
 /* ── 身份确认语卡片 ── */
 .identity-statement-slot {

@@ -88,9 +88,36 @@ function renderHomeExplorationBar(areaCount, container) {
       <div class="home-exploration-bar-track">
         <div class="home-exploration-bar-fill" style="width:${percent}%;"></div>
       </div>
+      <button class="home-exploration-bar-growth" onclick="openGrowthPanelFromStats(event)">
+        🗺️ 查看我的成长档案
+      </button>
     </div>
   `;
   container.style.display = 'block';
+}
+
+/**
+ * 打开画者成长档案（探索地图 + 心流银行）
+ * 数据源：window.profile（stats.profile，含 exploration + flow_bank）
+ */
+function openGrowthPanelFromStats(e) {
+  if (e) e.stopPropagation();
+  if (typeof renderGrowthPanel === 'function') {
+    // 优先用全局 profile；若缺失则用 stats 刷新一次再打开
+    if (window.profile) {
+      renderGrowthPanel(window.profile);
+    } else {
+      fetch(`${API_BASE}/api/stats`)
+        .then(r => r.json())
+        .then(stats => {
+          if (stats && stats.profile) {
+            window.profile = stats.profile;
+            renderGrowthPanel(window.profile);
+          }
+        })
+        .catch(() => {});
+    }
+  }
 }
 
 /**
