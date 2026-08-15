@@ -2,19 +2,57 @@
 import json
 from datetime import date, timedelta, datetime
 from flask import Blueprint, request, jsonify
-from config import IMAGES_DIR, TRACKING_FILE, COMMUNITY_FILE
+from config import IMAGES_DIR, TRACKING_FILE, COMMUNITY_FILE, user_images_dir
 from data_store import (
     load_records, save_records, load_profile, save_profile, save_community_posts,
     calc_streak, calc_max_streak, _record_date, get_drawing_stage, get_funnel_stats, log_event,
 )
+from data_store.users import register_user, verify_user, user_exists
 
 bp = Blueprint("user", __name__)
 
 
+def _cur_user() -> str:
+    """从请求头 X-User 取当前用户昵称（URL 编码，需 unquote；无则 default）。"""
+    from urllib.parse import unquote
+    return unquote(request.headers.get("X-User", "")).strip() or "default"
+
+
+@bp.route("/api/account", methods=["POST"])
+def api_account():
+    """昵称 + PIN 注册 / 登录"""
+    data = request.get_json() or {}
+    nickname = (data.get("nickname") or "").strip()[:20]
+    pin = (data.get("pin") or "").strip()
+    action = data.get("action", "login")
+    if not nickname or not pin:
+        return jsonify({"ok": False, "error": "昵称和 PIN 不能为空"})
+    if action == "register":
+        if user_exists(nickname):
+            return jsonify({"ok": False, "error": "该昵称已存在，请直接登录"})
+        register_user(nickname, pin)
+        profile = load_profile(nickname)
+        profile["name"] = nickname
+        profile["onboarding_done"] = True
+        profile["onboarding_at"] = datetime.now().isoformat()
+        save_profile(nickname, profile)
+        log_event("account_register", {"name": nickname})
+        return jsonify({"ok": True, "nickname": nickname})
+    # 登录校验
+    if verify_user(nickname, pin):
+        profile = load_profile(nickname)
+        if not profile.get("onboarding_done"):
+            profile["onboarding_done"] = True
+            save_profile(nickname, profile)
+        return jsonify({"ok": True, "nickname": nickname})
+    return jsonify({"ok": False, "error": "昵称或 PIN 不对"})
+
+
 @bp.route("/api/stats")
 def api_stats():
-    records = load_records()
-    profile = load_profile()
+    nick = _cur_user()
+    records = load_records(nick)
+    profile = load_profile(nick)
 
     total = len(records)
 
@@ -119,9 +157,10 @@ def api_stats():
 @bp.route("/api/onboarding", methods=["GET", "POST"])
 def api_onboarding():
     """获取/保存用户画像（v3.0：仅名字）"""
+    nick = _cur_user()
     if request.method == "POST":
         data = request.get_json() or {}
-        profile = load_profile()
+        profile = load_profile(nick)
 
         if "name" in data:
             profile["name"] = data["name"].strip()[:20]
@@ -131,34 +170,36 @@ def api_onboarding():
             profile["onboarding_done"] = True
             profile["onboarding_at"] = datetime.now().isoformat()
 
-        save_profile(profile)
+        save_profile(nick, profile)
 
         if profile.get("onboarding_done"):
             log_event("onboarding_complete", {"name": profile.get("name")})
 
         return jsonify({"profile": profile})
 
-    return jsonify({"profile": load_profile()})
+    return jsonify({"profile": load_profile(nick)})
 
 
 @bp.route("/api/profile", methods=["GET", "POST"])
 def api_profile():
     """获取/设置用户昵称（兼容旧版）"""
+    nick = _cur_user()
     if request.method == "POST":
         data = request.get_json()
-        profile = load_profile()
+        profile = load_profile(nick)
         if data and "name" in data:
             profile["name"] = data["name"].strip()[:20]
-        save_profile(profile)
+        save_profile(nick, profile)
         return jsonify({"profile": profile})
-    return jsonify({"profile": load_profile()})
+    return jsonify({"profile": load_profile(nick)})
 
 
 @bp.route("/api/reset", methods=["POST"])
 def api_reset():
-    """清空所有用户数据（记录、画像、进度、埋点、图片）"""
+    """清空当前用户数据（记录、画像、埋点、图片）"""
+    nick = _cur_user()
     # 清空记录
-    save_records([])
+    save_records(nick, [])
     # 重置画像
     fresh_profile = {
         "name": "小伙伴",
@@ -166,12 +207,12 @@ def api_reset():
         "onboarding_at": None,
         "recommendation_index": 0,
     }
-    save_profile(fresh_profile)
+    save_profile(nick, fresh_profile)
     # 清空埋点
     if TRACKING_FILE.exists():
         TRACKING_FILE.write_text("[]", encoding="utf-8")
-    # 清空图片
-    for f in IMAGES_DIR.glob("*"):
+    # 清空该用户图片
+    for f in user_images_dir(nick).glob("*"):
         if f.is_file():
             f.unlink()
     # 清空社区帖子（否则残留帖子引用已删除的图片）

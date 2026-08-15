@@ -46,3 +46,24 @@ LLM_MODEL = os.environ.get("LLM_MODEL", "")
 client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL or None) if LLM_API_KEY else None
 
 COMMUNITY_FILE = DATA_DIR / "community.json"
+
+# ── 多用户（昵称 + PIN）：每用户独立数据目录 ──────────
+USERS_FILE = DATA_DIR / "users.json"
+
+def user_dir(nickname: str):
+    """每个用户的独立数据目录：data/users/{nickname}/"""
+    d = DATA_DIR / "users" / nickname
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+def user_profile_file(nickname: str):
+    return user_dir(nickname) / "profile.json"
+
+def user_records_file(nickname: str):
+    return user_dir(nickname) / "records.json"
+
+def user_images_dir(nickname: str):
+    return user_dir(nickname) / "images"
+
+def user_share_images_dir(nickname: str):
+    return user_dir(nickname) / "share_images"

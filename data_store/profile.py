@@ -1,12 +1,13 @@
-"""用户画像持久化与默认值"""
+"""用户画像持久化与默认值（多用户：按 nickname 分目录）"""
 
 import json
-from config import USER_PROFILE_FILE
+from config import user_profile_file
 
 
-def load_profile() -> dict:
-    if USER_PROFILE_FILE.exists():
-        with open(USER_PROFILE_FILE, "r", encoding="utf-8") as f:
+def load_profile(nickname: str = "default") -> dict:
+    _path = user_profile_file(nickname)
+    if _path.exists():
+        with open(_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             # 兼容旧版 profile（不覆盖已有字段）
             defaults = _profile_defaults()
@@ -63,6 +64,6 @@ def _profile_defaults() -> dict:
     }
 
 
-def save_profile(profile: dict):
-    with open(USER_PROFILE_FILE, "w", encoding="utf-8") as f:
+def save_profile(nickname: str, profile: dict):
+    with open(user_profile_file(nickname), "w", encoding="utf-8") as f:
         json.dump(profile, f, ensure_ascii=False, indent=2)

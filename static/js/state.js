@@ -3,6 +3,18 @@
 // ─── State ───
 // API 前缀自适应：本地（/ 路径）用空，线上子路径（/flow/app/）用前缀
 const API_BASE = location.pathname.indexOf('/flow/app') === 0 ? '/flow/app' : '';
+// 多用户：所有 fetch 自动带当前用户昵称（X-User header）
+{
+  const _hxFetch = window.fetch.bind(window);
+  window.fetch = function(url, options) {
+    options = options || {};
+    const headers = new Headers(options.headers || {});
+    const nick = localStorage.getItem('hx_nickname');
+    if (nick) headers.set('X-User', encodeURIComponent(nick));
+    options.headers = headers;
+    return _hxFetch(url, options);
+  };
+}
 let records = [];
 let currentGlossaryContext = {};  // 当前反馈的术语上下文（反馈增强 v3.1）
 let waitingTimer = null;

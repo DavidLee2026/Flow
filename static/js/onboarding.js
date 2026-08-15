@@ -63,39 +63,51 @@ function renderObStep() {
 }
 
 // 微信对话式发送名字：用户绿泡泡上屏 → AI 确认 → 自动进入
-function obSendName() {
-  const inp = document.getElementById('obName');
-  if (!inp) return;
-  const name = inp.value.trim();
-  if (!name || name.length > 8) return;
+async function obSendName() {
+  const nickEl = document.getElementById('obName');
+  const pinEl = document.getElementById('obPin');
+  if (!nickEl || !pinEl) return;
+  const nickname = nickEl.value.trim();
+  const pin = pinEl.value.trim();
+  if (!nickname || pin.length !== 4) return;
 
-  // 记录名字 + 提前存 onboarding
-  obData.name = name;
-  fetch(`${API_BASE}/api/onboarding`, {
+  // 先注册，昵称已存在则登录
+  let res = await fetch(`${API_BASE}/api/account`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({name})
-  }).catch(() => {});
+    body: JSON.stringify({nickname, pin, action: 'register'})
+  });
+  let data = await res.json();
+  if (!data.ok) {
+    res = await fetch(`${API_BASE}/api/account`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({nickname, pin, action: 'login'})
+    });
+    data = await res.json();
+  }
+  if (!data.ok) {
+    if (typeof showToast === 'function') showToast(data.error || '昵称或 PIN 不对');
+    return;
+  }
+  localStorage.setItem('hx_nickname', nickname);
+  userName = nickname;
+  const _g = document.getElementById('greetingName');
+  if (_g) _g.textContent = nickname;
 
   const chat = document.getElementById('obChat');
   const bar = document.getElementById('obInputBar');
-
-  // 用户绿泡泡上屏（微信发送动画）
   const me = document.createElement('div');
   me.className = 'ob-msg ob-msg-me ob-msg-pop';
-  me.innerHTML = `<div class="ob-msg-bubble">${escapeHtml(name)}</div>`;
-  chat.appendChild(me);
-
-  // 输入栏退场
+  me.innerHTML = `<div class="ob-msg-bubble">${escapeHtml(nickname)}</div>`;
+  if (chat) chat.appendChild(me);
   if (bar) bar.style.display = 'none';
 
-  // AI 确认回复（稍作停顿再出现，模拟 AI 回应）
   setTimeout(() => {
     const ai = document.createElement('div');
     ai.className = 'ob-msg ob-msg-ai ob-msg-pop';
-    ai.innerHTML = `<div class="ob-msg-avatar">✏️</div><div class="ob-msg-bubble">${escapeHtml(name)}，准备好开始了吗？✨</div>`;
-    chat.appendChild(ai);
-    // 让用户看清 AI 回复，停留 3 秒再进入首页
+    ai.innerHTML = `<div class="ob-msg-avatar">✏️</div><div class="ob-msg-bubble">${escapeHtml(nickname)}，准备好开始了吗？✨</div>`;
+    if (chat) chat.appendChild(ai);
     setTimeout(obComplete, 3000);
   }, 700);
 }
@@ -133,14 +145,7 @@ function obNext() {
 }
 
 async function obComplete() {
-  try {
-    await fetch(`${API_BASE}/api/onboarding`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(obData)
-    });
-  } catch(e) {}
-
+  // 账号已通过 /api/account 注册/登录，无需再调 onboarding
   // 关闭 onboarding
   document.getElementById('onboardingOverlay').classList.remove('visible');
   // 移除 booting 状态
@@ -152,11 +157,12 @@ async function obComplete() {
   const ritualTitle = document.getElementById('ritualTitle');
   const ritualDesc = document.getElementById('ritualDesc');
 
-  if (obData.name) {
-    userName = obData.name;
+  const nick = localStorage.getItem('hx_nickname') || obData.nickname || '';
+  if (nick) {
+    userName = nick;
     // 同步 greetingName：首页名字 fallback 链会读它，避免 stats 时序稍慢时显示"小伙伴"
     const _g = document.getElementById('greetingName');
-    if (_g) _g.textContent = obData.name;
+    if (_g) _g.textContent = nick;
   }
   ritualTitle.textContent = `${userName}，准备好了！`;
   ritualDesc.textContent = '小绘正在为你准备今日主题...';
@@ -185,6 +191,9 @@ async function obComplete() {
     window.scrollTo(0, window._obScrollY || 0);
 
     updateGreeting();
+
+    // 重新加载首页数据（X-User 已生效，显示新用户昵称/数据）
+    if (typeof initHomePage === 'function') initHomePage();
 
     // 确保页面从顶部开始
     requestAnimationFrame(() => {

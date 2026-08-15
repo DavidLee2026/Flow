@@ -31,7 +31,7 @@ from data_store import (
 from agents import perception, evaluation, memory, synthesis
 
 
-def run(image_path: Path, profile: dict, records: list, record_context: dict):
+def run(image_path: Path, profile: dict, records: list, record_context: dict, nickname: str = "default"):
     """编排器入口（生成器函数）
 
     Args:
@@ -117,7 +117,7 @@ def run(image_path: Path, profile: dict, records: list, record_context: dict):
     # 清理临时字段
     updated_profile.pop("_total_drawings", None)
     try:
-        save_profile(updated_profile)
+        save_profile(nickname, updated_profile)
     except Exception as e:
         print(f"[orchestrator] ⚠️ profile 保存失败: {e}", flush=True)
 
@@ -201,9 +201,9 @@ def run(image_path: Path, profile: dict, records: list, record_context: dict):
 
     # 持久化记录
     try:
-        all_records = load_records()
+        all_records = load_records(nickname)
         all_records.append(record)
-        save_records(all_records)
+        save_records(nickname, all_records)
         log_event("image_uploaded", {
             "total": total_drawings,
             "record_id": record.get("id", ""),

@@ -4,7 +4,7 @@ import uuid
 import base64
 from datetime import datetime
 from flask import Blueprint, request, jsonify, Response
-from config import DATA_DIR, IMAGES_DIR, LLM_MODEL, client
+from config import DATA_DIR, IMAGES_DIR, LLM_MODEL, client, user_images_dir
 from data_store import load_records, save_records, load_profile, get_milestone, log_event, get_recommendation
 from ai_service import analyze_drawing, _compress_image_b64
 import orchestrator
@@ -21,15 +21,17 @@ def api_analyze():
     if file.filename == "":
         return jsonify({"error": "请选择图片"}), 400
 
+    from urllib.parse import unquote
+    nick = unquote(request.headers.get("X-User", "")).strip() or "default"
     record_id = str(uuid.uuid4())[:8]
     timestamp = datetime.now().isoformat()
     ext = os.path.splitext(file.filename)[1] or ".jpg"
     filename = f"{timestamp[:10]}_{record_id}{ext}"
-    image_path = IMAGES_DIR / filename
+    image_path = user_images_dir(nick) / filename
     file.save(image_path)
 
-    past_records = load_records()
-    profile = load_profile()
+    past_records = load_records(nick)
+    profile = load_profile(nick)
     history = [r["feedback"] for r in past_records[-2:]] if past_records else None
     total = len(past_records) + 1
 
@@ -166,23 +168,25 @@ def api_analyze_stream():
     if file.filename == "":
         return jsonify({"error": "请选择图片"}), 400
 
-    # 1. 保存图片（同 1.0 逻辑，编排器不管 HTTP）
+    # 1. 保存图片（多用户：按昵称目录）
+    from urllib.parse import unquote
+    nick = unquote(request.headers.get("X-User", "")).strip() or "default"
     record_id = str(uuid.uuid4())[:8]
     timestamp = datetime.now().isoformat()
     ext = os.path.splitext(file.filename)[1] or ".jpg"
     filename = f"{timestamp[:10]}_{record_id}{ext}"
-    image_path = IMAGES_DIR / filename
+    image_path = user_images_dir(nick) / filename
     file.save(image_path)
 
-    # 2. 获取历史记录、profile
-    past_records = load_records()
-    profile = load_profile()
+    # 2. 获取历史记录、profile（按用户）
+    past_records = load_records(nick)
+    profile = load_profile(nick)
     note = request.form.get("note", "").strip()[:200]
     theme = request.form.get("theme", "").strip()[:100]
 
     record_context = {
         "record_id": record_id,
-        "image_relpath": f"images/{filename}",
+        "image_relpath": f"users/{nick}/images/{filename}",
         "timestamp": timestamp,
         "note": note,
         "theme": theme,
@@ -191,7 +195,7 @@ def api_analyze_stream():
 
     # 3. 调用编排器（2.0 替换原 analyze_drawing_stream）
     def generate():
-        for sse in orchestrator.run(image_path, profile, past_records, record_context):
+        for sse in orchestrator.run(image_path, profile, past_records, record_context, nick):
             yield sse
 
     # 4. 返回 SSE 响应
