@@ -287,9 +287,9 @@
 }
 .paper-layer:hover::after { opacity: 1; }
 
-/* 底部导航激活放大 */
+/* 底部导航图标（统一 22px，激活不放大——保持三图标水平对齐） */
 .bottom-nav button .icon { transition: font-size var(--motion-fast) var(--ease-out); }
-.bottom-nav button.active .icon { font-size: var(--font-size-3xl); transition: font-size var(--motion-fast) var(--ease-spring); }
+.bottom-nav button.active .icon { transition: font-size var(--motion-fast) var(--ease-spring); }
 
 /* 无障碍：尊重系统 motion 偏好 */
 @media (prefers-reduced-motion: reduce) {

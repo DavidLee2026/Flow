@@ -41,46 +41,124 @@ function toggleInspiration() {
   }
 }
 
-// ─── 渲染首页顶部信息聚合 ───
+// ─── 渲染首页骨架数据（v6c-v8d2-a 名片夹 / 信 / 旅程） ───
 function renderHomeTopInfo(stats) {
-  const nameEl = document.getElementById('homeUserName');
-  const stageEl = document.getElementById('homeStage');
-  const flowEl = document.getElementById('homeFlowValue');
-  const dateEl = document.getElementById('homeDate');
+  const el = id => document.getElementById(id);
 
-  // 日期
-  if (dateEl) {
-    const now = new Date();
-    const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-    dateEl.textContent = `${months[now.getMonth()]} ${now.getDate()}日`;
-  }
+  // 用户名字（信的开头 + 标题）
+  const userName = (stats && stats.profile && stats.profile.name) ||
+                   (window.profile && window.profile.name) ||
+                   el('greetingName')?.textContent || '画者';
+  if (el('homeGreetName')) el('homeGreetName').textContent = userName;
+  if (el('homeLetterFrom')) el('homeLetterFrom').textContent = `写给${userName} · 第一封信`;
 
-  if (!stats) {
-    // 无 stats 时尝试从全局或 DOM 获取用户名
-    const fallbackName = (window.profile && window.profile.name) ||
-                         document.getElementById('greetingName')?.textContent || '画者';
-    if (nameEl) nameEl.textContent = fallbackName;
-    return;
-  }
+  if (!stats) return;
 
   // 设置全局 profile 供其他模块使用
-  if (stats.profile) {
-    window.profile = stats.profile;
+  if (stats.profile) window.profile = stats.profile;
+
+  const total = stats.total || 0;
+  const streak = stats.streak || 0;
+  const levelTitle = (stats.level && stats.level.title) || '探索者';
+  const stage = stats.stage || '新手期';
+  const stageLabel = stats.stage_label || '基础';
+
+  // 信日期（WELCOME · MM.DD）
+  if (el('homeLetterDate')) {
+    const now = new Date();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    el('homeLetterDate').textContent = `WELCOME · ${mm}.${dd}`;
   }
 
-  // 用户名（优先从 stats.profile 获取）
-  const userName = (stats.profile && stats.profile.name) ||
-                   (window.profile && window.profile.name) ||
-                   document.getElementById('greetingName')?.textContent || '画者';
-  if (nameEl) nameEl.textContent = userName;
+  // 信的内容随画作数演进（0张欢迎版 / ≥5张"五张了"版 · 对齐 v6c-v8d2-a-5zhang）
+  if (el('homeLetterBody')) {
+    el('homeLetterBody').innerHTML = total >= 5
+      ? '五张了，<b>画者</b>。从第一笔的犹豫，到能画出自己认得出的东西——这中间每一笔，都算数。今天想画什么，还由你自己决定。'
+      : '欢迎来到绘心 Flow。这里没有打分，只有看见——画得歪歪扭扭也没关系。今天<b>想画什么就画什么</b>，哪怕只是一条线，都是你的第一笔。';
+  }
+  if (el('homeTip')) {
+    el('homeTip').innerHTML = total >= 5
+      ? '💡 <b>今日邀请</b>：继续画<b>想画的</b>，方向越亮，标签越懂你。'
+      : '💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。';
+  }
 
-  // 等级标签（直接使用 API 返回的 level.title，更准确）
-  const stageLabel = (stats.level && stats.level.title) || '探索者';
-  if (stageEl) stageEl.textContent = `· ${stageLabel}`;
+  // 天数
+  if (el('homeDay')) el('homeDay').textContent = total === 0 ? '新画者 · 第 1 天' : `画者 · 第 ${total} 天`;
 
-  // 心流值（用 total 作为心流值，后续 Phase 2 改为心流银行余额）
-  const flowValue = stats.total || 0;
-  if (flowEl) flowEl.textContent = `心流 ${flowValue}`;
+  // 心流种子（空状态 1 颗 · 之后每张 +1，断签不归零）
+  const seedNum = Math.max(1, total);
+  if (el('homeSeedNum')) el('homeSeedNum').textContent = seedNum;
+  if (el('homeFlowToday')) el('homeFlowToday').textContent = `今日 +${total > 0 ? 1 : 0}`;
+  if (el('homeFlowWeek')) el('homeFlowWeek').textContent = `本周 +${total}`;
+
+  // 探索进度 + 方向标签（后端权威数据，参考 v6c-v8d2-a-5zhang）
+  const exploration = (stats.profile && stats.profile.exploration) || {};
+  const explored = exploration.explored_areas || {};
+  const areaCount = exploration.explored_area_count !== undefined
+    ? exploration.explored_area_count
+    : Object.keys(explored).length;
+  const n = Math.max(0, Math.min(6, areaCount || 0));
+  const esc = name => (typeof escapeHtml === 'function' ? escapeHtml(name) : name);
+  const areaNames = Object.keys(explored).slice(0, 6);
+  if (el('homeExploreNum')) el('homeExploreNum').textContent = n;
+  if (el('homeExploreCount')) el('homeExploreCount').textContent = n;
+  if (el('homeExploreFill')) el('homeExploreFill').style.width = (n / 6 * 100) + '%';
+  if (el('homeExploreHint')) el('homeExploreHint').textContent = n === 0 ? '还没有方向' : areaNames.map(esc).join(' · ');
+  // 成长旅程方向标签 chips（参考 5zhang 版 .a.on）
+  const chips = el('homeAreaChips');
+  if (chips) {
+    chips.innerHTML = n === 0
+      ? '<span class="a-empty">画一张，你的方向标签会出现在这里</span>'
+      : areaNames.map(name => `<span class="a on">${esc(name)} ✓</span>`).join('');
+  }
+  // 名片夹引导语
+  const exnext = el('homeExnext');
+  if (exnext) {
+    exnext.innerHTML = n === 0
+      ? '画一张，我们会为你的画贴上<b>最合适的方向标签</b>'
+      : `你在 <b>${areaNames.slice(0, 2).map(esc).join('</b> 和 <b>')}</b> 上已经画出了感觉——继续画，让更多方向亮起来`;
+  }
+
+  // 连续天数 + 画作数
+  if (el('homeStreakNum')) el('homeStreakNum').textContent = `${streak} 天`;
+  if (el('homeDrawingsNum')) el('homeDrawingsNum').textContent = `${total} 张`;
+
+  // 画者身份（名片夹 + 旅程）
+  if (el('homeArcName')) el('homeArcName').textContent = total === 0 ? '画者 · 预备' : `画者 · ${levelTitle}`;
+  if (el('homeArcLevel')) el('homeArcLevel').textContent = total === 0 ? '画你所见 · 起点' : `${stageLabel} · ${stage}`;
+  if (el('homeStageName')) el('homeStageName').textContent = stage;
+  if (el('homeStageSub')) el('homeStageSub').textContent = total === 0
+    ? '第 1 阶段 · 观察实物，画出能认出来的东西'
+    : `累计 ${total} 张 · ${levelTitle}`;
+}
+
+// ─── 首页骨架入场动效（移植 v6c-v8d2-a 时序） ───
+function playHomeReveal() {
+  const letter = document.getElementById('homeLetter');
+  if (letter) setTimeout(() => letter.classList.add('open'), 300);
+  const p1 = document.querySelector('#homeLetter .p1');
+  if (p1) setTimeout(() => p1.classList.add('show'), 450);
+  const seal = document.getElementById('homeSeal');
+  if (seal) setTimeout(() => seal.classList.add('stamp'), 700);
+  const tip = document.getElementById('homeTip');
+  if (tip) setTimeout(() => tip.classList.add('show'), 850);
+  const cta = document.getElementById('homeCta');
+  if (cta) setTimeout(() => cta.classList.add('show'), 1100);
+  const bank = document.getElementById('homeBank');
+  if (bank) setTimeout(() => bank.classList.add('show'), 1250);
+  const arc = document.getElementById('homeArc');
+  if (arc) setTimeout(() => arc.classList.add('show'), 1400);
+  const journey = document.getElementById('homeJourney');
+  if (journey) setTimeout(() => journey.classList.add('show'), 1600);
+
+  // jarwave 液面波动（V6-C ambient）
+  const jarwaves = document.querySelectorAll('.jarwave');
+  if (jarwaves.length) {
+    setInterval(() => {
+      jarwaves.forEach(x => { x.style.transform = 'translateX(-2px)'; setTimeout(() => { x.style.transform = 'translateX(0)'; }, 400); });
+    }, 2200);
+  }
 }
 
 // ─── 渲染最近作品缩略图 ───
@@ -141,6 +219,9 @@ async function initHomePage() {
     console.warn('[home] timeline 加载失败', e);
     renderRecentWorks();
   }
+
+  // 首页骨架入场动效（移植 v6c-v8d2-a 时序）
+  playHomeReveal();
 }
 
 // ─── 打开记录详情（从缩略图点击） ───

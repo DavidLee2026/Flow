@@ -449,3 +449,192 @@ body.booting::after {
   color: var(--color-text-tertiary);
   margin-bottom: 4px;
 }
+
+/* ═══ 反馈对话页（全屏 view · 设计版式 B 对话流） ═══ */
+.feedback-page{display:none;position:fixed;inset:0;z-index:310;background:var(--raw-paper-200);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.feedback-page.visible{display:block}
+.fbp-chat{max-width:560px;margin:0 auto;padding:10px 16px 120px;display:flex;flex-direction:column;gap:12px}
+/* 用户消息 + 对话头 */
+.feedback-page .msg{display:flex;gap:10px;align-items:flex-end}
+.feedback-page .msg.user{flex-direction:row-reverse}
+.feedback-page .msg.user#fbMsgPhoto{flex-direction:column;align-items:flex-end;gap:8px}
+.feedback-page .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(201,125,91,.3)}
+.feedback-page .msg.user .user-av{background:linear-gradient(135deg,var(--raw-sage-300),var(--raw-sage-500));box-shadow:0 2px 8px rgba(123,155,110,.3)}
+.feedback-page .msg-user-head{display:flex;align-items:center;gap:8px;align-self:flex-end}
+.feedback-page .msg-user-info{display:flex;flex-direction:column;align-items:flex-end}
+.feedback-page .msg-user-name{font-size:13px;font-weight:700;color:var(--raw-brown-900)}
+.feedback-page .msg-user-sub{font-size:10px;color:var(--raw-brown-300);margin-top:1px}
+.feedback-page .msg-bubble{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-paper);font-size:13px;line-height:1.7;color:var(--raw-brown-700)}
+.feedback-page .msg.user .msg-bubble{background:var(--raw-clay-100);border-color:var(--raw-clay-200);border-radius:var(--radius-md);color:var(--raw-brown-900)}
+.feedback-page .msg-bubble.photo{position:relative;padding:8px}
+.feedback-page .msg-bubble.photo img{width:180px;height:auto;display:block;border-radius:10px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
+.feedback-page .msg-meta{font-size:10px;color:var(--raw-brown-300);font-family:var(--font-mono);margin-top:4px}
+/* 小绘对话头 */
+.feedback-page .chat-head{display:flex;align-items:center;gap:10px;padding:10px 2px 4px}
+.feedback-page .chat-head-info{flex:1;min-width:0}
+.feedback-page .chat-head-name{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--raw-brown-900)}
+.feedback-page .chat-head-sub{font-size:11px;color:var(--raw-brown-300);margin-top:1px}
+.feedback-page .chat-head-status{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;color:var(--raw-sage-700);background:var(--raw-sage-100);padding:2px 8px;border-radius:var(--radius-pill)}
+.feedback-page .chat-head-status .dot{width:6px;height:6px;border-radius:50%;background:var(--raw-sage-500);animation:fbChipBlink 1.4s ease-in-out infinite}
+/* 识别 chip */
+.feedback-page .photo-scan-chip{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;color:var(--raw-ochre-700);background:rgba(250,239,213,.94);border:1px solid var(--raw-ochre-200);padding:3px 9px;border-radius:var(--radius-pill);display:flex;align-items:center;gap:5px;box-shadow:var(--shadow-paper);opacity:0;transition:opacity .3s}
+.feedback-page .photo-scan-chip.show{opacity:1}
+.feedback-page .photo-scan-chip .chip-dot{width:6px;height:6px;border-radius:50%;background:var(--raw-ochre-500);animation:fbChipBlink 1.2s ease-in-out infinite}
+@keyframes fbChipBlink{0%,100%{opacity:.3}50%{opacity:1}}
+/* 反馈容器（内部沿用现有组件样式） */
+.feedback-page .feedback-section{margin-top:4px}
+/* 返回 */
+.feedback-page .fbp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-bottom:40px}
+.feedback-page .fb-back{flex-basis:100%;text-align:center;margin:12px auto 0;font-size:12px;color:var(--raw-brown-500);padding:6px 14px;animation:fbBackPulse 2.2s ease-in-out infinite;cursor:pointer}
+@keyframes fbBackPulse{0%,100%{opacity:.72}50%{opacity:1;text-shadow:0 0 10px rgba(184,133,40,.35)}}
+
+/* ═══ 5 层对话流卡片（design B 样式） ═══ */
+.feedback-page .stream-layer{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:14px 16px;opacity:0;transform:translateY(10px);transition:opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1)}
+.feedback-page .stream-layer.show{opacity:1;transform:none}
+.feedback-page .stream-layer .s-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);margin-bottom:6px}
+.feedback-page .stream-layer[data-type="identify"] .s-tag{background:var(--raw-ochre-100);color:var(--raw-ochre-700)}
+.feedback-page .stream-layer[data-type="observe"] .s-tag{background:var(--raw-clay-100);color:var(--raw-clay-700)}
+.feedback-page .stream-layer[data-type="progress"] .s-tag{background:var(--raw-sage-100);color:var(--raw-sage-700)}
+.feedback-page .stream-layer[data-type="suggestion"] .s-tag{background:var(--raw-clay-100);color:var(--raw-clay-700)}
+.feedback-page .stream-layer[data-type="encourage"] .s-tag{background:var(--raw-ochre-100);color:var(--raw-ochre-700)}
+.feedback-page .stream-layer .s-text{font-size:14px;line-height:1.8;color:var(--raw-brown-700)}
+.feedback-page .stream-layer .s-text b{color:var(--raw-clay-700)}
+.feedback-page .stream-layer[data-type="identify"] .s-text{font-family:var(--font-display);font-size:16px;color:var(--raw-brown-900)}
+.feedback-page .stream-layer[data-type="identify"] .s-text b{color:var(--raw-ochre-700)}
+.feedback-page .stream-layer[data-type="identify"]{box-shadow:var(--shadow-paper),inset 0 0 0 1px rgba(217,164,65,.15)}
+.feedback-page .archive-note{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-family:var(--font-mono);font-size:10px;color:var(--raw-sage-700);padding:3px 10px;background:var(--raw-sage-100);border-radius:var(--radius-pill)}
+.feedback-page .fb-progress-box{display:flex;align-items:flex-start;gap:8px;background:var(--raw-sage-100);border-radius:var(--radius-md);padding:11px 13px;font-size:13px;line-height:1.7;color:var(--raw-brown-700)}
+.feedback-page .fb-progress-box .p-icon{font-size:17px;flex-shrink:0}
+.feedback-page .fb-progress-box b{color:var(--raw-sage-700)}
+.feedback-page .fb-tip-box{margin-top:8px;padding:9px 13px;background:var(--raw-ochre-100);border-radius:var(--radius-md);font-size:12.5px;color:var(--raw-brown-700);border-left:3px solid var(--raw-ochre-500)}
+.feedback-page .fb-tip-box b{color:var(--raw-ochre-700)}
+
+/* ═══ flowfb-b 对话流组件（design B 样式） ═══ */
+.feedback-page .typing{display:inline-flex;gap:4px;padding:12px 16px;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);align-items:center;width:fit-content;align-self:flex-start}
+.feedback-page .typing span{width:7px;height:7px;border-radius:50%;background:var(--raw-clay-400);animation:fbTypingB 1s ease-in-out infinite}
+.feedback-page .typing span:nth-child(2){animation-delay:.15s}
+.feedback-page .typing span:nth-child(3){animation-delay:.3s}
+@keyframes fbTypingB{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.feedback-page .exploration-bar{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:12px 15px}
+.feedback-page .eb-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.feedback-page .eb-title{font-size:13px;font-weight:600;color:var(--raw-brown-900)}
+.feedback-page .eb-value{font-family:var(--font-mono);font-size:17px;font-weight:600;color:var(--raw-ochre-700)}
+.feedback-page .eb-value .delta{font-size:11px;margin-left:6px;color:var(--raw-sage-700)}
+.feedback-page .eb-track{width:100%;height:12px;background:var(--raw-paper-300);border-radius:999px;overflow:hidden}
+.feedback-page .eb-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--raw-ochre-300),var(--raw-ochre-500),var(--raw-ochre-700));border-radius:999px;transition:width .8s var(--ease-out);box-shadow:0 0 8px rgba(217,164,65,.3)}
+.feedback-page .eb-fill.flash-up{animation:fbEbFlashUp .6s var(--ease-out)}
+@keyframes fbEbFlashUp{0%{filter:brightness(1)}50%{filter:brightness(1.4)}100%{filter:brightness(1)}}
+.feedback-page .eb-labels{display:flex;justify-content:space-between;margin-top:4px;font-family:var(--font-mono);font-size:9px;color:var(--raw-brown-300)}
+.feedback-page .radar-card{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:14px 16px}
+.feedback-page .radar-header{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.feedback-page .radar-tag{font-size:11px;font-weight:700;color:var(--raw-ochre-700);background:var(--raw-ochre-100);padding:3px 10px;border-radius:var(--radius-pill)}
+.feedback-page .radar-subtitle{font-size:10px;color:var(--raw-brown-300)}
+.feedback-page .radar-wrap{display:flex;align-items:center;gap:14px}
+.feedback-page .radar-svg{width:110px;height:110px;flex-shrink:0}
+.feedback-page .radar-grid{fill:none;stroke:var(--raw-paper-400);stroke-width:1;opacity:.5}
+.feedback-page .radar-axis{stroke:var(--raw-paper-400);stroke-width:1;opacity:.3}
+.feedback-page .radar-data{fill:rgba(217,164,65,.15);stroke:var(--raw-ochre-500);stroke-width:2}
+.feedback-page .radar-label-text{font-family:var(--font-body);font-size:9px;fill:var(--raw-brown-500)}
+.feedback-page .radar-labels{flex:1}
+.feedback-page .radar-label-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px}
+.feedback-page .radar-label-row .name{color:var(--raw-brown-900)}
+.feedback-page .radar-label-row .val{font-family:var(--font-mono);color:var(--raw-brown-500)}
+.feedback-page .radar-label-row.highlight .name{color:var(--raw-ochre-700);font-weight:700}
+.feedback-page .radar-label-row.highlight .val{color:var(--raw-ochre-700)}
+.feedback-page .milestone-card{display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,var(--raw-paper-100),var(--raw-sage-100) 160%);border:1px solid var(--raw-sage-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:13px 15px}
+.feedback-page .milestone-icon{font-size:26px}
+.feedback-page .milestone-text{flex:1}
+.feedback-page .milestone-title{font-size:13px;font-weight:700;color:var(--raw-sage-700)}
+.feedback-page .milestone-msg{font-size:12px;color:var(--raw-brown-500);margin-top:2px;line-height:1.6}
+.feedback-page .reflection-area{display:block;padding:14px 16px;margin:0;background:var(--raw-paper-100);border-radius:var(--radius-md);border:1px solid var(--raw-paper-300)}
+.feedback-page .archive-flow{display:flex;gap:8px}
+.feedback-page .archive-pill{display:flex;align-items:center;gap:7px;background:none;border:none;border-radius:999px;padding:8px 16px;font-size:12px;color:var(--raw-brown-700);flex:1;justify-content:center}
+.feedback-page .archive-pill.filing{background:linear-gradient(160deg,var(--raw-sage-100),var(--raw-sage-300) 160%);border:1px solid var(--raw-sage-300)}
+.feedback-page .archive-pill.flow-bank{background:linear-gradient(160deg,var(--raw-ochre-100),var(--raw-ochre-300) 160%);border:1px solid var(--raw-ochre-200)}
+.feedback-page .archive-pill .pill-icon{font-size:15px}
+.feedback-page .archive-pill .pill-text{flex:1;line-height:1.4;text-align:center}
+.feedback-page .archive-pill .pill-val{font-family:var(--font-mono);font-weight:700;color:var(--raw-ochre-700);font-size:14px}
+.feedback-page .flow-bank-mini{width:26px;height:30px;position:relative;flex-shrink:0}
+.feedback-page .flow-bank-mini svg{width:100%;height:100%}
+.feedback-page .flow-bank-liquid{fill:var(--raw-ochre-500);opacity:.6;transition:y .8s var(--ease-out),height .8s var(--ease-out)}
+
+/* ═══ 反馈区布局（板块空隙 + 身份语 + 收到消息 + 三按钮） ═══ */
+.feedback-page #fbLayersContainer{display:flex;flex-direction:column;gap:12px}
+.feedback-page .identity-inline{margin-top:8px;font-family:var(--font-display);font-size:13px;color:var(--raw-ochre-700);line-height:1.6}
+.feedback-page .msg.bot{align-self:flex-start}
+.feedback-page .msg.bot .msg-bubble{max-width:85%;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-paper);font-size:13px;line-height:1.7;color:var(--raw-brown-700)}
+.feedback-page .fb-btn{flex:1;padding:12px 8px;border-radius:var(--radius-md);font-size:13px;font-weight:600;text-align:center;cursor:pointer;border:none}
+.feedback-page .fb-btn-primary{background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));color:#fff;box-shadow:0 4px 14px rgba(201,125,91,.35)}
+.feedback-page .fb-btn-secondary{background:#F5E4D9;color:#CA7E5B}
+
+/* ═══ flowfb-b 重现块 + 反思 ═══ */
+.feedback-page .msg-body{max-width:100%;display:flex;flex-direction:column;gap:6px;min-width:0}
+.feedback-page .reconstruct{margin-top:2px;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;text-align:center;position:relative}
+.feedback-page .reconstruct-wow{font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.15em;color:#fff;background:var(--raw-ochre-500);padding:3px 10px;border-radius:var(--radius-pill);position:absolute;top:10px;right:10px;z-index:2}
+.feedback-page .reconstruct-canvas{border-radius:var(--radius-md);overflow:hidden;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300);position:relative;min-height:160px}
+.feedback-page .reconstruct-label{font-family:var(--font-mono);font-size:10px;color:var(--raw-brown-500);text-align:center;margin-top:8px}
+.feedback-page .reflection-title{font-size:14px;font-weight:600;color:var(--raw-brown-900);margin-bottom:8px}
+.feedback-page .reflection-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.feedback-page .reflection-tag-btn{font-size:12px;padding:5px 12px;border-radius:var(--radius-pill);background:var(--raw-paper-200);color:var(--raw-brown-500);border:1px solid var(--raw-paper-300);cursor:pointer;transition:all .2s}
+.feedback-page .reflection-tag-btn:hover{background:var(--raw-clay-100);color:var(--raw-clay-700);border-color:var(--raw-clay-200)}
+.feedback-page .reflection-hint{font-size:11px;color:var(--raw-brown-300)}
+
+/* 隐藏重现 WOW 标签（右上角） */
+.feedback-page .replay-wow-tag{display:none}
+
+/* ═══ 移动端可读字号（偶数刻度体系 12/14/16/18 · 2026-08-15） ═══
+   高强调 18 · 正文 16 · 常规 14 · 辅助 12 · 弱辅助 10 —— 全部偶数 */
+.feedback-page .msg-bubble, .feedback-page .msg.bot .msg-bubble{font-size:16px}
+.feedback-page .stream-layer .s-tag{font-size:12px}
+.feedback-page .stream-layer .s-text{font-size:16px}
+.feedback-page .stream-layer[data-type="identify"] .s-text{font-size:18px}
+.feedback-page .archive-note{font-size:12px}
+.feedback-page .fb-progress-box{font-size:16px}
+.feedback-page .fb-progress-box .p-icon{font-size:18px}
+.feedback-page .fb-tip-box{font-size:14px}
+.feedback-page .chat-head-name{font-size:16px}
+.feedback-page .chat-head-sub{font-size:14px}
+.feedback-page .chat-head-status{font-size:12px}
+.feedback-page .msg-user-name{font-size:16px}
+.feedback-page .msg-user-sub{font-size:12px}
+.feedback-page .msg-meta{font-size:12px}
+.feedback-page .eb-title{font-size:16px}
+.feedback-page .eb-value{font-size:18px}
+.feedback-page .eb-value .delta{font-size:14px}
+.feedback-page .eb-labels{font-size:12px}
+.feedback-page .radar-tag{font-size:14px}
+.feedback-page .radar-subtitle{font-size:12px}
+.feedback-page .radar-label-text{font-size:10px}
+.feedback-page .radar-label-row{font-size:14px}
+.feedback-page .milestone-title{font-size:16px}
+.feedback-page .milestone-msg{font-size:14px}
+.feedback-page .reflection-title{font-size:16px}
+.feedback-page .reflection-tag-btn{font-size:14px}
+.feedback-page .reflection-hint{font-size:14px}
+.feedback-page .archive-pill{font-size:14px}
+.feedback-page .archive-pill .pill-icon{font-size:16px}
+.feedback-page .archive-pill .pill-val{font-size:16px}
+.feedback-page .fb-btn{font-size:16px}
+.feedback-page .fb-back{font-size:14px}
+.feedback-page .reconstruct-label{font-size:12px}
+.feedback-page .avatar{font-size:16px}
+.feedback-page .identity-inline{font-size:14px}
+/* 收到消息一行显示：气泡按内容自适应，不折行 */
+.feedback-page .msg.bot .msg-bubble{width:fit-content;max-width:100%;white-space:nowrap}
+
+/* ═══ flowfb-b 反思交互（确认条 + 输入框 + SSE 回复） ═══ */
+.feedback-page .reflection-confirm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:8px 12px;background:var(--raw-sage-100);border-radius:var(--radius-md);animation:fbLayerIn .25s ease-out both}
+.feedback-page .reflection-confirm-text{font-size:14px;color:var(--raw-sage-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feedback-page .reflection-confirm-btn{background:var(--raw-sage-500);border:none;border-radius:16px;padding:6px 16px;font-size:14px;font-weight:600;color:var(--raw-white);cursor:pointer;flex-shrink:0;transition:background .15s}
+.feedback-page .reflection-confirm-btn:active{background:var(--raw-sage-700)}
+.feedback-page .reflection-write{display:flex;gap:8px;margin:0 0 8px}
+.feedback-page .reflection-input{flex:1;border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:9px 12px;font-size:14px;font-family:var(--font-body);outline:none;background:var(--raw-white);color:var(--raw-brown-900);min-width:0}
+.feedback-page .reflection-input:focus{border-color:var(--raw-clay-400)}
+.feedback-page .reflection-input::placeholder{color:var(--raw-brown-300)}
+.feedback-page .reflection-send{background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));color:#fff;border:none;border-radius:var(--radius-md);padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0;transition:transform .15s}
+.feedback-page .reflection-send:active{transform:scale(.96)}
+.feedback-page .reflection-tag-btn.selected{background:var(--raw-clay-100);color:var(--raw-clay-700);border-color:var(--raw-clay-300)}
+.feedback-page .reflection-response{margin-top:2px}
+/* 发送后锁定：只允许发送 1 次 */
+.feedback-page .reflection-tags.locked{pointer-events:none;opacity:.6}
+.feedback-page .reflection-write.locked{pointer-events:none;opacity:.6}

@@ -36,54 +36,54 @@ function selectQuickReflection(btn, text) {
   btn.classList.add('selected');
   selectedReflectionText = text;
   // 显示确认发送条
-  document.getElementById('rConfirmText').textContent = `已选：${btn.textContent.replace(/^[^\s]+\s/, '')}`;
-  document.getElementById('reflectionConfirm').style.display = 'flex';
+  document.getElementById('fbRConfirmText').textContent = `已选：${btn.textContent.replace(/^[^\s]+\s/, '')}`;
+  document.getElementById('fbReflectionConfirm').style.display = 'flex';
 }
 
 function confirmReflection() {
   if (!selectedReflectionText) return;
   // 锁定所有标签，不可再点
   document.querySelectorAll('.r-quick-btn').forEach(b => b.style.pointerEvents = 'none');
-  document.getElementById('reflectionConfirm').style.display = 'none';
+  document.getElementById('fbReflectionConfirm').style.display = 'none';
   sendReflection(selectedReflectionText);
 }
 
 function showCustomReflection() {
   // 隐藏标签确认条（切换到文字输入模式）
-  document.getElementById('reflectionConfirm').style.display = 'none';
+  document.getElementById('fbReflectionConfirm').style.display = 'none';
   document.querySelectorAll('.r-quick-btn').forEach(b => b.classList.remove('selected'));
   selectedReflectionText = '';
   // 显示自定义输入
-  const row = document.getElementById('reflectionCustomRow');
+  const row = document.getElementById('fbReflectionCustomRow');
   if (row) {
     row.style.display = 'flex';
-    const input = document.getElementById('reflectionInput');
+    const input = document.getElementById('fbReflectionInput');
     if (input) setTimeout(() => input.focus(), 100);
   }
 }
 
 // 重置反思区 UI（每次新反馈前调用）
 function resetReflectionUI() {
-  const input = document.getElementById('reflectionInput');
+  const input = document.getElementById('fbReflectionInput');
   if (input) {
     input.value = '';
     input.style.borderColor = '';
   }
-  const customRow = document.getElementById('reflectionCustomRow');
+  const customRow = document.getElementById('fbReflectionCustomRow');
   if (customRow) customRow.style.display = 'none';
   document.querySelectorAll('.r-quick-btn').forEach(b => {
     b.classList.remove('selected');
     b.style.pointerEvents = '';
   });
-  const confirmBar = document.getElementById('reflectionConfirm');
+  const confirmBar = document.getElementById('fbReflectionConfirm');
   if (confirmBar) confirmBar.style.display = 'none';
   selectedReflectionText = '';
-  const responseEl = document.getElementById('reflectionResponse');
+  const responseEl = document.getElementById('fbReflectionResponse');
   if (responseEl) responseEl.classList.remove('visible');
 }
 
 function sendReflection(presetText) {
-  const input = document.getElementById('reflectionInput');
+  const input = document.getElementById('fbReflectionInput');
   const text = (presetText || input.value || '').trim();
   if (!text) {
     if (input) {
@@ -105,8 +105,8 @@ function sendReflection(presetText) {
   }
 
   // ═══ SSE 流式获取反思回复（逐字显示，不干等）═══
-  const replyEl = document.getElementById('reflectionReply');
-  const responseEl = document.getElementById('reflectionResponse');
+  const replyEl = document.getElementById('fbReflectionReply');
+  const responseEl = document.getElementById('fbReflectionResponse');
   responseEl.classList.add('visible');
   replyEl.innerHTML = `
     <div class="chat-meta user">你</div>
@@ -179,7 +179,7 @@ function sendReflection(presetText) {
     input.value = '';
     input.style.borderColor = '';
   }
-  const customRow = document.getElementById('reflectionCustomRow');
+  const customRow = document.getElementById('fbReflectionCustomRow');
   if (customRow) customRow.style.display = 'none';
 }
 
@@ -210,7 +210,7 @@ function getTimeAgo(timestamp) {
 
 // ─── 记录感受（简易版） ───
 function recordFeeling() {
-  const input = document.getElementById('reflectionInput');
+  const input = document.getElementById('fbReflectionInput');
   if (!input) return;
   const text = input.value.trim();
   if (!text) {

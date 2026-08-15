@@ -137,6 +137,8 @@ async function changeTodayTheme() {
 
 // ─── Tab switching ───
 function switchTab(tab) {
+  // 若反馈全屏 view 开着，先关闭（防御）
+  if (typeof closeFeedbackPage === 'function') closeFeedbackPage();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(`page-${tab}`).classList.add('active');
@@ -146,7 +148,36 @@ function switchTab(tab) {
   if (tab === 'timeline') {
     track('timeline_viewed', {});
     renderTimeline();
+  } else if (tab === 'ach') {
+    track('ach_viewed', {});
+    renderAchievements();
   }
+}
+
+// ─── 小成就页数据（对齐原型 V6-C 空状态） ───
+function renderAchievements() {
+  fetch(`${API_BASE}/api/stats`)
+    .then(r => r.json())
+    .then(stats => {
+      const total = stats.total || 0;
+      const levelTitle = (stats.level && stats.level.title) || '探索者';
+      const exploration = (stats.profile && stats.profile.exploration) || {};
+      const areaCount = exploration.explored_area_count || Object.keys(exploration.explored_areas || {}).length || 0;
+      const el = id => document.getElementById(id);
+      if (el('achName')) el('achName').textContent = total === 0 ? '画者 · 预备' : `画者 · ${levelTitle}`;
+      if (el('achLit')) el('achLit').textContent = total > 0 ? 1 : 0;
+      const e1 = document.getElementById('achExplore1');
+      if (e1) e1.textContent = `${Math.min(1, areaCount)} / 1`;
+      const d1 = document.getElementById('achDrawing1');
+      if (d1) d1.textContent = `${Math.min(1, total)} / 1`;
+      const d5 = document.getElementById('achDrawing5');
+      if (d5) d5.textContent = total >= 5 ? '已解锁' : '未解锁';
+      if (total >= 1) {
+        const m = document.querySelector('#achDrawing1') && document.querySelector('#achDrawing1').closest('.mile-item');
+        if (m) { m.classList.remove('now'); m.classList.add('done'); }
+      }
+    })
+    .catch(() => {});
 }
 
 

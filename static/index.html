@@ -6,15 +6,15 @@
 <meta name="theme-color" content="#C97D5B">
 <link rel="manifest" href="/flow/app/manifest.json">
 <title>绘心 Flow</title>
-<link rel="stylesheet" href="static/css/tokens.css?v=2">
+<link rel="stylesheet" href="static/css/tokens.css?v=3">
 <link rel="stylesheet" href="static/css/base.css?v=2">
-<link rel="stylesheet" href="static/css/components-home.css?v=2">
+<link rel="stylesheet" href="static/css/components-home.css?v=12">
 <link rel="stylesheet" href="static/css/components-share.css?v=2">
 <link rel="stylesheet" href="static/css/components-feedback.css?v=2">
 <link rel="stylesheet" href="static/css/components-onboarding.css?v=2">
-<link rel="stylesheet" href="static/css/components-growth.css?v=2">
-<link rel="stylesheet" href="static/css/components-feedback2.css?v=2">
-<link rel="stylesheet" href="static/css/components-camera.css?v=3">
+<link rel="stylesheet" href="static/css/components-growth.css?v=5">
+<link rel="stylesheet" href="static/css/components-feedback2.css?v=12">
+<link rel="stylesheet" href="static/css/components-camera.css?v=4">
 <link rel="stylesheet" href="static/css/components-community.css?v=2">
 <link rel="stylesheet" href="static/css/components-misc1.css?v=2">
 <link rel="stylesheet" href="static/css/components-radar.css?v=2">
@@ -46,14 +46,7 @@
 
 <!-- Path Select removed in v3.0 — only creation mode -->
 
-<!-- ─── Header ─── -->
-<div class="header">
-  <div style="display:flex;align-items:center;justify-content:center;position:relative;width:100%;max-width:460px;margin:0 auto;">
-    <div style="display:flex;align-items:center;gap:6px;">
-      <h1 onclick="switchTab('home')">✏️ 绘心 <span class="logo-craft">Flow</span></h1>
-    </div>
-  </div>
-</div>
+<!-- header 已移除：骨架 hd-brand（✏️ 绘心 Flow）已承担品牌展示 -->
 
 <!-- ─── 创作前奏 (2.0 MVP) ─── -->
 <div id="creativePrelude" class="creative-prelude">
@@ -63,13 +56,103 @@
 <!-- ─── Page: Home ─── -->
 <div id="page-home" class="page active">
 
-  <!-- 2.0 顶部信息聚合栏 -->
-  <div class="home-top-bar">
-    <span id="homeDate" class="home-date"></span>
-    <span class="home-greeting">你好，<span id="homeUserName">画者</span></span>
-    <span id="homeStage" class="home-stage-tag"></span>
-    <span id="homeFlowValue" class="home-flow-value"></span>
+  <!-- ═══ 首页骨架（移植 v6c-v8d2-a · 新用户空状态版 A） ═══ -->
+  <div class="hd fade-up d1">
+    <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
+    <div class="hd-day" id="homeDay">新画者 · 第 1 天</div>
   </div>
+
+  <!-- 小绘的第一封信 -->
+  <div class="letter" id="homeLetter">
+    <div class="l-top">
+      <div class="l-avatar">绘</div>
+      <div class="l-from"><b>小绘</b><br><span id="homeLetterFrom">写给新画者 · 第一封信</span></div>
+      <div class="l-date" id="homeLetterDate">WELCOME · 08.15</div>
+    </div>
+    <div class="l-greet">你好呀，<em id="homeGreetName">未来的画者</em>。</div>
+    <div class="l-body">
+      <p class="p1" id="homeLetterBody">欢迎来到绘心 Flow。这里没有打分，只有看见——画得歪歪扭扭也没关系。今天<b>想画什么就画什么</b>，哪怕只是一条线，都是你的第一笔。</p>
+      <div class="l-seal" id="homeSeal">
+        <div class="sv"><b id="homeSeedNum">1</b><span>心流种子</span></div>
+        <div class="sl">断签不归零 · 第一颗</div>
+      </div>
+    </div>
+    <div class="l-tip" id="homeTip">💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。</div>
+    <div class="l-sign">—— 小绘<small>每天都在的画画伙伴</small></div>
+  </div>
+
+  <!-- 主 CTA -->
+  <div class="cta" id="homeCta">
+    <button class="shoot" onclick="openCamera()"><span class="pen">✍️</span>画下第一笔，拍给我看</button>
+    <button class="sub" onclick="openUpload()">📁 从相册选择</button>
+  </div>
+
+  <!-- 空状态名片夹（心流银行 + 探索进度 + 画者统计） -->
+  <div class="arc" id="homeArc">
+    <div class="arc-head">
+      <div class="arc-avatar">🌱</div>
+      <div class="arc-info">
+        <div class="arc-name" id="homeArcName">画者 · 预备</div>
+        <span class="arc-level" id="homeArcLevel">画你所见 · 起点</span>
+      </div>
+      <span class="arc-tag">NEW PAINTER</span>
+    </div>
+
+    <div class="v8-bank" id="homeBank">
+      <svg class="jar" viewBox="0 0 44 52">
+        <path d="M9,10 Q9,7.5 11.5,7.5 L32.5,7.5 Q35,7.5 35,10 L35,43 Q35,47 31,47 L13,47 Q9,47 9,43 Z" fill="var(--raw-paper-100)" stroke="var(--raw-ochre-300)" stroke-width="2"/>
+        <clipPath id="homeBankClip"><rect x="8" y="6" width="28" height="42"/></clipPath>
+        <g clip-path="url(#homeBankClip)">
+          <rect x="8" y="38" width="28" height="10" fill="var(--raw-ochre-500)" opacity=".85"/>
+          <path class="jarwave" d="M8,38 Q17,35 26,38 T44,38 L44,41 L8,41 Z" fill="var(--raw-ochre-500)" opacity=".5"/>
+        </g>
+        <rect x="11" y="4.5" width="22" height="5" rx="2" fill="var(--raw-clay-500)" opacity=".8"/>
+      </svg>
+      <div class="v8-bank-info">
+        <div class="v8-bank-label">心流银行 · FLOW BANK</div>
+        <div class="v8-bank-num"><span id="homeFlowNum">1</span> <small>心流种子</small></div>
+        <div class="v8-bank-meta"><span class="up" id="homeFlowToday">今日 +0</span><span id="homeFlowWeek">本周 +0</span><span>断签不归零</span></div>
+      </div>
+    </div>
+
+    <div class="arc-sec">
+      <span class="arc-label">🧭 探索进度 · <b id="homeExploreNum">0</b> 个方向已点亮</span>
+      <div class="track"><div class="fill" id="homeExploreFill"></div></div>
+      <div class="meta"><span id="homeExploreHint">还没有方向</span><span><b id="homeExploreCount">0</b> / 6</span></div>
+      <div class="exnext" id="homeExnext">画一张，我们会为你的画贴上<b>最合适的方向标签</b></div>
+    </div>
+
+    <div class="arc-stats">
+      <div class="arc-stat"><div class="s-ico">🔥</div><div class="s-num" id="homeStreakNum">0 天</div><div class="s-lbl">连续画画</div></div>
+      <div class="arc-stat"><div class="s-ico">🖼️</div><div class="s-num" id="homeDrawingsNum">0 张</div><div class="s-lbl">画者档案</div></div>
+    </div>
+  </div>
+
+  <!-- 成长旅程 -->
+  <div class="v8-journey" id="homeJourney">
+    <div class="v8-journey-title">
+      <h4>🗺️ 成长旅程</h4>
+      <button class="more" onclick="switchTab('timeline')">查看档案 →</button>
+    </div>
+    <div class="v8-stage">
+      <div class="v8-stage-icon">🌱</div>
+      <div class="v8-stage-info">
+        <div class="v8-stage-name" id="homeStageName">画你所见 · 起点</div>
+        <div class="v8-stage-sub" id="homeStageSub">第 1 阶段 · 观察实物，画出能认出来的东西</div>
+        <div class="v8-stage-dots"><i class="cur"></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="v8-area">
+      <div class="v8-area-label">探索过的方向</div>
+      <div class="v8-area-chips" id="homeAreaChips"><span class="a-empty">画一张，你的方向标签会出现在这里</span></div>
+    </div>
+    <div class="v8-miles" id="homeMiles">
+      <div class="v8-mile"><div class="m-name">🏅 第 1 张画作</div><div class="m-sub">画下第一笔 · 还差 1 张</div></div>
+      <div class="v8-mile"><div class="m-name">🔒 第 5 张画作</div><div class="m-sub">坚持到第 5 天 · 解锁「比例大师」</div></div>
+      <div class="v8-mile"><div class="m-name">🔒 第 10 张画作</div><div class="m-sub">解锁「心流充值」</div></div>
+    </div>
+  </div>
+  <!-- ═══ 骨架结束 · 下方为现有功能层（融合暂缓） ═══ -->
 
   <!-- 保留旧 greeting 元素（其他 JS 依赖，隐藏不显示） -->
   <div class="greeting" style="display:none;">
@@ -89,22 +172,8 @@
   </div>
 </div>
 
-  <!-- 2.0 方案A：画者之问 — 主入口 -->
-  <div class="home-main-entry">
-    <h2 class="home-question">你画了什么？</h2>
-    <p class="home-flow-hint">纸上画画 → 拍下来 → AI 反馈</p>
-    <button class="home-camera-btn" onclick="openCamera()">
-      <span class="home-camera-icon">📸</span>
-      <span class="home-camera-text">拍下来给我看</span>
-    </button>
-    <button class="home-upload-btn" onclick="openUpload()">📁 从相册选择</button>
-  </div>
-
-  <!-- 2.0 折叠灵感区 -->
-  <div id="inspirationToggle" class="inspiration-toggle" onclick="toggleInspiration()">
-    想不出画什么？展开灵感
-  </div>
-  <div id="inspirationArea" class="inspiration-area">
+  <!-- 2.0 灵感区（骨架化：toggle 移除、内容区暂隐藏，融合时再开放） -->
+  <div id="inspirationArea" class="inspiration-area" style="display:none;">
 
   <!-- 今日主题卡片（对齐原型设计） -->
   <div id="themeToday" class="theme-today card paper-layer">
@@ -152,18 +221,14 @@
 
   </div><!-- /inspiration-area -->
 
-  <!-- 引导文字（仅无画作记录时显示） -->
-  <div id="guideText" class="guide-text">
+  <!-- 引导文字（骨架化后隐藏；timeline.js/themes.js 仍引用故保留 DOM） -->
+  <div id="guideText" class="guide-text" style="display:none;">
     <div class="guide-tips">
       💡 拍照小提示：手机从正上方平行对准纸面，光线充足，画作尽量占满取景框
     </div>
   </div>
 
-  <!-- 2.0 底部：探索进度 + 最近作品 -->
-  <div class="home-bottom-bar">
-    <div id="homeExplorationBarContainer"></div>
-    <div id="recentWorks" class="recent-works"></div>
-  </div>
+  <!-- 底部最近作品已移除（骨架化） -->
 
 <!-- 底部小提示已移除 -->
 
@@ -187,9 +252,6 @@
   <div id="submittedPhoto" class="card hidden" style="padding:0;overflow:hidden;">
     <img id="submittedPhotoImg" src="" alt="我的画" style="width:100%;display:block;">
   </div>
-
-  <!-- ─── 绘画重现动画 (2.0 MVP) ─── -->
-  <div id="replayContainer" class="replay-container"></div>
 
   <!-- ─── 7 阶段用户旅程指示器 (2.0 改造六) ─── -->
   <div id="journeyIndicator" class="journey-indicator" style="display:none;">
@@ -215,20 +277,74 @@
     <!-- JS 动态填入等待文案 -->
   </div>
 
-  <!-- Enhanced Feedback v3.1（5层结构 + 里程碑 + 深度指示器） -->
-  <div id="feedbackEnhanced" class="card feedback-section">
-    <div class="feedback-header">
-      <span class="avatar">🧑‍🎨</span>
-      <div class="ai-header-text">
-        <span class="ai-name" id="aiNameEnhanced">小绘</span>
-        <span class="ai-subtitle" id="aiSubtitleEnhanced">仔细看了你的画，有些想说的</span>
-      </div>
-      <span class="elapsed" id="elapsedBadgeEnhanced"></span>
+
+  <!-- Hidden inputs -->
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="uploadInput" accept="image/*" style="display:none">
+
+  <!-- Hidden Canvas for share image -->
+  <canvas id="shareCanvas" style="display:none;"></canvas>
+
+  <!-- Error -->
+  <div id="error" class="error"></div>
+</div>
+
+<!-- ─── Page: Achievements（小成就 · 对齐原型 V6-C 空状态） ─── -->
+<div id="page-ach" class="page">
+  <div class="ach-title">🏅 小成就</div>
+  <div class="ach-hero">
+    <div class="av" id="achAv">🌱</div>
+    <div>
+      <div class="ach-hero-name" id="achName">画者 · 预备</div>
+      <div class="ach-hero-sub">已点亮 <b id="achLit">0</b> 枚 · 下一枚 <b>第 1 张画</b> · 画一笔即可</div>
     </div>
-    <div id="fbDepthLayer"></div>
+  </div>
+  <div class="mile-card">
+    <h4>🧭 探索成就</h4>
+    <div class="mile-item now"><span class="mi">🗺️</span><span class="t"><div class="n">点亮第一个方向</div><div class="s">顺着喜欢的主题画 3 张</div></span><span class="v" id="achExplore1">0 / 1</span></div>
+    <div class="mile-item lock"><span class="mi">🔒</span><span class="t"><div class="n">点亮 6 个方向</div><div class="s">探索全图 · 终极徽章</div></span><span class="v">未解锁</span></div>
+  </div>
+  <div class="mile-card">
+    <h4>📜 画作里程碑</h4>
+    <div class="mile-item now"><span class="mi">🏅</span><span class="t"><div class="n">第 1 张画作</div><div class="s">画下第一笔就解锁「画者档案」</div></span><span class="v" id="achDrawing1">0 / 1</span></div>
+    <div class="mile-item lock"><span class="mi">✏️</span><span class="t"><div class="n">第 5 张画作</div><div class="s">坚持到第 5 天</div></span><span class="v" id="achDrawing5">未解锁</span></div>
+  </div>
+</div>
+
+<!-- ─── Page: Timeline ─── -->
+<div id="page-timeline" class="page">
+  <div id="timelineList" class="timeline list-stagger"></div>
+</div>
+
+<!-- ─── Page: Community ─── -->
+<!-- ─── 反馈对话页（全屏 view · 设计版式 B 对话流） ─── -->
+<div id="feedbackPage" class="feedback-page">
+  <div class="fbp-chat" id="fbChatBox">
+    <!-- 用户拍的画（右侧消息 + 识别 chip） -->
+    <div class="msg user done" id="fbMsgPhoto">
+      <div class="msg-user-head">
+        <div class="msg-user-info">
+          <div class="msg-user-name">画者</div>
+          <div class="msg-user-sub">刚刚拍下这张画</div>
+        </div>
+        <div class="avatar user-av">我</div>
+      </div>
+      <div class="msg-bubble photo">
+        <img id="fbPhotoImg" src="" alt="我的画">
+        <div class="msg-meta" id="fbPhotoMeta">你拍的画 · 已发送</div>
+      </div>
+    </div>
+    <!-- 小绘对话头 -->
+    <div class="chat-head">
+      <div class="avatar">绘</div>
+      <div class="chat-head-info">
+        <div class="chat-head-name">小绘<span class="chat-head-status" id="fbHeadStatus"><span class="dot"></span>正在看你的画</span></div>
+        <div class="chat-head-sub" id="fbHeadSub"></div>
+      </div>
+    </div>
+  <!-- Enhanced Feedback v3.1（5层结构 + 里程碑 + 深度指示器） -->
+  <div id="feedbackEnhanced" class="feedback-section">
     <div id="fbLayersContainer"></div>
-    <!-- 2.0 新增：身份确认语（identify 层渲染后自动填入） -->
-    <div id="identityStatementSlot" class="identity-statement-slot"></div>
 
     <!-- 2.0 新增：五维感知雷达图（归位至反馈流内部） -->
     <div id="radarChartContainer" class="radar-chart-container" style="display:none;"></div>
@@ -245,37 +361,6 @@
     <div id="milestoneSlot"></div>
   </div>
 
-  <!-- 反思交互 -->
-  <div id="reflectionArea" class="reflection-area">
-    <div class="reflection-prompt">
-      <div class="r-question">✍️ 这次画得最满意的地方是？</div>
-      <div class="r-quick-options" id="reflectionQuickOptions">
-        <button class="r-quick-btn" onclick="selectQuickReflection(this, '这次形状抓得比较准')">🎯 形状抓得准</button>
-        <button class="r-quick-btn" onclick="selectQuickReflection(this, '线条比上次流畅了')">〰️ 线条更流畅</button>
-        <button class="r-quick-btn" onclick="selectQuickReflection(this, '今天特别有感觉')">🎨 今天有感觉</button>
-        <button class="r-quick-btn r-quick-custom" onclick="showCustomReflection()">✏️ 自己写</button>
-      </div>
-      <!-- 确认发送条 -->
-      <div id="reflectionConfirm" class="r-confirm-bar" style="display:none;">
-        <span class="r-confirm-text" id="rConfirmText">已选：</span>
-        <button class="r-confirm-btn" onclick="confirmReflection()">✓ 确认发送</button>
-      </div>
-      <div class="r-row r-custom-row" id="reflectionCustomRow" style="display:none;">
-        <input class="r-input" id="reflectionInput" type="text" placeholder="说说这次画得最满意的地方" maxlength="200">
-        <button class="r-send" onclick="sendReflection()">记录</button>
-      </div>
-    </div>
-    <div id="reflectionResponse" class="reflection-response">
-      <div id="reflectionReply"></div>
-    </div>
-  </div>
-
-  <!-- 操作按钮（延迟出现） -->
-  <div id="fbActions" class="fb-actions">
-    <div class="fb-section-title">📌 接下来想做什么？</div>
-    <div class="action-btns" id="actionBtnsContainer"></div>
-  </div>
-
   <!-- 旧版 Feedback（向后兼容） -->
   <div id="feedback" class="card feedback-section">
     <div class="feedback-header">
@@ -287,21 +372,14 @@
     <div id="feedbackContent" class="feedback-content"></div>
   </div>
 
-  <!-- Next recommendation after feedback -->
-  <div id="nextRec" class="card feedback-section" style="padding:14px;">
-    <div class="next-rec-label">💡 下次试试</div>
-    <div id="nextRecText" class="next-rec-text"></div>
+    <!-- 操作按钮 + 返回首页（flowfb-b 原型） -->
+    <div id="fbChatActions" class="fbp-actions" style="display:none;">
+      <button class="fb-btn fb-btn-primary" onclick="fbReplay()">再画一张</button>
+      <button class="fb-btn fb-btn-secondary" onclick="fbProfile()">看画者档案</button>
+      <button class="fb-btn fb-btn-secondary" onclick="fbShare()">分享</button>
+      <button class="fb-back" onclick="closeFeedbackPage()">← 回到首页</button>
+    </div>
   </div>
-
-  <!-- Hidden inputs -->
-  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
-  <input type="file" id="uploadInput" accept="image/*" style="display:none">
-
-  <!-- Hidden Canvas for share image -->
-  <canvas id="shareCanvas" style="display:none;"></canvas>
-
-  <!-- Error -->
-  <div id="error" class="error"></div>
 </div>
 
 <!-- ─── Page: Timeline ─── -->
@@ -309,7 +387,7 @@
   <div id="timelineList" class="timeline list-stagger"></div>
 </div>
 
-<!-- ─── Page: Community ─── -->
+<!-- ─── Page: Community（入口已关闭，页面保留） ─── -->
 <div id="page-community" class="page" style="display:none;">
   <div class="community-header">
     <div class="community-title">🌍 社区</div>
@@ -318,10 +396,13 @@
   <div id="communityFeed" class="community-feed"></div>
 </div>
 
-<!-- ─── Bottom Navigation ─── -->
+<!-- ─── Bottom Navigation（对齐原型 3 tab：首页 / 小成就 / 记录） ─── -->
 <div class="bottom-nav">
   <button id="tab-home" class="active" onclick="switchTab('home')">
     <span class="icon">🏠</span>首页
+  </button>
+  <button id="tab-ach" onclick="switchTab('ach')">
+    <span class="icon">🏅</span>小成就
   </button>
   <button id="tab-timeline" onclick="switchTab('timeline')">
     <span class="icon">📖</span>记录
@@ -470,7 +551,7 @@
 <script src="static/js/state.js?v=20260809v20"></script>
 <script src="static/js/onboarding-steps.js?v=1"></script>
 <script src="static/js/onboarding.js?v=20260809v21"></script>
-<script src="static/js/themes.js?v=20260809v20"></script>
+<script src="static/js/themes.js?v=20260815v2"></script>
 <script src="static/js/camera.js?v=20260812v1"></script>
 <script src="static/js/replay/skeleton.js?v=3"></script>
 <script src="static/js/replay/effects.js?v=3"></script>
@@ -478,16 +559,16 @@
 <script src="static/js/radar-chart.js?v=20260809v2"></script>
 <script src="static/js/exploration-bar.js?v=20260812v1"></script>
 <script src="static/js/growth-panel.js?v=20260814v1"></script>
-<script src="static/js/feedback-upload.js?v=2"></script>
-<script src="static/js/feedback-feedback.js?v=2"></script>
+<script src="static/js/feedback-upload.js?v=18"></script>
+<script src="static/js/feedback-feedback.js?v=16"></script>
 <script src="static/js/feedback-ui.js?v=1"></script>
-<script src="static/js/feedback-reflection.js?v=2"></script>
+<script src="static/js/feedback-reflection.js?v=3"></script>
 <script src="static/js/timeline.js?v=4"></script>
 <script src="static/js/timeline-modal.js?v=2"></script>
 <script src="static/js/timeline-share.js?v=3"></script>
 <script src="static/js/community.js?v=20260809v20"></script>
 <script src="static/js/share.js?v=20260809v20"></script>
 <script src="static/js/journey.js?v=20260812v1"></script>
-<script src="static/js/home.js?v=20260812v2"></script>
+<script src="static/js/home.js?v=20260815v4"></script>
 </body>
 </html>
