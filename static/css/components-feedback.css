@@ -100,7 +100,7 @@
 .error.visible{display:block;}
 
 /* ── Timeline ── */
-.timeline{margin:10px var(--space-md);}
+.timeline{margin:10px 0;}
 .timeline h3{
   font-size:var(--font-size-base);
   color: var(--color-text-secondary);
@@ -341,15 +341,13 @@
 }
 .record-detail-page.visible { display: block; }
 .rd-topbar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
   background: var(--color-bg-page);
-  border-bottom: 1px solid var(--color-border-light);
 }
 .rd-back {
   background: none; border: none; cursor: pointer;
@@ -359,7 +357,7 @@
   display: flex; align-items: center; gap: 2px;
 }
 .rd-back:active { opacity: 0.6; }
-.rd-title { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text-primary); }
+.rd-title { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text-primary); position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; }
 /* 分享按钮移入顶部栏：覆盖成圆形图标按钮。
    注意它不在 .modal 内部，命中的是基础 .btn-share（全宽大按钮），
    必须显式覆盖成图标按钮规格，否则会在顶栏撑成巨大按钮 */
@@ -410,7 +408,6 @@
 .modal-delete-section {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--color-border-light);
   text-align: center;
 }
 .btn-delete-record {

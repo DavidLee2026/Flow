@@ -8,7 +8,7 @@ const OB_STEPS = [
       <div class="ob-chat" id="obChat">
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
-          <div class="ob-msg-bubble">你好呀，我是你的 AI 画友 ✨，你画的每一笔，我都会认真看见 💖</div>
+          <div class="ob-msg-bubble">你好呀，我是你的 AI 画友 ✨，你画的每一笔，我都会认真看见 🎨</div>
         </div>
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
@@ -25,7 +25,7 @@ const OB_STEPS = [
       const inp = document.getElementById('obName');
       const btn = document.getElementById('obSendBtn');
       if (!inp) return;
-      inp.focus();
+      // 不自动 focus：避免 onboarding 一显示就弹键盘导致 iOS 滚动（用户点击时再聚焦）
       const syncBtn = () => {
         const name = inp.value.trim();
         if (btn) btn.disabled = !name || name.length > 8;
@@ -36,6 +36,13 @@ const OB_STEPS = [
         }
       };
       // IME 拼音组词中不触发校验（组词中的拼音字母会短暂超 8 字符）
+      // 控制 iOS 聚焦滚动：聚焦后把 overlay 滚动位置恢复（iOS 默认滚 ~150px）
+      inp.addEventListener('focus', () => {
+        const ob = document.getElementById('onboardingOverlay');
+        if (!ob) return;
+        const prev = ob.scrollTop;
+        [0, 80, 200, 400].forEach(d => setTimeout(() => { if (ob.scrollTop !== prev) ob.scrollTop = prev; }, d));
+      });
       inp.addEventListener('input', (e) => {
         if (e.isComposing) return;
         syncBtn();

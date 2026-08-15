@@ -142,7 +142,7 @@ function confirmPhoto() {
   // 将 blob 转为 File 对象
   const file = new File([pendingCameraBlob], 'camera_photo.jpg', { type: 'image/jpeg' });
   closeCamera();
-  showPreview(file);
+  uploadImage(file, 'camera');
 }
 
 function closeCamera() {
@@ -193,14 +193,14 @@ function handleFileSelect(e) {
     e.target.value = '';
     return;
   }
-  showPreview(file);
+  uploadImage(file, 'gallery');
 }
 
 // 相册上传才检查重复（相机每次拍的都是新照片，不拦截）
 document.getElementById('uploadInput').addEventListener('change', handleFileSelect);
 // 相机拍照直接放行
 document.getElementById('cameraInput').addEventListener('change', e => {
-  if (e.target.files.length) showPreview(e.target.files[0]);
+  if (e.target.files.length) uploadImage(e.target.files[0], 'camera');
 });
 
 function resetPreviewUI() {

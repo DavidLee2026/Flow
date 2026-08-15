@@ -50,7 +50,7 @@ function renderHomeTopInfo(stats) {
                    (window.profile && window.profile.name) ||
                    el('greetingName')?.textContent || '画者';
   if (el('homeGreetName')) el('homeGreetName').textContent = userName;
-  if (el('homeLetterFrom')) el('homeLetterFrom').textContent = `写给${userName} · 第一封信`;
+  if (el('homeLetterFrom')) el('homeLetterFrom').textContent = `${userName} · 第一封信`;
 
   if (!stats) return;
 
@@ -83,12 +83,16 @@ function renderHomeTopInfo(stats) {
       : '💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。';
   }
 
-  // 天数
-  if (el('homeDay')) el('homeDay').textContent = total === 0 ? '新画者 · 第 1 天' : `画者 · 第 ${total} 天`;
+  // 天数（首页 / 小成就 / 记录 三页统一）
+  const dayText = total === 0 ? '新画者 · 第 1 天' : `画者 · 第 ${total} 天`;
+  if (el('homeDay')) el('homeDay').textContent = dayText;
+  if (el('achDay')) el('achDay').textContent = dayText;
+  if (el('tlDay')) el('tlDay').textContent = dayText;
 
-  // 心流种子（空状态 1 颗 · 之后每张 +1，断签不归零）
+  // 心流余额（空状态 1 · 之后每张 +1，断签不归零）——信印章 + 银行卡片统一
   const seedNum = Math.max(1, total);
   if (el('homeSeedNum')) el('homeSeedNum').textContent = seedNum;
+  if (el('homeFlowNum')) el('homeFlowNum').textContent = seedNum;
   if (el('homeFlowToday')) el('homeFlowToday').textContent = `今日 +${total > 0 ? 1 : 0}`;
   if (el('homeFlowWeek')) el('homeFlowWeek').textContent = `本周 +${total}`;
 

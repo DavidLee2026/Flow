@@ -494,15 +494,15 @@
 .l-body p{margin-bottom:10px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
 .l-body p.show{opacity:1;transform:none}
 .l-body .hl{color:var(--raw-clay-700);font-weight:600}
-.l-seal{display:inline-flex;flex-direction:column;align-items:center;gap:2px;margin:-4px 0 4px;padding:10px 14px;
+.l-seal{display:inline-flex;flex-direction:column;align-items:center;gap:2px;margin:-4px 0 4px;padding:7px 11px;
   border:1.5px solid var(--raw-ochre-500);border-radius:var(--radius-lg);background:rgba(250,239,213,.55);position:relative;
   opacity:0;transform:scale(1.5) rotate(-6deg);transition:opacity .35s var(--ease-out),transform .35s var(--ease-out),box-shadow .35s var(--ease-out)}
 .l-seal.stamp{opacity:1;transform:scale(1) rotate(-6deg);box-shadow:0 4px 14px rgba(184,133,40,.28)}
-.l-seal::before{content:'';position:absolute;inset:4px;border:1px dashed rgba(184,133,40,.4);border-radius:var(--radius-md);pointer-events:none}
+.l-seal::before{content:'';position:absolute;inset:3px;border:1px dashed rgba(184,133,40,.4);border-radius:var(--radius-md);pointer-events:none}
 .l-seal .sv{display:flex;align-items:baseline;gap:3px}
 .l-seal .sv b{font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--raw-ochre-700)}
 .l-seal .sv span{font-size:12px;color:var(--raw-ochre-700)}
-.l-seal .sl{font-size:10px;letter-spacing:.2em;color:var(--raw-brown-500)}
+.l-seal .sl{font-size:10px;letter-spacing:.08em;color:var(--raw-brown-500)}
 .l-tip{margin-top:10px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300);border-left:3px solid var(--raw-sage-500);
   border-radius:var(--radius-md);padding:12px 14px;font-size:14px;line-height:1.8;color:var(--raw-brown-700);opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out) .1s,transform .5s var(--ease-out) .1s}
 .l-tip.show{opacity:1;transform:none}
@@ -632,18 +632,18 @@
 .l-avatar{font-size:18px}
 .l-from b{font-size:18px}
 .l-date{font-size:12px}
-.l-greet{font-size:24px}
-.l-body{font-size:16px}
-.l-body p{font-size:16px}
+.l-greet{font-size:22px}
+.l-body{font-size:14px}
+.l-body p{font-size:14px}
 .l-seal .sv b{font-size:28px}
-.l-seal .sv span{font-size:14px}
+.l-seal .sv span{font-size:12px}
 .l-seal .sl{font-size:12px}
-.l-tip{font-size:16px}
+.l-tip{font-size:14px}
 .l-sign{font-size:18px}
 .l-sign small{font-size:12px}
-.shoot{font-size:20px}
+.shoot{font-size:18px}
 .shoot .pen{font-size:24px}
-.sub{font-size:16px}
+.sub{font-size:14px}
 .arc-name{font-size:18px}
 .arc-level{font-size:12px}
 .arc-tag{font-size:12px}
@@ -666,11 +666,6 @@
 .v8-area-chips .a-empty{font-size:14px}
 .v8-mile .m-name{font-size:16px}
 .v8-mile .m-sub{font-size:12px}
-
-/* 底部收尾（填充旅程下方空隙 + 情感收尾） */
-.home-tail{margin-top:14px;padding:18px 16px;text-align:center;background:var(--raw-paper-100);border:1px dashed var(--raw-paper-300);border-radius:var(--radius-lg);color:var(--raw-brown-500);font-size:14px;line-height:1.7}
-.home-tail-icon{font-size:26px;margin-bottom:6px}
-.home-tail b{color:var(--raw-clay-600)}
 .ach-title{font-size:22px}
 .ach-hero .av{font-size:26px}
 .ach-hero-name{font-size:18px}

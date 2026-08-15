@@ -103,17 +103,19 @@
   background-image:var(--bg-page-gradient);
   z-index:600;
   overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
 }
 .onboarding-overlay.visible{display:flex;}
 .onboarding{
   max-width:420px;
   width:100%;
   margin:0 auto;
-  padding:calc(var(--space-2xl) - 70px) 24px var(--space-2xl);
+  padding:48px 24px 40px;
   min-height:100dvh;
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:flex-start;
   align-items:center;
 }
 .onboarding .ob-content{

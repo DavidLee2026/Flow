@@ -11,35 +11,34 @@ function openModal(record) {
   const recordIndex = records.findIndex(r => r.id === record.id);
   const drawingNum = recordIndex >= 0 ? records.length - recordIndex : '';
 
-  // 构建头部信息
-  const headerEl = document.getElementById('modalHeader');
-  if (headerEl) {
-    let headerHtml = '';
-    if (drawingNum) {
-      headerHtml += `<span class="modal-badge">第 ${drawingNum} 张</span>`;
-    }
-    headerHtml += `<span class="modal-date">${formatTime(record.timestamp)}</span>`;
-    headerEl.innerHTML = headerHtml;
-  }
+  // 对话流头部信息（照片消息副标 + 小绘对话头副标）
+  const detailSub = document.getElementById('detailSub');
+  if (detailSub) detailSub.textContent = drawingNum ? `第 ${drawingNum} 张画` : '画者';
+  const detailHeadSub = document.getElementById('detailHeadSub');
+  if (detailHeadSub) detailHeadSub.textContent = formatTime(record.timestamp);
 
-  // 构建反馈内容 — 优先使用 5 层结构，否则按段落格式化
+  // 构建反馈内容 — 对话流样式（对齐反馈页），旧版按段落
   const feedbackEl = document.getElementById('modalFeedback');
   if (record.feedback_json && record.feedback_json.layers && record.feedback_json.layers.length >= 4) {
-    // 时空穿梭风格：精致分层标签
-    const LAYER_LABELS = {identify: '识别', observe: '观察', progress: '进步', suggestion: '建议', encourage: '鼓励'};
-    const LAYER_COLORS = {identify: 'rec', observe: 'obs', progress: 'prog', suggestion: 'sugg', encourage: 'enc'};
-    let html = '<div class="tt-ai-section">';
-    html += '<div class="tt-ai-header"><span class="tt-ai-avatar">🧑‍🎨</span><span class="tt-ai-name">小绘 · 当时的反馈</span></div>';
+    // 反馈页对话流卡片（stream-layer / s-tag / fb-tip-box / archive-note）
+    const LAYER_LABELS = {identify: '🎯 认出', observe: '🔍 观察', progress: '📈 进步', suggestion: '💡 建议', encourage: '✨ 期待'};
+    let html = '';
     for (const layer of record.feedback_json.layers) {
       const type = layer.type;
-      const color = LAYER_COLORS[type] || '';
       const label = LAYER_LABELS[type] || type;
-      html += `<div class="tt-ai-layer"><span class="tt-ai-tag ${color}">${label}</span>${enrichText(layer.content)}</div>`;
-      if (type === 'suggestion' && layer.tip && layer.tip.trim()) {
-        html += `<div class="tt-ai-tip">${enrichText(layer.tip)}</div>`;
+      if (type === 'progress') {
+        html += `<div class="stream-layer" data-type="progress"><span class="s-tag">${label}</span><div class="fb-progress-box"><span class="p-icon">📈</span><span class="p-text">${enrichText(layer.content)} 👏</span></div></div>`;
+      } else {
+        let h = `<div class="stream-layer" data-type="${type}"><span class="s-tag">${label}</span><div class="s-text">${enrichText(layer.content)}</div>`;
+        if (type === 'identify') {
+          h += `<span class="archive-note">📋 画者档案 +1</span>`;
+        } else if ((type === 'observe' || type === 'suggestion') && layer.tip && layer.tip.trim()) {
+          h += `<div class="fb-tip-box"><b>💡 小技巧</b>：${enrichText(layer.tip)} 💪</div>`;
+        }
+        h += '</div>';
+        html += h;
       }
     }
-    html += '</div>';
     feedbackEl.innerHTML = html;
   } else {
     // 普通版：按段落格式化
@@ -58,81 +57,44 @@ function openModal(record) {
   // 2.0 组件渲染（记录详情弹窗）
   const fbData = record.feedback_json || record;
 
-  // 身份确认语
+  // 身份确认语（详情页不再单独展示）
   const identitySlot = document.getElementById('modalIdentitySlot');
   if (identitySlot) {
     identitySlot.innerHTML = '';
     identitySlot.classList.remove('visible');
-    const identityText = fbData.identity_statement ||
-      (fbData.layers?.find(l => l.type === 'identify')?.identity_statement);
-    if (identityText) {
-      identitySlot.innerHTML = `
-        <div class="identity-statement-card">
-          <div class="identity-statement-text">${enrichText(identityText)}</div>
-        </div>`;
-      identitySlot.classList.add('visible');
-    }
   }
 
-  // 五维雷达图
+  // 五维雷达图（反馈页雷达卡样式，无数据用默认值兜底，不空着）
   const modalRadar = document.getElementById('modalRadarChart');
   if (modalRadar) {
-    modalRadar.style.display = 'none';
-    modalRadar.innerHTML = '';
-    const perceptionData = fbData.perception_analysis;
-    const breakthroughDim = fbData.breakthrough_dim;
-    if (perceptionData && typeof renderRadarChart === 'function') {
-      setTimeout(() => renderRadarChart(perceptionData, breakthroughDim, modalRadar), 200);
+    modalRadar.style.display = '';
+    const perceptionData = fbData.perception_analysis || {};
+    if (typeof radarCardHTML === 'function') {
+      modalRadar.innerHTML = radarCardHTML(perceptionData);
     }
   }
 
-  // 探索进度
+  // 探索进度（flowfb-b 样式，无数据用默认 0 兜底，不空着）
   const modalExploration = document.getElementById('modalExplorationBar');
   if (modalExploration) {
-    modalExploration.style.display = 'none';
-    modalExploration.innerHTML = '';
-    const explorationData = record.exploration || fbData.exploration;
-    if (explorationData && typeof renderExplorationBar === 'function') {
-      setTimeout(() => renderExplorationBar(explorationData, modalExploration), 400);
+    modalExploration.style.display = '';
+    const explorationData = record.exploration || fbData.exploration || {};
+    if (typeof explorationHTML === 'function') {
+      modalExploration.innerHTML = explorationHTML({ explored_area_count: explorationData.explored_area_count || 0 });
     }
   }
 
-  // 心流银行 + 档案归档
+  // 归档 / 心流（详情页已去掉，保持为空）
   const modalFlowBank = document.getElementById('modalFlowBank');
+  if (modalFlowBank) modalFlowBank.innerHTML = '';
   const modalArchivePill = document.getElementById('modalArchivePill');
-  if (modalFlowBank) {
-    modalFlowBank.innerHTML = '';
-    setTimeout(() => {
-      if (typeof renderFlowBank === 'function') renderFlowBank(fbData, modalFlowBank);
-    }, 600);
-  }
-  if (modalArchivePill) {
-    modalArchivePill.innerHTML = '';
-    setTimeout(() => {
-      if (typeof renderArchivePill === 'function') renderArchivePill(fbData, modalArchivePill);
-    }, 800);
-  }
+  if (modalArchivePill) modalArchivePill.innerHTML = '';
 
-  // 里程碑（如果有）
+  // 里程碑（身份仪式 · v6c-v8d2-b 固定文案）
   const milestoneEl = document.getElementById('modalMilestone');
   if (milestoneEl) {
-    if (record.milestone) {
-      const m = record.milestone;
-      const mClass = `milestone-icon ${m.number <= 50 ? 'm' + m.number : 'm50'}`;
-      const cardClass = `milestone-card ${m.number <= 50 ? 'm' + m.number : 'm50'}`;
-      milestoneEl.innerHTML = `
-        <div class="${cardClass}">
-          <div class="${mClass}">${m.icon}</div>
-          <div class="milestone-body">
-            <div class="milestone-title">${escapeHtml(m.title)}</div>
-            <div class="milestone-desc">${escapeHtml(m.message)}</div>
-          </div>
-        </div>`;
-      milestoneEl.style.display = 'block';
-    } else {
-      milestoneEl.innerHTML = '';
-      milestoneEl.style.display = 'none';
-    }
+    milestoneEl.innerHTML = `<div class="milestone-card"><div class="milestone-icon">🏅</div><div class="milestone-text"><div class="milestone-title">画者档案 +1 · 第 1 次身份投票</div><div class="milestone-msg">你画的每一个杯子，都是画者身份的证据。归档完毕。</div></div></div>`;
+    milestoneEl.style.display = 'block';
   }
 
   // 时空穿梭：展示用户当时写下的反思文字
@@ -151,44 +113,17 @@ function openModal(record) {
       // 高亮脉冲动画
       reflectionEl.classList.add('pulse-highlight');
       setTimeout(() => reflectionEl.classList.remove('pulse-highlight'), 2000);
-    } else {
-      // 空态：引导用户下次写感受
-      reflectionEl.innerHTML = `
-        <div class="modal-reflection-empty">
-          <div class="modal-reflection-empty-text">那天你没有留下文字</div>
-          <div class="modal-reflection-empty-hint">下次画完试试写两句？</div>
-        </div>`;
+    } else if (typeof reflectionChatHTML === 'function') {
+      // 没留下文字：用反馈页"画完想说点什么？"（选标签 / 自己写）
+      reflectionEl.innerHTML = reflectionChatHTML();
       reflectionEl.style.display = 'block';
+      if (typeof bindReflectionFlow === 'function') bindReflectionFlow();
     }
   }
 
-  // "现在的你看" 区块 — AI 回顾性对比
+  // "现在的你看" 区块（详情页已去掉）
   const nowReviewEl = document.getElementById('modalNowReview');
-  if (nowReviewEl) {
-    const recordIndex = records.findIndex(r => r.id === record.id);
-    const totalDrawings = records.length;
-    const drawingNum = recordIndex >= 0 ? records.length - recordIndex : 1;
-    const timeAgo = getTimeAgo(record.timestamp);
-
-    // 生成回顾性文字
-    let reviewText = '';
-    if (drawingNum === 1) {
-      reviewText = `这是你的第一张画。一切的起点，都从这一笔开始。`;
-    } else if (drawingNum < 7) {
-      reviewText = `这是你第 ${drawingNum} 张画。${timeAgo}你还在摸索，现在你已经画了 ${totalDrawings} 张了。`;
-    } else if (drawingNum < 30) {
-      reviewText = `这是你第 ${drawingNum} 张画。${timeAgo}画下的这一笔，是你成长路上的一块基石。到现在你已经画了 ${totalDrawings} 张。`;
-    } else {
-      reviewText = `这是你第 ${drawingNum} 张画。回看${timeAgo}的这幅画，你能看到自己走过的路。${totalDrawings} 张画，每一张都算数。`;
-    }
-
-    nowReviewEl.innerHTML = `
-      <div class="modal-now-review-block">
-        <div class="modal-now-review-label">🕰️ 现在的你看</div>
-        <div class="modal-now-review-text">${escapeHtml(reviewText)}</div>
-      </div>`;
-    nowReviewEl.style.display = 'block';
-  }
+  if (nowReviewEl) { nowReviewEl.innerHTML = ''; nowReviewEl.style.display = 'none'; }
 
   modal.classList.add('visible');
   // 禁止底层页面滚动，防止穿透

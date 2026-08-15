@@ -38,7 +38,7 @@ async function botSay(html) {
   wrap.innerHTML = '<div class="msg-body"><div class="typing"><span></span><span></span><span></span></div></div>';
   box.appendChild(wrap);
   scrollChatBottom();
-  await new Promise(r => setTimeout(r, 850));
+  await new Promise(r => setTimeout(r, 1100));
   wrap.querySelector('.msg-body').innerHTML = '<div class="msg-bubble">' + html + '</div>';
   wrap.classList.add('done');
   scrollChatBottom();
@@ -63,24 +63,19 @@ function clearFeedbackContainers() {
 }
 
 // ─── Upload → Analyze（SSE）───
-async function uploadImage(file) {
+// source: 'camera' 拍照 / 'gallery' 选照片（区分反馈页顶部文案）
+async function uploadImage(file, source) {
+  const isCamera = source === 'camera';
   showFeedbackPage(file);
+  // 用户消息文案区分：画者拍下 / 画者选择
+  const sub = document.querySelector('#fbMsgPhoto .msg-user-sub');
+  if (sub) sub.textContent = isCamera ? '画者拍下这张画' : '画者选择了这张画';
   stopFeedbackAutoScroll();
   clearFeedbackContainers();
   // 客户端压缩
   const compressedFile = await compressImage(file);
-  // ═══ flowfb-b：收到消息 → 重现块 → 5层 ═══
+  // ═══ flowfb-b：收到消息 → 5层（重现块暂隐藏，后续再设计展示） ═══
   await botSay('收到！我收到你的画了，正在仔细看…');
-  const reconBlock = buildReconstructBlock();
-  document.getElementById('fbLayersContainer').appendChild(reconBlock);
-  scrollChatBottom();
-  if (typeof playDrawingReplay === 'function') {
-    const replayUrl = URL.createObjectURL(file);
-    await new Promise(r => playDrawingReplay(replayUrl, r, { timeout: 5000 }));
-    URL.revokeObjectURL(replayUrl);
-  }
-  reconBlock.remove();
-  scrollChatBottom();
   // SSE 5层
   const formData = new FormData();
   formData.append('image', compressedFile);

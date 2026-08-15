@@ -40,11 +40,11 @@ async function botComponent(html, afterShow) {
   if (!box) return;
   box.appendChild(wrap);
   scrollChatBottom();
-  await new Promise(r => setTimeout(r, 600));
+  await new Promise(r => setTimeout(r, 900));
   wrap.outerHTML = html;
   scrollChatBottom();
   if (afterShow) afterShow();
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r => setTimeout(r, 300));
 }
 function explorationHTML(data) {
   const n = Math.min((data && data.explored_area_count) || 0, 6);

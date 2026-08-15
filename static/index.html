@@ -7,15 +7,15 @@
 <link rel="manifest" href="manifest.json">
 <title>绘心 Flow</title>
 <link rel="stylesheet" href="static/css/tokens.css?v=3">
-<link rel="stylesheet" href="static/css/base.css?v=3">
-<link rel="stylesheet" href="static/css/components-home.css?v=27">
+<link rel="stylesheet" href="static/css/base.css?v=5">
+<link rel="stylesheet" href="static/css/components-home.css?v=33">
 <link rel="stylesheet" href="static/css/components-share.css?v=2">
-<link rel="stylesheet" href="static/css/components-feedback.css?v=2">
-<link rel="stylesheet" href="static/css/components-onboarding.css?v=3">
+<link rel="stylesheet" href="static/css/components-feedback.css?v=6">
+<link rel="stylesheet" href="static/css/components-onboarding.css?v=5">
 <link rel="stylesheet" href="static/css/components-growth.css?v=5">
-<link rel="stylesheet" href="static/css/components-feedback2.css?v=13">
-<link rel="stylesheet" href="static/css/components-camera.css?v=4">
-<link rel="stylesheet" href="static/css/components-community.css?v=2">
+<link rel="stylesheet" href="static/css/components-feedback2.css?v=26">
+<link rel="stylesheet" href="static/css/components-camera.css?v=5">
+<link rel="stylesheet" href="static/css/components-community.css?v=3">
 <link rel="stylesheet" href="static/css/components-misc1.css?v=2">
 <link rel="stylesheet" href="static/css/components-radar.css?v=2">
 </head>
@@ -66,15 +66,15 @@
   <div class="letter" id="homeLetter">
     <div class="l-top">
       <div class="l-avatar">绘</div>
-      <div class="l-from"><b>小绘</b><br><span id="homeLetterFrom">写给新画者 · 第一封信</span></div>
+      <div class="l-from"><b>小绘</b><br><span id="homeLetterFrom">新画者 · 第一封信</span></div>
       <div class="l-date" id="homeLetterDate">WELCOME · 08.15</div>
     </div>
     <div class="l-greet">你好呀，<em id="homeGreetName">未来的画者</em>。</div>
     <div class="l-body">
       <p class="p1" id="homeLetterBody">欢迎来到绘心 Flow。这里没有打分，只有看见——画得歪歪扭扭也没关系。今天<b>想画什么就画什么</b>，哪怕只是一条线，都是你的第一笔。</p>
       <div class="l-seal" id="homeSeal">
-        <div class="sv"><b id="homeSeedNum">1</b><span>心流赠礼</span></div>
-        <div class="sl">断签不归零 · 第一份赠礼</div>
+        <div class="sv"><b id="homeSeedNum">1</b><span>心流余额</span></div>
+        <div class="sl">断签不归零 · 第一笔余额</div>
       </div>
     </div>
     <div class="l-tip" id="homeTip">💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。</div>
@@ -110,7 +110,7 @@
       </svg>
       <div class="v8-bank-info">
         <div class="v8-bank-label">心流银行 · FLOW BANK</div>
-        <div class="v8-bank-num"><span id="homeFlowNum">1</span> <small>心流赠礼</small></div>
+        <div class="v8-bank-num"><span id="homeFlowNum">1</span> <small>心流余额</small></div>
         <div class="v8-bank-meta"><span class="up" id="homeFlowToday">今日 +0</span><span id="homeFlowWeek">本周 +0</span><span>断签不归零</span></div>
       </div>
     </div>
@@ -153,11 +153,6 @@
     </div>
   </div>
 
-  <!-- 底部收尾（填充旅程下方空隙） -->
-  <div class="home-tail">
-    <div class="home-tail-icon">🎨</div>
-    <div class="home-tail-text">画一张，拍下来——<b>小绘</b>会认真看你的每一笔</div>
-  </div>
   <!-- ═══ 骨架结束 · 下方为现有功能层（融合暂缓） ═══ -->
 
   <!-- 保留旧 greeting 元素（其他 JS 依赖，隐藏不显示） -->
@@ -317,6 +312,11 @@
 <!-- ─── 反馈对话页（全屏 view · 设计版式 B 对话流） ─── -->
 <div id="feedbackPage" class="feedback-page">
   <div class="fbp-chat" id="fbChatBox">
+    <!-- 反馈页顶部 logo（点击返回首页） -->
+    <div class="hd fb-hd" onclick="closeFeedbackPage()">
+      <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
+      <span class="fb-hd-back">← 返回首页</span>
+    </div>
     <!-- 用户拍的画（右侧消息 + 识别 chip） -->
     <div class="msg user done" id="fbMsgPhoto">
       <div class="msg-user-head">
@@ -328,7 +328,7 @@
       </div>
       <div class="msg-bubble photo">
         <img id="fbPhotoImg" src="" alt="我的画">
-        <div class="msg-meta" id="fbPhotoMeta">你拍的画 · 已发送</div>
+        <span class="fb-photo-status">你发送了这张画</span>
       </div>
     </div>
     <!-- 小绘对话头 -->
@@ -415,30 +415,30 @@
   <div class="rd-topbar">
     <button class="rd-back" onclick="closeModal()">‹ 返回</button>
     <span class="rd-title">画作详情</span>
-    <button class="btn-share rd-share" onclick="shareCurrentRecord()" title="生成分享图" aria-label="生成分享图">
-      <svg class="share-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-        <circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-        <circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </button>
   </div>
   <div class="modal rd-body" onclick="event.stopPropagation()">
-    <img id="modalImg" src="" alt="">
-    <div class="modal-info">
-      <div id="modalHeader" class="modal-header"></div>
+    <div class="fb-detail">
+      <!-- 画作大图（居中撑满，无气泡无标签） -->
+      <img id="modalImg" class="fb-detail-photo" src="" alt="我的画">
+      <!-- 小绘对话头 -->
+      <div class="chat-head">
+        <div class="avatar">绘</div>
+        <div class="chat-head-info">
+          <div class="chat-head-name">小绘<span class="chat-head-status"><span class="dot"></span>当时的反馈</span></div>
+          <div class="chat-head-sub" id="detailHeadSub"></div>
+        </div>
+      </div>
+      <div id="modalHeader" class="modal-header" style="display:none;"></div>
       <div id="modalFeedback" class="modal-feedback"></div>
       <!-- 2.0 组件容器 -->
       <div id="modalIdentitySlot" class="identity-statement-slot"></div>
-      <div id="modalRadarChart" class="radar-chart-container" style="display:none;"></div>
       <div id="modalExplorationBar" class="exploration-bar-container" style="display:none;"></div>
+      <div id="modalRadarChart" class="radar-chart-container" style="display:none;"></div>
       <div id="modalFlowBank" class="flow-bank-slot"></div>
       <div id="modalArchivePill" class="archive-pill-slot"></div>
+      <div id="modalMilestone" style="display:none;"></div>
       <div id="modalReflection" style="display:none;"></div>
       <div id="modalNowReview" style="display:none;"></div>
-      <div id="modalMilestone" style="display:none;"></div>
       <div id="modalDeleteSection" class="modal-delete-section">
         <button class="btn-delete-record" onclick="confirmDeleteRecord()">🗑️ 删除这张画</button>
       </div>
@@ -550,26 +550,26 @@
 <!-- ─── 模块化加载（顺序：依赖基础 → 功能域） ─── -->
 <script src="static/js/imagetracer.js?v=20260809v1"></script>
 <script src="static/js/state.js?v=20260815v1"></script>
-<script src="static/js/onboarding-steps.js?v=10"></script>
-<script src="static/js/onboarding.js?v=20260809v21"></script>
+<script src="static/js/onboarding-steps.js?v=13"></script>
+<script src="static/js/onboarding.js?v=20260815v5"></script>
 <script src="static/js/themes.js?v=20260815v3"></script>
-<script src="static/js/camera.js?v=20260812v1"></script>
+<script src="static/js/camera.js?v=20260815v1"></script>
 <script src="static/js/replay/skeleton.js?v=3"></script>
 <script src="static/js/replay/effects.js?v=3"></script>
 <script src="static/js/replay/replay.js?v=3"></script>
 <script src="static/js/radar-chart.js?v=20260809v2"></script>
 <script src="static/js/exploration-bar.js?v=20260812v1"></script>
 <script src="static/js/growth-panel.js?v=20260814v1"></script>
-<script src="static/js/feedback-upload.js?v=18"></script>
-<script src="static/js/feedback-feedback.js?v=16"></script>
+<script src="static/js/feedback-upload.js?v=20"></script>
+<script src="static/js/feedback-feedback.js?v=17"></script>
 <script src="static/js/feedback-ui.js?v=1"></script>
 <script src="static/js/feedback-reflection.js?v=3"></script>
 <script src="static/js/timeline.js?v=4"></script>
 <script src="static/js/timeline-modal.js?v=2"></script>
-<script src="static/js/timeline-share.js?v=3"></script>
+<script src="static/js/timeline-share.js?v=10"></script>
 <script src="static/js/community.js?v=20260809v20"></script>
 <script src="static/js/share.js?v=20260809v20"></script>
 <script src="static/js/journey.js?v=20260812v1"></script>
-<script src="static/js/home.js?v=20260815v4"></script>
+<script src="static/js/home.js?v=20260815v7"></script>
 </body>
 </html>

@@ -38,7 +38,21 @@ function startOnboarding() {
   obStep = 0;
   obData = {name: ''};
   document.getElementById('onboardingOverlay').classList.add('visible');
+  // 禁止 onboarding 期间一切触摸滚动（含 input 聚焦后）
+  const _obEl = document.getElementById('onboardingOverlay');
+  window._obPreventTouch = e => e.preventDefault();
+  if (_obEl) _obEl.addEventListener('touchmove', window._obPreventTouch, { passive: false });
+  // 锁定背景滚动（body 锁 fixed 防 iOS 键盘弹出/input 聚焦时滚动穿透）
+  const _sy = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_sy}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.height = '100vh';
   document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+  window._obScrollY = _sy;
   renderObStep();
 }
 
@@ -138,7 +152,12 @@ async function obComplete() {
   const ritualTitle = document.getElementById('ritualTitle');
   const ritualDesc = document.getElementById('ritualDesc');
 
-  if (obData.name) userName = obData.name;
+  if (obData.name) {
+    userName = obData.name;
+    // 同步 greetingName：首页名字 fallback 链会读它，避免 stats 时序稍慢时显示"小伙伴"
+    const _g = document.getElementById('greetingName');
+    if (_g) _g.textContent = obData.name;
+  }
   ritualTitle.textContent = `${userName}，准备好了！`;
   ritualDesc.textContent = '小绘正在为你准备今日主题...';
   ritualIcon.textContent = '🎨';
@@ -150,7 +169,20 @@ async function obComplete() {
   // 1.5 秒后关闭仪式，播放创作前奏，进入首页
   setTimeout(() => {
     ritual.classList.remove('visible');
+    const _obEl2 = document.getElementById('onboardingOverlay');
+    if (_obEl2 && window._obPreventTouch) {
+      _obEl2.removeEventListener('touchmove', window._obPreventTouch);
+      window._obPreventTouch = null;
+    }
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.height = '';
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    window.scrollTo(0, window._obScrollY || 0);
 
     updateGreeting();
 

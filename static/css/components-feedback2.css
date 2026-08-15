@@ -468,6 +468,121 @@ body.booting::after {
 .feedback-page .msg.user .msg-bubble{background:var(--raw-clay-100);border-color:var(--raw-clay-200);border-radius:var(--radius-md);color:var(--raw-brown-900)}
 .feedback-page .msg-bubble.photo{position:relative;padding:8px}
 .feedback-page .msg-bubble.photo img{width:180px;height:auto;display:block;border-radius:10px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
+/* 发送标签（浅红色，替代"已发送"文字） */
+.feedback-page .fb-photo-status{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;color:var(--raw-clay-700);background:var(--raw-clay-100);border:1px solid var(--raw-clay-200);padding:2px 8px;border-radius:var(--radius-pill);z-index:2}
+/* 反馈页顶部 logo（点击返回首页） */
+.feedback-page .fb-hd{cursor:pointer;padding:2px 0 6px;user-select:none;-webkit-user-select:none}
+.feedback-page .fb-hd-back{font-size:12px;color:var(--raw-brown-300);margin-left:auto}
+
+/* ═══ 记录详情页对话流（对齐反馈页样式） ═══ */
+.fb-detail{display:flex;flex-direction:column;gap:16px;padding:2px 16px 92px}
+.fb-detail .modal-feedback{display:flex;flex-direction:column;gap:12px}
+.fb-detail-photo{width:100%;height:auto;display:block;border-radius:12px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
+.fb-detail .msg{display:flex;gap:10px;align-items:flex-end}
+.fb-detail .msg.user{flex-direction:column;align-items:center;gap:8px}
+.fb-detail .msg-bubble{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow-paper);font-size:16px;line-height:1.7;color:var(--raw-brown-700)}
+.fb-detail .msg-bubble.photo{position:relative;padding:8px;width:100%;max-width:none}
+.fb-detail .msg-bubble.photo img{width:100%;height:auto;display:block;border-radius:10px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
+.fb-detail .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(201,125,91,.3)}
+.fb-detail .chat-head{display:flex;align-items:center;gap:10px;padding:4px 2px}
+.fb-detail .chat-head-info{flex:1;min-width:0}
+.fb-detail .chat-head-name{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--raw-brown-900)}
+.fb-detail .chat-head-sub{font-size:12px;color:var(--raw-brown-300);margin-top:1px}
+.fb-detail .chat-head-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--raw-sage-700);background:var(--raw-sage-100);padding:2px 8px;border-radius:var(--radius-pill)}
+.fb-detail .chat-head-status .dot{width:6px;height:6px;border-radius:50%;background:var(--raw-sage-500)}
+.fb-detail .stream-layer{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:14px 16px}
+.fb-detail .stream-layer .s-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);margin-bottom:6px}
+.fb-detail .stream-layer[data-type="identify"] .s-tag{background:var(--raw-ochre-100);color:var(--raw-ochre-700)}
+.fb-detail .stream-layer[data-type="observe"] .s-tag{background:var(--raw-clay-100);color:var(--raw-clay-700)}
+.fb-detail .stream-layer[data-type="progress"] .s-tag{background:var(--raw-sage-100);color:var(--raw-sage-700)}
+.fb-detail .stream-layer[data-type="suggestion"] .s-tag{background:var(--raw-clay-100);color:var(--raw-clay-700)}
+.fb-detail .stream-layer[data-type="encourage"] .s-tag{background:var(--raw-ochre-100);color:var(--raw-ochre-700)}
+.fb-detail .stream-layer .s-text{font-size:16px;line-height:1.8;color:var(--raw-brown-700)}
+.fb-detail .stream-layer[data-type="identify"] .s-text{font-family:var(--font-display);font-size:18px;color:var(--raw-brown-900)}
+.fb-detail .archive-note{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-family:var(--font-mono);font-size:12px;color:var(--raw-sage-700);padding:3px 10px;background:var(--raw-sage-100);border-radius:var(--radius-pill)}
+.fb-detail .fb-progress-box{display:flex;align-items:flex-start;gap:8px;background:var(--raw-sage-100);border-radius:var(--radius-md);padding:11px 13px;font-size:15px;line-height:1.7;color:var(--raw-brown-700);margin-top:6px}
+.fb-detail .fb-progress-box .p-icon{font-size:18px;flex-shrink:0}
+.fb-detail .fb-tip-box{margin-top:8px;padding:9px 13px;background:var(--raw-ochre-100);border-radius:var(--radius-md);font-size:14px;color:var(--raw-brown-700);border-left:3px solid var(--raw-ochre-500)}
+.fb-detail .fb-photo-status{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;color:var(--raw-clay-700);background:var(--raw-clay-100);border:1px solid var(--raw-clay-200);padding:2px 8px;border-radius:var(--radius-pill);z-index:2}
+.fb-detail .modal-delete-section{margin-top:8px}
+/* 探索进度（flowfb-b） */
+.fb-detail .exploration-bar{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:12px 15px}
+.fb-detail .eb-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.fb-detail .eb-title{font-size:14px;font-weight:600;color:var(--raw-brown-900)}
+.fb-detail .eb-value{font-family:var(--font-mono);font-size:18px;font-weight:600;color:var(--raw-ochre-700)}
+.fb-detail .eb-value .delta{font-size:12px;margin-left:6px;color:var(--raw-sage-700)}
+.fb-detail .eb-track{width:100%;height:12px;background:var(--raw-paper-300);border-radius:999px;overflow:hidden}
+.fb-detail .eb-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--raw-ochre-300),var(--raw-ochre-500),var(--raw-ochre-700));border-radius:999px;transition:width .8s var(--ease-out)}
+.fb-detail .eb-labels{display:flex;justify-content:space-between;margin-top:4px;font-family:var(--font-mono);font-size:10px;color:var(--raw-brown-300)}
+/* 归档 + 心流（flowfb-b） */
+.fb-detail .archive-flow{display:flex;gap:8px}
+.fb-detail .archive-pill{display:flex;align-items:center;gap:7px;background:none;border:none;border-radius:999px;padding:8px 16px;font-size:14px;color:var(--raw-brown-700);flex:1;justify-content:center}
+.fb-detail .archive-pill.filing{background:linear-gradient(160deg,var(--raw-sage-100),var(--raw-sage-300) 160%);border:1px solid var(--raw-sage-300)}
+.fb-detail .archive-pill.flow-bank{background:linear-gradient(160deg,var(--raw-ochre-100),var(--raw-ochre-300) 160%);border:1px solid var(--raw-ochre-200)}
+.fb-detail .archive-pill .pill-icon{font-size:16px}
+.fb-detail .archive-pill .pill-text{flex:1;line-height:1.4;text-align:center}
+.fb-detail .archive-pill .pill-val{font-family:var(--font-mono);font-weight:700;color:var(--raw-ochre-700);font-size:16px}
+.fb-detail .flow-bank-mini{width:26px;height:30px;position:relative;flex-shrink:0}
+.fb-detail .flow-bank-mini svg{width:100%;height:100%}
+.fb-detail .flow-bank-liquid{fill:var(--raw-ochre-500);opacity:.6;transition:y .8s var(--ease-out),height .8s var(--ease-out)}
+/* 五维雷达卡（反馈页 radar-card 样式） */
+.fb-detail .radar-card{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:14px 16px}
+.fb-detail .radar-header{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.fb-detail .radar-tag{font-size:12px;font-weight:700;color:var(--raw-ochre-700);background:var(--raw-ochre-100);padding:3px 10px;border-radius:var(--radius-pill)}
+.fb-detail .radar-subtitle{font-size:12px;color:var(--raw-brown-300)}
+.fb-detail .radar-wrap{display:flex;align-items:center;gap:14px}
+.fb-detail .radar-svg{width:110px;height:110px;flex-shrink:0}
+.fb-detail .radar-grid{fill:none;stroke:var(--raw-paper-400);stroke-width:1;opacity:.5}
+.fb-detail .radar-axis{stroke:var(--raw-paper-400);stroke-width:1;opacity:.3}
+.fb-detail .radar-data{fill:rgba(217,164,65,.15);stroke:var(--raw-ochre-500);stroke-width:2}
+.fb-detail .radar-label-text{font-family:var(--font-body);font-size:10px;fill:var(--raw-brown-500)}
+.fb-detail .radar-labels{flex:1}
+.fb-detail .radar-label-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:14px}
+.fb-detail .radar-label-row .name{color:var(--raw-brown-900)}
+.fb-detail .radar-label-row .val{font-family:var(--font-mono);color:var(--raw-brown-500)}
+.fb-detail .radar-label-row.highlight .name{color:var(--raw-ochre-700);font-weight:700}
+.fb-detail .radar-label-row.highlight .val{color:var(--raw-ochre-700)}
+/* 里程碑（反馈页"画者档案 +1"样式 · 淡绿渐变） */
+.fb-detail .milestone-card{display:flex;align-items:center;gap:12px;background:linear-gradient(160deg,var(--raw-sage-100),var(--raw-sage-300) 160%);border:1px solid var(--raw-sage-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:13px 15px}
+.fb-detail .milestone-icon{font-size:26px}
+.fb-detail .milestone-text{flex:1}
+.fb-detail .milestone-title{font-size:16px;font-weight:700;color:var(--raw-sage-700)}
+.fb-detail .milestone-msg{font-size:14px;color:var(--raw-brown-500);margin-top:2px;line-height:1.6}
+/* 反思（反馈页"画完想说点什么？"组件） */
+.fb-detail .reflection-area{display:block;margin:0;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:14px 16px}
+.fb-detail .reflection-title{font-size:16px;font-weight:600;color:var(--raw-brown-900);margin-bottom:8px}
+.fb-detail .reflection-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.fb-detail .reflection-tag-btn{font-size:14px;padding:5px 12px;border-radius:var(--radius-pill);background:var(--raw-paper-200);color:var(--raw-brown-500);border:1px solid var(--raw-paper-300);cursor:pointer;transition:all .2s}
+.fb-detail .reflection-tag-btn:hover{background:var(--raw-clay-100);color:var(--raw-clay-700);border-color:var(--raw-clay-200)}
+.fb-detail .reflection-confirm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px;padding:8px 12px;background:var(--raw-sage-100);border-radius:var(--radius-md)}
+.fb-detail .reflection-confirm-text{font-size:14px;color:var(--raw-sage-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb-detail .reflection-confirm-btn{background:var(--raw-sage-500);border:none;border-radius:16px;padding:6px 16px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;flex-shrink:0}
+.fb-detail .reflection-write{display:flex;gap:8px;margin:0 0 8px}
+.fb-detail .reflection-input{flex:1;min-width:0;border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:9px 12px;font-size:14px;font-family:var(--font-body);outline:none;background:var(--raw-white);color:var(--raw-brown-900)}
+.fb-detail .reflection-input:focus{border-color:var(--raw-clay-400)}
+.fb-detail .reflection-send{background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));color:#fff;border:none;border-radius:var(--radius-md);padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0}
+.fb-detail .reflection-response{margin-top:2px}
+.fb-detail .reflection-hint{font-size:12px;color:var(--raw-brown-300)}
+/* 反思补充文字 + AI 反馈 */
+.fb-detail .modal-reflection-empty{padding:4px 2px}
+.fb-detail .modal-reflection-empty-text{font-size:14px;font-weight:600;color:var(--raw-brown-700)}
+.fb-detail .modal-reflection-empty-hint{font-size:12px;color:var(--raw-brown-300);margin-top:2px}
+.fb-detail .modal-reflection-write{display:flex;gap:8px;margin-top:10px}
+.fb-detail .modal-reflection-input{flex:1;min-width:0;border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);padding:9px 12px;font-size:14px;font-family:var(--font-body);outline:none;background:var(--raw-paper-100);color:var(--raw-brown-900)}
+.fb-detail .modal-reflection-input:focus{border-color:var(--raw-clay-400)}
+.fb-detail .modal-reflection-send{background:linear-gradient(135deg,var(--raw-clay-400),var(--raw-clay-600));color:#fff;border:none;border-radius:var(--radius-md);padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0}
+.fb-detail .modal-reflection-response{margin-top:10px}
+.fb-detail .modal-reflection-reply{font-size:14px;color:var(--raw-brown-700);padding:8px 0}
+.fb-detail .modal-reflection-reply b{color:var(--raw-clay-700)}
+.fb-detail .modal-reflection-reply.ai{color:var(--raw-brown-500)}
+/* 详情页组件对齐内容宽度 */
+.fb-detail .radar-chart-container{margin:0}
+.fb-detail .exploration-bar-container{margin:0}
+.fb-detail .identity-statement-slot:empty{display:none}
+.fb-detail .flow-bank-slot:empty{display:none}
+.fb-detail .archive-pill-slot:empty{display:none}
+.fb-detail .exploration-bar-container:empty{display:none}
+.fb-detail .radar-chart-container:empty{display:none}
 .feedback-page .msg-meta{font-size:10px;color:var(--raw-brown-300);font-family:var(--font-mono);margin-top:4px}
 /* 小绘对话头 */
 .feedback-page .chat-head{display:flex;align-items:center;gap:10px;padding:10px 2px 4px}

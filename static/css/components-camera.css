@@ -457,4 +457,4 @@
 }
 
 /* 详情页全屏时隐藏底部导航（避免被盖住却可点） */
-body.detail-open .bottom-nav { display: none; }
+/* 记录详情页底部显示导航（v6c-v8d2-b 对齐原型） */

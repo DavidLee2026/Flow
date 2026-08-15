@@ -15,4 +15,7 @@ body{
   background-attachment: fixed;
   background-image: var(--bg-page-gradient);
 }
+/* 隐藏滚动条（保留滚动功能，移动端 App 风格） */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
 
