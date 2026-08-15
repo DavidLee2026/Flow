@@ -42,59 +42,11 @@ function openModal(record) {
   }
   feedbackEl.innerHTML = fbHtml || '<div class="stream-layer"><div class="s-text">暂无反馈</div></div>';
 
-  // 2. 探索进度（无数据默认 0 兜底）
-  const modalExploration = document.getElementById('modalExplorationBar');
-  if (modalExploration) {
-    modalExploration.style.display = '';
-    const explorationData = record.exploration || fbData.exploration || {};
-    modalExploration.innerHTML = (typeof explorationHTML === 'function')
-      ? explorationHTML({ explored_area_count: explorationData.explored_area_count || 0 }) : '';
-  }
-
-  // 3. 五维雷达（无数据默认值兜底）
-  const modalRadar = document.getElementById('modalRadarChart');
-  if (modalRadar) {
-    modalRadar.style.display = '';
-    modalRadar.innerHTML = (typeof radarCardHTML === 'function')
-      ? radarCardHTML(fbData.perception_analysis || {}) : '';
-  }
-
-  // 4. 里程碑（v6c-v8d2-b 身份仪式固定文案）
-  const milestoneEl = document.getElementById('modalMilestone');
-  if (milestoneEl) {
-    milestoneEl.innerHTML = `<div class="milestone-card"><div class="milestone-icon">🏅</div><div class="milestone-text"><div class="milestone-title">画者档案 +1 · 第 1 次身份投票</div><div class="milestone-msg">你画的每一个杯子，都是画者身份的证据。归档完毕。</div></div></div>`;
-    milestoneEl.style.display = 'block';
-  }
-
-  // 5. 反思（有文字显示当时写；无则"画完想说点什么？"组件）
-  const reflectionEl = document.getElementById('modalReflection');
-  if (reflectionEl) {
-    reflectionEl.style.display = 'block';
-    const reflection = getReflection(record.id);
-    if (reflection && reflection.text) {
-      reflectionEl.innerHTML = `
-        <div class="modal-reflection-block">
-          <div class="modal-reflection-label">✍️ 你当时写道</div>
-          <div class="modal-reflection-text">${escapeHtml(reflection.text)}</div>
-          <div class="modal-reflection-meta">— ${getTimeAgo(reflection.timestamp)}写下的</div>
-        </div>`;
-    } else if (typeof reflectionChatHTML === 'function') {
-      reflectionEl.innerHTML = reflectionChatHTML();
-      if (typeof bindReflectionFlow === 'function') bindReflectionFlow();
-    } else {
-      reflectionEl.innerHTML = '';
-    }
-  }
-
-  // 清理不用的 slot（身份语 / 心流 / 归档 / 现在的你）
-  const identitySlot = document.getElementById('modalIdentitySlot');
-  if (identitySlot) identitySlot.innerHTML = '';
-  const modalFlowBank = document.getElementById('modalFlowBank');
-  if (modalFlowBank) modalFlowBank.innerHTML = '';
-  const modalArchivePill = document.getElementById('modalArchivePill');
-  if (modalArchivePill) modalArchivePill.innerHTML = '';
-  const nowReviewEl = document.getElementById('modalNowReview');
-  if (nowReviewEl) { nowReviewEl.innerHTML = ''; nowReviewEl.style.display = 'none'; }
+  // 探索/雷达/里程碑/反思等 slot 暂清空（David 先看基础详情页：照片 + 5层 + 删除）
+  ['modalExplorationBar','modalRadarChart','modalMilestone','modalReflection','modalIdentitySlot','modalFlowBank','modalArchivePill','modalNowReview'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = ''; el.style.display = 'none'; }
+  });
 
   modal.classList.add('visible');
   // 禁止底层页面滚动，防止穿透
