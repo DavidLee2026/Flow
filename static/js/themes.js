@@ -160,24 +160,63 @@ function renderAchievements() {
     .then(r => r.json())
     .then(stats => {
       const total = stats.total || 0;
+      const streak = stats.streak || 0;
+      const maxStreak = stats.max_streak || 0;
       const levelTitle = (stats.level && stats.level.title) || '探索者';
       const exploration = (stats.profile && stats.profile.exploration) || {};
       const areaCount = exploration.explored_area_count || Object.keys(exploration.explored_areas || {}).length || 0;
       const el = id => document.getElementById(id);
       if (el('achName')) el('achName').textContent = total === 0 ? '画者 · 预备' : `画者 · ${levelTitle}`;
-      if (el('achLit')) el('achLit').textContent = total > 0 ? 1 : 0;
-      const e1 = document.getElementById('achExplore1');
-      if (e1) e1.textContent = `${Math.min(1, areaCount)} / 1`;
-      const d1 = document.getElementById('achDrawing1');
-      if (d1) d1.textContent = `${Math.min(1, total)} / 1`;
-      const d5 = document.getElementById('achDrawing5');
-      if (d5) d5.textContent = total >= 5 ? '已解锁' : '未解锁';
-      if (total >= 1) {
-        const m = document.querySelector('#achDrawing1') && document.querySelector('#achDrawing1').closest('.mile-item');
-        if (m) { m.classList.remove('now'); m.classList.add('done'); }
-      }
+      if (el('achDay')) el('achDay').textContent = total === 0 ? '新画者 · 第 1 天' : `画者 · 第 ${total} 天`;
+      // 已点亮成就数 + 下一枚
+      const lit = (areaCount >= 1 ? 1 : 0) + (total >= 1 ? 1 : 0) + (streak >= 3 ? 1 : 0);
+      if (el('achLit')) el('achLit').textContent = lit;
+      let next = '第 1 张画';
+      if (total >= 1 && areaCount < 1) next = '点亮第一个方向';
+      else if (total >= 1 && streak < 3) next = '连续画 3 天';
+      else if (total >= 3) next = '第 5 张画';
+      if (el('achNext')) el('achNext').textContent = next;
+
+      // 探索成就 5 项
+      renderAchieveList('achExploreList', [
+        {icon:'🗺️', name:'点亮第一个方向', desc:'顺着喜欢的主题画', need:1},
+        {icon:'🧭', name:'点亮 2 个方向', desc:'试着画不同主题', need:2},
+        {icon:'🌍', name:'点亮 3 个方向', desc:'画出不同世界的感觉', need:3},
+        {icon:'🗾', name:'点亮 4 个方向', desc:'观察力在扩展', need:4},
+        {icon:'🏔️', name:'点亮 6 个方向', desc:'探索全图 · 终极徽章', need:6},
+      ], areaCount);
+      // 画作里程碑 5 项（早期用户友好：10 张内解锁 4 项）
+      renderAchieveList('achMilestoneList', [
+        {icon:'🏅', name:'第 1 张画作', desc:'画下第一笔就开启「画者档案」', need:1},
+        {icon:'✏️', name:'第 3 张画作', desc:'手感开始建立', need:3},
+        {icon:'🖌️', name:'第 5 张画作', desc:'解锁「比例大师」', need:5},
+        {icon:'🎨', name:'第 10 张画作', desc:'解锁「心流充值」', need:10},
+        {icon:'🏆', name:'第 20 张画作', desc:'坚持就是胜利', need:20},
+      ], total);
+      // 坚持成就 5 项（连续天数）
+      renderAchieveList('achStreakList', [
+        {icon:'🔥', name:'连续 3 天', desc:'开始养成习惯', need:3},
+        {icon:'🌱', name:'连续 7 天', desc:'稳定的节奏', need:7},
+        {icon:'🌿', name:'连续 14 天', desc:'两周的坚持', need:14},
+        {icon:'🌟', name:'连续 30 天', desc:'一个月画者', need:30},
+        {icon:'👑', name:'连续 60 天', desc:'真正的热爱', need:60},
+      ], maxStreak);
     })
     .catch(() => {});
+}
+// 渲染一组成就列表：done（已解锁）/ now（当前进行）/ lock（未解锁）
+function renderAchieveList(containerId, items, current) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  let nowSet = false;
+  c.innerHTML = items.map(it => {
+    const done = current >= it.need;
+    let cls = 'lock';
+    if (done) cls = 'done';
+    else if (!nowSet) { cls = 'now'; nowSet = true; }
+    const val = done ? '已解锁 ✓' : (cls === 'now' ? `${Math.min(current, it.need)} / ${it.need}` : `需 ${it.need}`);
+    return `<div class="mile-item ${cls}"><span class="mi">${it.icon}</span><span class="t"><div class="n">${it.name}</div><div class="s">${it.desc}</div></span><span class="v">${val}</span></div>`;
+  }).join('');
 }
 
 

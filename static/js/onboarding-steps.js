@@ -3,20 +3,20 @@
 const OB_STEPS = [
   {
     title: '你好呀，我是小绘',
-    sub: '你叫什么名字？这样我能用心称呼你',
+    sub: '怎么称呼你呢？小绘想用心记住你',
     render: (d) => `
       <div class="ob-chat" id="obChat">
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
-          <div class="ob-msg-bubble">你好呀，我是你的 AI 画友 ✨</div>
+          <div class="ob-msg-bubble">你好呀，我是你的 AI 画友 ✨，你画的每一笔，我都会认真看见 💖</div>
         </div>
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
-          <div class="ob-msg-bubble">你叫什么名字？这样我能用心称呼你</div>
+          <div class="ob-msg-bubble">怎么称呼你呢？小绘想用心记住你</div>
         </div>
       </div>
       <div class="ob-input-bar" id="obInputBar">
-        <input class="ob-input" id="obName" type="text" placeholder="输入你的名字" value="${d.name || ''}">
+        <input class="ob-input" id="obName" type="text" placeholder="给自己起个名字吧" value="${d.name || ''}">
         <button class="ob-send-btn" id="obSendBtn" disabled>发送</button>
       </div>
     `,

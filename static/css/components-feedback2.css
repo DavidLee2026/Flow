@@ -262,7 +262,7 @@ body.booting::after {
   justify-content: center; align-items: center; text-align: center;
 }
 .wbp-icon { font-size: var(--font-size-7xl); animation: wbBounce .8s var(--ease-spring); margin-bottom: 16px; }
-.wbp-title { font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-text-primary); margin-bottom: 8px; }
+.wbp-title { font-family: var(--font-display); font-size: var(--font-size-2xl); font-weight: 600; color: var(--color-text-primary); margin-bottom: 8px; }
 .wbp-quote { font-size: var(--font-size-md); color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 28px; max-width: 300px; }
 .wbp-btn {
   padding: 12px 36px; border: none; border-radius: 24px;

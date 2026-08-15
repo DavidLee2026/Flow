@@ -7,13 +7,13 @@
 <link rel="manifest" href="manifest.json">
 <title>绘心 Flow</title>
 <link rel="stylesheet" href="static/css/tokens.css?v=3">
-<link rel="stylesheet" href="static/css/base.css?v=2">
-<link rel="stylesheet" href="static/css/components-home.css?v=12">
+<link rel="stylesheet" href="static/css/base.css?v=3">
+<link rel="stylesheet" href="static/css/components-home.css?v=27">
 <link rel="stylesheet" href="static/css/components-share.css?v=2">
 <link rel="stylesheet" href="static/css/components-feedback.css?v=2">
-<link rel="stylesheet" href="static/css/components-onboarding.css?v=2">
+<link rel="stylesheet" href="static/css/components-onboarding.css?v=3">
 <link rel="stylesheet" href="static/css/components-growth.css?v=5">
-<link rel="stylesheet" href="static/css/components-feedback2.css?v=12">
+<link rel="stylesheet" href="static/css/components-feedback2.css?v=13">
 <link rel="stylesheet" href="static/css/components-camera.css?v=4">
 <link rel="stylesheet" href="static/css/components-community.css?v=2">
 <link rel="stylesheet" href="static/css/components-misc1.css?v=2">
@@ -57,7 +57,7 @@
 <div id="page-home" class="page active">
 
   <!-- ═══ 首页骨架（移植 v6c-v8d2-a · 新用户空状态版 A） ═══ -->
-  <div class="hd fade-up d1">
+  <div class="hd">
     <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
     <div class="hd-day" id="homeDay">新画者 · 第 1 天</div>
   </div>
@@ -73,8 +73,8 @@
     <div class="l-body">
       <p class="p1" id="homeLetterBody">欢迎来到绘心 Flow。这里没有打分，只有看见——画得歪歪扭扭也没关系。今天<b>想画什么就画什么</b>，哪怕只是一条线，都是你的第一笔。</p>
       <div class="l-seal" id="homeSeal">
-        <div class="sv"><b id="homeSeedNum">1</b><span>心流种子</span></div>
-        <div class="sl">断签不归零 · 第一颗</div>
+        <div class="sv"><b id="homeSeedNum">1</b><span>心流赠礼</span></div>
+        <div class="sl">断签不归零 · 第一份赠礼</div>
       </div>
     </div>
     <div class="l-tip" id="homeTip">💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。</div>
@@ -110,7 +110,7 @@
       </svg>
       <div class="v8-bank-info">
         <div class="v8-bank-label">心流银行 · FLOW BANK</div>
-        <div class="v8-bank-num"><span id="homeFlowNum">1</span> <small>心流种子</small></div>
+        <div class="v8-bank-num"><span id="homeFlowNum">1</span> <small>心流赠礼</small></div>
         <div class="v8-bank-meta"><span class="up" id="homeFlowToday">今日 +0</span><span id="homeFlowWeek">本周 +0</span><span>断签不归零</span></div>
       </div>
     </div>
@@ -151,6 +151,12 @@
       <div class="v8-mile"><div class="m-name">🔒 第 5 张画作</div><div class="m-sub">坚持到第 5 天 · 解锁「比例大师」</div></div>
       <div class="v8-mile"><div class="m-name">🔒 第 10 张画作</div><div class="m-sub">解锁「心流充值」</div></div>
     </div>
+  </div>
+
+  <!-- 底部收尾（填充旅程下方空隙） -->
+  <div class="home-tail">
+    <div class="home-tail-icon">🎨</div>
+    <div class="home-tail-text">画一张，拍下来——<b>小绘</b>会认真看你的每一笔</div>
   </div>
   <!-- ═══ 骨架结束 · 下方为现有功能层（融合暂缓） ═══ -->
 
@@ -253,16 +259,7 @@
     <img id="submittedPhotoImg" src="" alt="我的画" style="width:100%;display:block;">
   </div>
 
-  <!-- ─── 7 阶段用户旅程指示器 (2.0 改造六) ─── -->
-  <div id="journeyIndicator" class="journey-indicator" style="display:none;">
-    <div class="journey-step" data-stage="1"><div class="journey-step-dot">1</div><span class="journey-step-label">入口</span></div>
-    <div class="journey-step" data-stage="2"><div class="journey-step-dot">2</div><span class="journey-step-label">创作</span></div>
-    <div class="journey-step" data-stage="3"><div class="journey-step-dot">3</div><span class="journey-step-label">拍照</span></div>
-    <div class="journey-step" data-stage="4"><div class="journey-step-dot">4</div><span class="journey-step-label">重现</span></div>
-    <div class="journey-step" data-stage="5"><div class="journey-step-dot">5</div><span class="journey-step-label">AI</span></div>
-    <div class="journey-step" data-stage="6"><div class="journey-step-dot">6</div><span class="journey-step-label">反馈</span></div>
-    <div class="journey-step" data-stage="7"><div class="journey-step-dot">7</div><span class="journey-step-label">归档</span></div>
-  </div>
+  <!-- 7 阶段旅程指示器已移除（会触发 showJourney 滚动到页面底部） -->
 
   <!-- Spinner（旧版 Fallback） -->
   <div id="spinner" class="spinner">
@@ -291,32 +288,32 @@
 
 <!-- ─── Page: Achievements（小成就 · 对齐原型 V6-C 空状态） ─── -->
 <div id="page-ach" class="page">
-  <div class="ach-title">🏅 小成就</div>
+  <div class="hd">
+    <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
+    <div class="hd-day" id="achDay">新画者 · 第 1 天</div>
+  </div>
   <div class="ach-hero">
     <div class="av" id="achAv">🌱</div>
     <div>
       <div class="ach-hero-name" id="achName">画者 · 预备</div>
-      <div class="ach-hero-sub">已点亮 <b id="achLit">0</b> 枚 · 下一枚 <b>第 1 张画</b> · 画一笔即可</div>
+      <div class="ach-hero-sub">已点亮 <b id="achLit">0</b> 枚 · 下一枚 <b id="achNext">第 1 张画</b></div>
     </div>
+    <span class="ach-hero-tag">🏅 小成就</span>
   </div>
-  <div class="mile-card">
+  <div class="mile-card explore">
     <h4>🧭 探索成就</h4>
-    <div class="mile-item now"><span class="mi">🗺️</span><span class="t"><div class="n">点亮第一个方向</div><div class="s">顺着喜欢的主题画 3 张</div></span><span class="v" id="achExplore1">0 / 1</span></div>
-    <div class="mile-item lock"><span class="mi">🔒</span><span class="t"><div class="n">点亮 6 个方向</div><div class="s">探索全图 · 终极徽章</div></span><span class="v">未解锁</span></div>
+    <div id="achExploreList"></div>
   </div>
-  <div class="mile-card">
+  <div class="mile-card milestone">
     <h4>📜 画作里程碑</h4>
-    <div class="mile-item now"><span class="mi">🏅</span><span class="t"><div class="n">第 1 张画作</div><div class="s">画下第一笔就解锁「画者档案」</div></span><span class="v" id="achDrawing1">0 / 1</span></div>
-    <div class="mile-item lock"><span class="mi">✏️</span><span class="t"><div class="n">第 5 张画作</div><div class="s">坚持到第 5 天</div></span><span class="v" id="achDrawing5">未解锁</span></div>
+    <div id="achMilestoneList"></div>
+  </div>
+  <div class="mile-card streak">
+    <h4>🔥 坚持成就</h4>
+    <div id="achStreakList"></div>
   </div>
 </div>
 
-<!-- ─── Page: Timeline ─── -->
-<div id="page-timeline" class="page">
-  <div id="timelineList" class="timeline list-stagger"></div>
-</div>
-
-<!-- ─── Page: Community ─── -->
 <!-- ─── 反馈对话页（全屏 view · 设计版式 B 对话流） ─── -->
 <div id="feedbackPage" class="feedback-page">
   <div class="fbp-chat" id="fbChatBox">
@@ -384,6 +381,10 @@
 
 <!-- ─── Page: Timeline ─── -->
 <div id="page-timeline" class="page">
+  <div class="hd">
+    <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
+    <div class="hd-day" id="tlDay">新画者 · 第 1 天</div>
+  </div>
   <div id="timelineList" class="timeline list-stagger"></div>
 </div>
 
@@ -549,9 +550,9 @@
 <!-- ─── 模块化加载（顺序：依赖基础 → 功能域） ─── -->
 <script src="static/js/imagetracer.js?v=20260809v1"></script>
 <script src="static/js/state.js?v=20260815v1"></script>
-<script src="static/js/onboarding-steps.js?v=1"></script>
+<script src="static/js/onboarding-steps.js?v=10"></script>
 <script src="static/js/onboarding.js?v=20260809v21"></script>
-<script src="static/js/themes.js?v=20260815v2"></script>
+<script src="static/js/themes.js?v=20260815v3"></script>
 <script src="static/js/camera.js?v=20260812v1"></script>
 <script src="static/js/replay/skeleton.js?v=3"></script>
 <script src="static/js/replay/effects.js?v=3"></script>

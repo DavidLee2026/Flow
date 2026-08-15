@@ -101,7 +101,7 @@
   bottom:0;
   background-color:var(--color-bg-page);
   background-image:var(--bg-page-gradient);
-  z-index:200;
+  z-index:600;
   overflow-y:auto;
 }
 .onboarding-overlay.visible{display:flex;}
