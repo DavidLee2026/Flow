@@ -11,117 +11,88 @@ function openModal(record) {
   const recordIndex = records.findIndex(r => r.id === record.id);
   const drawingNum = recordIndex >= 0 ? records.length - recordIndex : '';
 
-  // 对话流头部信息（照片消息副标 + 小绘对话头副标）
-  const detailSub = document.getElementById('detailSub');
-  if (detailSub) detailSub.textContent = drawingNum ? `第 ${drawingNum} 张画` : '画者';
+  // ═══ 详情页对话流渲染（干净重写） ═══
+  const fbData = record.feedback_json || record;
+
+  // 小绘对话头副标（时间）
   const detailHeadSub = document.getElementById('detailHeadSub');
   if (detailHeadSub) detailHeadSub.textContent = formatTime(record.timestamp);
 
-  // 构建反馈内容 — 对话流样式（对齐反馈页），旧版按段落
+  // 1. 5 层反馈（stream-layer 对话流卡片）
   const feedbackEl = document.getElementById('modalFeedback');
-  if (record.feedback_json && record.feedback_json.layers && record.feedback_json.layers.length >= 4) {
-    // 反馈页对话流卡片（stream-layer / s-tag / fb-tip-box / archive-note）
-    const LAYER_LABELS = {identify: '🎯 认出', observe: '🔍 观察', progress: '📈 进步', suggestion: '💡 建议', encourage: '✨ 期待'};
-    let html = '';
-    for (const layer of record.feedback_json.layers) {
-      const type = layer.type;
-      const label = LAYER_LABELS[type] || type;
-      if (type === 'progress') {
-        html += `<div class="stream-layer" data-type="progress"><span class="s-tag">${label}</span><div class="fb-progress-box"><span class="p-icon">📈</span><span class="p-text">${enrichText(layer.content)} 👏</span></div></div>`;
-      } else {
-        let h = `<div class="stream-layer" data-type="${type}"><span class="s-tag">${label}</span><div class="s-text">${enrichText(layer.content)}</div>`;
-        if (type === 'identify') {
-          h += `<span class="archive-note">📋 画者档案 +1</span>`;
-        } else if ((type === 'observe' || type === 'suggestion') && layer.tip && layer.tip.trim()) {
-          h += `<div class="fb-tip-box"><b>💡 小技巧</b>：${enrichText(layer.tip)} 💪</div>`;
-        }
-        h += '</div>';
-        html += h;
-      }
-    }
-    feedbackEl.innerHTML = html;
-  } else {
-    // 普通版：按段落格式化
-    const lines = (record.feedback || '').split('\n').filter(l => l.trim());
-    let html = '<div class="tt-ai-section">';
-    html += '<div class="tt-ai-header"><span class="tt-ai-avatar">🧑‍🎨</span><span class="tt-ai-name">小绘 · 当时的反馈</span></div>';
-    lines.forEach(line => {
-      const cleanLine = line.trim().replace(/^[\d]+[)）.、:：]?\s*/, '');
-      if (!cleanLine) return;
-      html += `<div class="tt-ai-layer">${enrichText(cleanLine)}</div>`;
-    });
-    html += '</div>';
-    feedbackEl.innerHTML = html || '<p style="color:var(--color-text-tertiary);">暂无反馈</p>';
-  }
-
-  // 2.0 组件渲染（记录详情弹窗）
-  const fbData = record.feedback_json || record;
-
-  // 身份确认语（详情页不再单独展示）
-  const identitySlot = document.getElementById('modalIdentitySlot');
-  if (identitySlot) {
-    identitySlot.innerHTML = '';
-    identitySlot.classList.remove('visible');
-  }
-
-  // 五维雷达图（反馈页雷达卡样式，无数据用默认值兜底，不空着）
-  const modalRadar = document.getElementById('modalRadarChart');
-  if (modalRadar) {
-    modalRadar.style.display = '';
-    const perceptionData = fbData.perception_analysis || {};
-    if (typeof radarCardHTML === 'function') {
-      modalRadar.innerHTML = radarCardHTML(perceptionData);
+  const LAYER_LABELS = {identify: '🎯 认出', observe: '🔍 观察', progress: '📈 进步', suggestion: '💡 建议', encourage: '✨ 期待'};
+  let fbHtml = '';
+  const fbLayers = (record.feedback_json && record.feedback_json.layers) || [];
+  for (const layer of fbLayers) {
+    const type = layer.type;
+    const label = LAYER_LABELS[type] || type;
+    if (type === 'progress') {
+      fbHtml += `<div class="stream-layer" data-type="progress"><span class="s-tag">${label}</span><div class="fb-progress-box"><span class="p-icon">📈</span><span class="p-text">${enrichText(layer.content)} 👏</span></div></div>`;
+    } else {
+      let h = `<div class="stream-layer" data-type="${type}"><span class="s-tag">${label}</span><div class="s-text">${enrichText(layer.content)}</div>`;
+      if (type === 'identify') h += `<span class="archive-note">📋 画者档案 +1</span>`;
+      else if ((type === 'observe' || type === 'suggestion') && layer.tip && layer.tip.trim()) h += `<div class="fb-tip-box"><b>💡 小技巧</b>：${enrichText(layer.tip)} 💪</div>`;
+      h += '</div>';
+      fbHtml += h;
     }
   }
+  if (!fbHtml && record.feedback) {
+    fbHtml = record.feedback.split('\n').filter(l => l.trim()).map(l =>
+      `<div class="stream-layer"><div class="s-text">${enrichText(l.trim().replace(/^[\d]+[)）.、:：]?\s*/, ''))}</div></div>`).join('');
+  }
+  feedbackEl.innerHTML = fbHtml || '<div class="stream-layer"><div class="s-text">暂无反馈</div></div>';
 
-  // 探索进度（flowfb-b 样式，无数据用默认 0 兜底，不空着）
+  // 2. 探索进度（无数据默认 0 兜底）
   const modalExploration = document.getElementById('modalExplorationBar');
   if (modalExploration) {
     modalExploration.style.display = '';
     const explorationData = record.exploration || fbData.exploration || {};
-    if (typeof explorationHTML === 'function') {
-      modalExploration.innerHTML = explorationHTML({ explored_area_count: explorationData.explored_area_count || 0 });
-    }
+    modalExploration.innerHTML = (typeof explorationHTML === 'function')
+      ? explorationHTML({ explored_area_count: explorationData.explored_area_count || 0 }) : '';
   }
 
-  // 归档 / 心流（详情页已去掉，保持为空）
-  const modalFlowBank = document.getElementById('modalFlowBank');
-  if (modalFlowBank) modalFlowBank.innerHTML = '';
-  const modalArchivePill = document.getElementById('modalArchivePill');
-  if (modalArchivePill) modalArchivePill.innerHTML = '';
+  // 3. 五维雷达（无数据默认值兜底）
+  const modalRadar = document.getElementById('modalRadarChart');
+  if (modalRadar) {
+    modalRadar.style.display = '';
+    modalRadar.innerHTML = (typeof radarCardHTML === 'function')
+      ? radarCardHTML(fbData.perception_analysis || {}) : '';
+  }
 
-  // 里程碑（身份仪式 · v6c-v8d2-b 固定文案）
+  // 4. 里程碑（v6c-v8d2-b 身份仪式固定文案）
   const milestoneEl = document.getElementById('modalMilestone');
   if (milestoneEl) {
     milestoneEl.innerHTML = `<div class="milestone-card"><div class="milestone-icon">🏅</div><div class="milestone-text"><div class="milestone-title">画者档案 +1 · 第 1 次身份投票</div><div class="milestone-msg">你画的每一个杯子，都是画者身份的证据。归档完毕。</div></div></div>`;
     milestoneEl.style.display = 'block';
   }
 
-  // 时空穿梭：展示用户当时写下的反思文字
+  // 5. 反思（有文字显示当时写；无则"画完想说点什么？"组件）
   const reflectionEl = document.getElementById('modalReflection');
   if (reflectionEl) {
+    reflectionEl.style.display = 'block';
     const reflection = getReflection(record.id);
     if (reflection && reflection.text) {
-      const timeAgo = getTimeAgo(reflection.timestamp);
       reflectionEl.innerHTML = `
         <div class="modal-reflection-block">
           <div class="modal-reflection-label">✍️ 你当时写道</div>
           <div class="modal-reflection-text">${escapeHtml(reflection.text)}</div>
-          <div class="modal-reflection-meta">— ${timeAgo}写下的</div>
+          <div class="modal-reflection-meta">— ${getTimeAgo(reflection.timestamp)}写下的</div>
         </div>`;
-      reflectionEl.style.display = 'block';
-      // 高亮脉冲动画
-      reflectionEl.classList.add('pulse-highlight');
-      setTimeout(() => reflectionEl.classList.remove('pulse-highlight'), 2000);
     } else if (typeof reflectionChatHTML === 'function') {
-      // 没留下文字：用反馈页"画完想说点什么？"（选标签 / 自己写）
       reflectionEl.innerHTML = reflectionChatHTML();
-      reflectionEl.style.display = 'block';
       if (typeof bindReflectionFlow === 'function') bindReflectionFlow();
+    } else {
+      reflectionEl.innerHTML = '';
     }
   }
 
-  // "现在的你看" 区块（详情页已去掉）
+  // 清理不用的 slot（身份语 / 心流 / 归档 / 现在的你）
+  const identitySlot = document.getElementById('modalIdentitySlot');
+  if (identitySlot) identitySlot.innerHTML = '';
+  const modalFlowBank = document.getElementById('modalFlowBank');
+  if (modalFlowBank) modalFlowBank.innerHTML = '';
+  const modalArchivePill = document.getElementById('modalArchivePill');
+  if (modalArchivePill) modalArchivePill.innerHTML = '';
   const nowReviewEl = document.getElementById('modalNowReview');
   if (nowReviewEl) { nowReviewEl.innerHTML = ''; nowReviewEl.style.display = 'none'; }
 
