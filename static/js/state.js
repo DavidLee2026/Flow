@@ -1,7 +1,8 @@
 // ─── state.js · 全局状态 + 通用工具 ──────────────
 // 最先加载：其他模块都依赖这里的全局变量与工具函数
 // ─── State ───
-const API_BASE = '/flow/app';
+// API 前缀自适应：本地（/ 路径）用空，线上子路径（/flow/app/）用前缀
+const API_BASE = location.pathname.indexOf('/flow/app') === 0 ? '/flow/app' : '';
 let records = [];
 let currentGlossaryContext = {};  // 当前反馈的术语上下文（反馈增强 v3.1）
 let waitingTimer = null;
