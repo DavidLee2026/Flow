@@ -120,9 +120,9 @@ function reflectionChatHTML() {
   return `<div class="reflection-area show" id="fbReflectionArea">
     <div class="reflection-title">💭 画完想说点什么？</div>
     <div class="reflection-tags" id="fbReflectionTags">
-      <button class="reflection-tag-btn">👀 注意到了杯口</button>
-      <button class="reflection-tag-btn">⚖️ 比例有点难</button>
-      <button class="reflection-tag-btn">🎨 蒸汽画得满意</button>
+      <button class="reflection-tag-btn">【测试标签1】</button>
+      <button class="reflection-tag-btn">【测试标签2】</button>
+      <button class="reflection-tag-btn">【测试标签3】</button>
       <button class="reflection-tag-btn is-custom">✍️ 自己写</button>
     </div>
     <div class="reflection-confirm" id="fbReflectionConfirm" style="display:none">
