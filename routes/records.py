@@ -1,5 +1,6 @@
 """记录 / 反思路由（蓝图）"""
 import json
+import re
 import time as _time_module
 from flask import Blueprint, request, jsonify, Response
 from config import DATA_DIR, LLM_MODEL, client
@@ -169,10 +170,14 @@ def api_reflection_tags():
             ],
             max_tokens=300,
             temperature=0.7,
-            response_format={"type": "json_object"},
+            # 不传 response_format：线上 openai 旧版不支持该参数会 TypeError → 兜底。用提示词引导 JSON
             extra_body={"thinking": {"type": "disabled"}},
         )
-        result = json.loads(resp.choices[0].message.content)
+        raw = resp.choices[0].message.content or ""
+        # 兼容模型输出带 ```json 代码块
+        raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
+        raw = re.sub(r"\s*```$", "", raw.strip())
+        result = json.loads(raw)
         tags = result.get("tags", [])[:3]
         elapsed = round(_time_module.time() - _t0, 1)
         print(f"[reflection-tags] API 完成，耗时 {elapsed:.1f}s，生成 {len(tags)} 个标签", flush=True)
