@@ -48,11 +48,9 @@ function openModal(record) {
     if (el) { el.innerHTML = ''; el.style.display = 'none'; }
   });
 
-  // 反思区（用户对自己说的 + 小绘回应）——【调试】无条件显示测试语句，确认渲染路径
+  // 反思区（用户对自己说的 + 小绘回应）——有则显示
   const reflEl = document.getElementById('modalReflection');
   if (reflEl) {
-    reflEl.style.display = '';
-    reflEl.innerHTML = `<div class="detail-reflection"><div class="detail-refl-title">💭 【测试反思显示】</div><div class="detail-refl-item user"><span class="detail-refl-tag">我</span><span class="detail-refl-text">这里是用户对自己的评价</span></div></div>`;
     const renderRefl = (refl) => {
       if (refl && (refl.text || refl.reply)) {
         reflEl.style.display = '';
