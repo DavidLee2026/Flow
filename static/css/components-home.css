@@ -90,7 +90,7 @@
   max-width: 82%;
   text-align: left;
 }
-.ob-msg-ai .ob-msg-bubble { border-bottom-left-radius: 4px; }
+.ob-msg-ai .ob-msg-bubble { border-top-left-radius: 0; }  /* AI 气泡左上直角，其余三边圆角 */
 .ob-msg-me .ob-msg-bubble {
   background: linear-gradient(135deg, var(--raw-sage-300), var(--raw-sage-500));
   color: #fff;
@@ -108,17 +108,19 @@
 }
 .ob-input-bar {
   display: flex;
-  max-width: 68%;             /* 不撑满整行，比之前更短 */
+  max-width: 78%;             /* 不撑满整行，比之前拉长一点 */
   padding: 8px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
+  border-top-right-radius: 0; /* 用户对话框右上角直角，其余圆角（头像在右） */
   box-shadow: var(--shadow-paper);
 }
 .ob-input-avatar {
   flex-shrink: 0;
   font-size: 14px;          /* 偶数刻度 · 单字头像 */
   font-weight: 600;
+  color: var(--raw-clay-600);  /* 「新」字用产品陶土红 */
 }
 .ob-input-fields {
   flex: 1;
