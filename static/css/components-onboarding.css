@@ -434,7 +434,7 @@
 .glossary-tip{
   display:none;
   position:fixed;
-  z-index:300;
+  z-index:1000;  /* 高于反馈页(310)，术语提示在反馈页内可见 */
   background: var(--color-text-primary);
   color: var(--color-text-inverse);
   font-size:var(--font-size-md);

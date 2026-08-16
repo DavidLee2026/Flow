@@ -58,7 +58,7 @@ function buildReconstructBlock() {
   return div;
 }
 function fbReplay()  { closeFeedbackPage(); openCamera(); }
-function fbProfile() { closeFeedbackPage(); switchTab('ach'); }
+function fbProfile() { closeFeedbackPage(); switchTab('timeline'); }
 function fbShare()   { showToast('分享功能暂未开放，敬请期待 🎨'); }
 function clearFeedbackContainers() {
   ['fbLayersContainer','radarChartContainer','explorationBarContainer','flowBankSlot','archivePillSlot','milestoneSlot'].forEach(id => {
