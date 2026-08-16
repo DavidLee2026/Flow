@@ -1,8 +1,13 @@
 // ─── AI 生成反思快选标签 ───
-function loadReflectionTags() {
+function loadReflectionTags(retry = 0) {
   const subject = document.getElementById('themeTodayTitle')?.textContent || '';
   // 实时流程反馈层是 .stream-layer（.layer-text 仅回放模式），取不到会兜底默认标签
   const layers = document.querySelectorAll('#fbLayersContainer .stream-layer');
+  // 反馈层还没渲染完（SSE 流式进行中）→ 延迟重试，避免兜底标签
+  if (layers.length === 0 && retry < 4) {
+    setTimeout(() => loadReflectionTags(retry + 1), 600);
+    return;
+  }
   let snippet = '';
   layers.forEach((el, i) => {
     if (i < 3) snippet += el.textContent.slice(0, 80) + ' ';
