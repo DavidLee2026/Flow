@@ -47,6 +47,22 @@ def api_delete_record(record_id):
     return jsonify({"ok": True})
 
 
+@bp.route("/api/record/<record_id>/reflection", methods=["POST"])
+def api_save_reflection(record_id):
+    """保存用户反思 + AI 回应到画作记录（详情页展示用）。"""
+    nick = _cur_user()
+    data = request.get_json() or {}
+    text = (data.get("text") or "").strip()[:300]
+    reply = (data.get("reply") or "").strip()[:300]
+    records = load_records(nick)
+    for r in records:
+        if r.get("id") == record_id:
+            r["reflection"] = {"text": text, "reply": reply}
+            save_records(nick, records)
+            return jsonify({"ok": True})
+    return jsonify({"ok": False, "error": "记录不存在"}), 404
+
+
 @bp.route("/api/reflection", methods=["POST"])
 def api_reflection():
     """用户画完画后写下反思，AI 给予个性化的回应（SSE 流式）。
@@ -57,12 +73,27 @@ def api_reflection():
     data = request.get_json() or {}
     user_text = (data.get("text") or "").strip()
     subject = (data.get("subject") or "这次画画").strip()
+    rec_id = (data.get("record_id") or "").strip()  # 反思保存到对应画作记录
+    nick = _cur_user()
 
     if not user_text:
         return jsonify({"reply": "嗯，你说了什么吗？我好像没看到 😅"})
 
+    def _save_reflection(text, reply):
+        """反思 + AI 回应保存到画作记录（详情页展示）。"""
+        if not rec_id or not text:
+            return
+        records = load_records(nick)
+        for r in records:
+            if r.get("id") == rec_id:
+                r["reflection"] = {"text": text, "reply": reply}
+                save_records(nick, records)
+                print(f"[reflection] ✅ 反思已保存到记录 {rec_id}", flush=True)
+                break
+
     def generate():
         _t0 = _time_module.time()
+        reply_parts = []
         try:
             stream = client.chat.completions.create(
                 model=LLM_MODEL,
@@ -84,8 +115,10 @@ def api_reflection():
             for chunk in stream:
                 token = chunk.choices[0].delta.content or ""
                 if token:
+                    reply_parts.append(token)
                     yield _sse_event({'token': token})
             elapsed = round(_time_module.time() - _t0, 1)
+            _save_reflection(user_text, ''.join(reply_parts))
             print(f"[reflection] SSE 完成，耗时 {elapsed:.1f}s", flush=True)
             yield _sse_event({'type': 'done', 'elapsed_s': elapsed})
         except Exception as e:

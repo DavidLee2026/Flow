@@ -43,10 +43,27 @@ function openModal(record) {
   feedbackEl.innerHTML = fbHtml || '<div class="stream-layer"><div class="s-text">暂无反馈</div></div>';
 
   // 探索/雷达/里程碑/反思等 slot 暂清空（David 先看基础详情页：照片 + 5层 + 删除）
-  ['modalExplorationBar','modalRadarChart','modalMilestone','modalReflection','modalIdentitySlot','modalFlowBank','modalArchivePill','modalNowReview'].forEach(id => {
+  ['modalExplorationBar','modalRadarChart','modalMilestone','modalIdentitySlot','modalFlowBank','modalArchivePill','modalNowReview'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.innerHTML = ''; el.style.display = 'none'; }
   });
+
+  // 反思区（用户对自己说的 + 小绘回应）——有则显示
+  const reflEl = document.getElementById('modalReflection');
+  if (reflEl) {
+    const refl = record.reflection;
+    if (refl && (refl.text || refl.reply)) {
+      reflEl.style.display = '';
+      reflEl.innerHTML = `
+        <div class="detail-reflection">
+          <div class="detail-refl-title">💭 我对自己说</div>
+          ${refl.text ? `<div class="detail-refl-item user"><span class="detail-refl-tag">我</span><span class="detail-refl-text">${escapeHtml(refl.text)}</span></div>` : ''}
+          ${refl.reply ? `<div class="detail-refl-item ai"><span class="detail-refl-tag">小绘</span><span class="detail-refl-text">${escapeHtml(refl.reply)}</span></div>` : ''}
+        </div>`;
+    } else {
+      reflEl.innerHTML = ''; reflEl.style.display = 'none';
+    }
+  }
 
   modal.classList.add('visible');
   // 禁止底层页面滚动，防止穿透

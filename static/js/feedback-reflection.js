@@ -120,7 +120,7 @@ function sendReflection(presetText) {
   fetch(`${API_BASE}/api/reflection`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({text: text, subject: currentDrawingSubject}),
+    body: JSON.stringify({text: text, subject: currentDrawingSubject, record_id: currentRecordId}),
   })
     .then(r => {
       if (!r.ok) throw new Error('reflection SSE failed');
@@ -142,6 +142,16 @@ function sendReflection(presetText) {
             let data;
             try { data = JSON.parse(part.slice(6)); } catch (e) { continue; }
             if (data.type === 'done') {
+              // 保存反思 + AI 回应到后端 record（详情页展示）
+              if (currentRecordId) {
+                try {
+                  fetch(`${API_BASE}/api/record/${currentRecordId}/reflection`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text, reply: bubble.textContent})
+                  }).catch(() => {});
+                } catch(e) {}
+              }
               if (data.elapsed_s) {
                 const meta = replyEl.querySelector('.chat-meta.ai');
                 if (meta) meta.textContent += `  ${data.elapsed_s}s`;
