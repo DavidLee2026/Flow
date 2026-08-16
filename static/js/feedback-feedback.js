@@ -1,7 +1,8 @@
 // ─── AI 生成反思快选标签 ───
 function loadReflectionTags() {
   const subject = document.getElementById('themeTodayTitle')?.textContent || '';
-  const layers = document.querySelectorAll('#fbLayersContainer .layer-text');
+  // 实时流程反馈层是 .stream-layer（.layer-text 仅回放模式），取不到会兜底默认标签
+  const layers = document.querySelectorAll('#fbLayersContainer .stream-layer');
   let snippet = '';
   layers.forEach((el, i) => {
     if (i < 3) snippet += el.textContent.slice(0, 80) + ' ';

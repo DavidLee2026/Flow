@@ -59,7 +59,7 @@ function buildReconstructBlock() {
 }
 function fbReplay()  { closeFeedbackPage(); openCamera(); }
 function fbProfile() { closeFeedbackPage(); switchTab('ach'); }
-function fbShare()   { if (currentRecordId) shareMyPainting(currentRecordId); }
+function fbShare()   { showToast('分享功能暂未开放，敬请期待 🎨'); }
 function clearFeedbackContainers() {
   ['fbLayersContainer','radarChartContainer','explorationBarContainer','flowBankSlot','archivePillSlot','milestoneSlot'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '';
