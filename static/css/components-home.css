@@ -515,7 +515,7 @@
 .l-date{font-family:var(--font-mono);font-size:10px;color:var(--raw-brown-300);margin-left:auto;white-space:nowrap;flex-shrink:0;align-self:flex-start;padding-top:3px}
 .l-greet{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--raw-brown-900);letter-spacing:.5px}
 .l-greet em{font-style:normal;color:var(--raw-clay-500)}
-.l-body{margin-top:5px;font-size:14px;line-height:1.8;color:var(--raw-brown-700)}
+.l-body{margin-top:5px;font-size:16px;line-height:1.8;letter-spacing:1px;color:var(--raw-brown-700)}
 .l-body p{margin-bottom:10px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
 .l-body p.show{opacity:1;transform:none}
 .l-body .hl{color:var(--raw-clay-700);font-weight:600}
@@ -660,8 +660,8 @@
 .l-from b{font-size:18px}
 .l-date{font-size:12px}
 .l-greet{font-size:22px}
-.l-body{font-size:14px}
-.l-body p{font-size:14px}
+.l-body{font-size:16px}
+.l-body p{font-size:16px}
 .l-seal .sv b{font-size:28px}
 .l-seal .sv span{font-size:12px}
 .l-seal .sl{font-size:12px}

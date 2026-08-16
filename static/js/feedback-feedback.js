@@ -51,7 +51,7 @@ function explorationHTML(data) {
   return `<div class="exploration-bar">
     <div class="eb-header"><span class="eb-title">🧭 探索进度</span><span class="eb-value" id="fbEbValue">已探索 ${Math.max(0,n-1)} 个方向</span></div>
     <div class="eb-track"><div class="eb-fill" id="fbEbFill" style="width:${Math.max(2,(n-1)/6*100)}%"></div></div>
-    <div class="eb-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+    <div class="eb-labels"><span>0</span><span>2</span><span>4</span><span>6</span></div>
   </div>`;
 }
 function animateExploration(data) {
@@ -222,8 +222,8 @@ function finalizeStreamingFeedback(completeData, receivedLayers) {
     try { await botComponent(explorationHTML(exploration), () => animateExploration(exploration)); } catch (e) { console.error('flow explore:', e); }
     try { await botComponent(radarCardHTML(perception), null); } catch (e) { console.error('flow radar:', e); }
     if (m) {
+      // 里程碑统一用对话流内卡片展示（不再弹顶部恭喜弹窗，避免与反馈信息样式不同步）
       try { await botComponent(milestoneChatHTML(m), null); } catch (e) { console.error('flow milestone:', e); }
-      try { showAchievementPopup(m); } catch (e) { console.error('flow popup:', e); }
     }
     try { await botComponent(reflectionChatHTML(), () => { bindReflectionFlow(); setTimeout(() => loadReflectionTags(), 300); }); } catch (e) { console.error('flow reflection:', e); }
     try { await botComponent(archiveChatHTML(record), () => animateFlowBank()); } catch (e) { console.error('flow archive:', e); }
@@ -272,7 +272,6 @@ function showFeedback(record) {
             <div class="milestone-desc">${escapeHtml(m.message)}</div>
           </div>
         </div>`;
-      showAchievementPopup(m);
     }
   }
 
