@@ -9,11 +9,17 @@ from data_store import (
 bp = Blueprint("content", __name__)
 
 
+def _cur_user() -> str:
+    """从请求头 X-User 取当前用户昵称（URL 编码，需 unquote；无则 default）。"""
+    from urllib.parse import unquote
+    return unquote(request.headers.get("X-User", "")).strip() or "default"
+
+
 @bp.route("/api/recommend")
 def api_recommend():
     """获取今日推荐（按用户等级+兴趣）"""
-    profile = load_profile()
-    records = load_records()
+    profile = load_profile(_cur_user())
+    records = load_records(_cur_user())
     rec = get_recommendation(profile, len(records))
     log_event("recommendation_viewed", {"rec_id": rec.get("id", "")})
     return jsonify({"recommendation": rec})
@@ -54,8 +60,8 @@ def api_today_theme():
     ?random=true → 从所有难度中随机选一个（换一换功能）
     ?exclude=xxx → 排除指定 id 的主题（避免换到同一个）
     """
-    profile = load_profile()
-    records = load_records()
+    profile = load_profile(_cur_user())
+    records = load_records(_cur_user())
     total = len(records)
 
     is_random = request.args.get("random", "").strip().lower() == "true"

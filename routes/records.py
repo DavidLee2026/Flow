@@ -9,17 +9,24 @@ from ai_service import _sse_event
 bp = Blueprint("records", __name__)
 
 
+def _cur_user() -> str:
+    """从请求头 X-User 取当前用户昵称（URL 编码，需 unquote；无则 default）。"""
+    from urllib.parse import unquote
+    return unquote(request.headers.get("X-User", "")).strip() or "default"
+
+
 @bp.route("/api/timeline")
 def api_timeline():
-    records = load_records()
+    records = load_records(_cur_user())
     records.reverse()
     return jsonify({"records": records})
 
 
 @bp.route("/api/record/<record_id>", methods=["DELETE"])
 def api_delete_record(record_id):
-    """删除指定画作记录及其图片文件。"""
-    records = load_records()
+    """删除指定画作记录及其图片文件（按用户隔离）。"""
+    nick = _cur_user()
+    records = load_records(nick)
     record = next((r for r in records if r.get("id") == record_id), None)
     if not record:
         return jsonify({"error": "找不到该记录"}), 404
@@ -35,7 +42,7 @@ def api_delete_record(record_id):
                 pass
 
     records.remove(record)
-    save_records(records)
+    save_records(nick, records)
     log_event("record_deleted", {"record_id": record_id})
     return jsonify({"ok": True})
 

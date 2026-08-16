@@ -61,9 +61,9 @@ def api_analyze():
         "elapsed_s": round(elapsed, 1),
         "timestamp": timestamp,
     }
-    records = load_records()
+    records = load_records(nick)
     records.append(record)
-    save_records(records)
+    save_records(nick, records)
 
     # 埋点：上传画作
     log_event("image_uploaded", {"total": total, "record_id": record_id})
