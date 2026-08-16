@@ -2,10 +2,10 @@
 
 路径常量、LLM 配置、client。所有模块从这里取配置。
 
-LLM 接入为 Provider 无关设计：通过环境变量接入任意 OpenAI 兼容端点，
+LLM 接入为 Provider 无关设计：通过环境变量接入任意 LLM 兼容端点，
 不绑定任何特定厂商。运行前请在 .env 中配置：
   LLM_API_KEY=你的 API Key
-  LLM_BASE_URL=https://你的端点/v1   （可选，缺省用 OpenAI 默认）
+  LLM_BASE_URL=https://你的端点/v1   （可选，缺省用默认端点）
   LLM_MODEL=模型名
 """
 import os

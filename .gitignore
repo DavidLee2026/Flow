@@ -12,3 +12,6 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# 部署私有配置（含真实服务器信息，绝不提交）
+.deploy.local.env

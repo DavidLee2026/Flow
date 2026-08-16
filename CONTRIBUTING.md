@@ -12,7 +12,7 @@
 git clone https://github.com/DavidLee2026/Flow.git
 cd Flow
 pip install -r requirements.txt
-cp .env.example .env   # 填入你的 LLM API Key（OpenAI 兼容端点即可）
+cp .env.example .env   # 填入你的 LLM API Key（LLM 兼容端点即可）
 python3 app.py
 ```
 
