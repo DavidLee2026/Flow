@@ -11,9 +11,13 @@ function showFeedbackPage(file) {
     r.onload = e => { document.getElementById('fbPhotoImg').src = e.target.result; };
     r.readAsDataURL(file);
   }
-  document.getElementById('fbHeadSub').textContent = `用户第 ${currentTotalDrawings} 张画 · 画者身份确认`;
-  document.getElementById('fbHeadStatus').innerHTML = '<span class="dot"></span>正在看你的画';
-  document.getElementById('fbPhotoMeta').textContent = '你拍的画 · 已发送';
+  const subEl = document.getElementById('fbHeadSub');
+  if (subEl) subEl.textContent = `用户第 ${currentTotalDrawings} 张画 · 画者身份确认`;
+  const statusEl = document.getElementById('fbHeadStatus');
+  if (statusEl) statusEl.innerHTML = '<span class="dot"></span>正在看你的画';
+  // 照片状态文字：反馈页重构后为 .fb-photo-status（class），旧 id fbPhotoMeta 已移除
+  const photoMeta = document.querySelector('.fb-photo-status');
+  if (photoMeta) photoMeta.textContent = '你拍的画 · 已发送';
   document.getElementById('fbLayersContainer').innerHTML = '';      // 清空对话流
   document.getElementById('fbChatActions').style.display = 'none';  // 隐藏按钮
   document.getElementById('feedbackEnhanced').classList.add('visible'); // 立即显示反馈容器
