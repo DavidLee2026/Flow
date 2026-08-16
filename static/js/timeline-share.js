@@ -54,11 +54,16 @@ function openModal(record) {
     const renderRefl = (refl) => {
       if (refl && (refl.text || refl.reply)) {
         reflEl.style.display = '';
+        // 还原反馈页反思的对话气泡结构（chat-meta + chat-bubble）
         reflEl.innerHTML = `
           <div class="detail-reflection">
             <div class="detail-refl-title">💭 我对自己说</div>
-            ${refl.text ? `<div class="detail-refl-item user"><span class="detail-refl-tag">我</span><span class="detail-refl-text">${escapeHtml(refl.text)}</span></div>` : ''}
-            ${refl.reply ? `<div class="detail-refl-item ai"><span class="detail-refl-tag">小绘</span><span class="detail-refl-text">${escapeHtml(refl.reply)}</span></div>` : ''}
+            <div class="reflection-response">
+              <div class="chat-meta user">你</div>
+              <div class="chat-bubble chat-user">${escapeHtml(refl.text || '')}</div>
+              <div class="chat-meta ai">小绘</div>
+              <div class="chat-bubble chat-ai">${escapeHtml(refl.reply || '')}</div>
+            </div>
           </div>`;
       } else {
         reflEl.innerHTML = ''; reflEl.style.display = 'none';

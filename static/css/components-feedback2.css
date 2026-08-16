@@ -476,14 +476,10 @@ body.booting::after {
 
 /* ═══ 记录详情页对话流（对齐反馈页样式） ═══ */
 .fb-detail{display:flex;flex-direction:column;gap:16px;padding:2px 16px 92px}
-/* 详情页反思区（用户对自己说 + 小绘回应） */
+/* 详情页反思区（用户对自己说 + 小绘回应 · 对话气泡结构与反馈页一致） */
 .detail-reflection{margin-top:4px;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px 16px}
 .detail-refl-title{font-size:14px;font-weight:700;color:var(--raw-brown-700);margin-bottom:10px}
-.detail-refl-item{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.6;margin-bottom:6px;color:var(--raw-brown-700)}
-.detail-refl-item:last-child{margin-bottom:0}
-.detail-refl-tag{flex-shrink:0;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--radius-pill)}
-.detail-refl-item.user .detail-refl-tag{background:var(--raw-sage-100);color:var(--raw-sage-700)}
-.detail-refl-item.ai .detail-refl-tag{background:var(--raw-clay-100);color:var(--raw-clay-700)}
+.detail-reflection .reflection-response{margin-top:8px}
 .fb-detail .modal-feedback{display:flex;flex-direction:column;gap:12px}
 .fb-detail-photo{width:100%;height:auto;display:block;border-radius:12px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
 .fb-detail .msg{display:flex;gap:10px;align-items:flex-end}
