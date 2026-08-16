@@ -479,7 +479,7 @@ body.booting::after {
 /* 详情页反思区（用户对自己说 + 小绘回应 · 对话气泡结构与反馈页一致） */
 .detail-reflection{margin-top:4px;background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px 16px}
 .detail-refl-title{font-size:14px;font-weight:700;color:var(--raw-brown-700);margin-bottom:10px}
-.detail-reflection .reflection-response{margin-top:8px}
+.detail-reflection .reflection-response{margin-top:8px;display:block}  /* 详情页始终显示（覆盖全局 display:none） */
 .fb-detail .modal-feedback{display:flex;flex-direction:column;gap:12px}
 .fb-detail-photo{width:100%;height:auto;display:block;border-radius:12px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
 .fb-detail .msg{display:flex;gap:10px;align-items:flex-end}
