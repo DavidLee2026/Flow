@@ -2,7 +2,7 @@
 
 AI 陪伴式绘画 App——**手机 + 纸 + 笔 + AI**，每次画完拍下来就能获得逐层反馈。
 
-没有账号、没有对错、不需要画得多好。拍下纸上的画，AI 陪你一起看画面。
+没有对错、不需要画得多好。拍下纸上的画，AI 陪你一起看画面。设一个昵称和 4 位 PIN，你的画作只属于你——换个设备登录回来，一切还在。
 
 <a href="https://leerobert.site/flow/flow-demo-video.mp4">
   <img src="docs/video-cover.jpg" width="320" alt="绘心 Flow 真实体验录屏">
@@ -19,7 +19,7 @@ cp .env.example .env
 python3 app.py
 ```
 
-手机连接同 Wi-Fi，浏览器访问终端显示的地址。
+手机连接同 Wi-Fi，浏览器访问终端显示的地址。首次进入设置昵称 + 4 位 PIN 即完成注册，换设备登录回来数据不丢。
 
 **LLM API 接入**（Provider 无关）：绘心 Flow 通过环境变量接入任意 LLM API，不绑定特定厂商。
 
@@ -32,6 +32,21 @@ python3 app.py
 > 感知 Agent 用 VLM 分析画作，合成 Agent 用 LLM 生成 5 层流式反馈；评估 / 记忆 Agent 为纯本地逻辑，零 API 成本。
 
 ## 功能
+
+### 👥 多用户账号系统
+
+- **昵称 + 4 位 PIN** — 首次进入设一个昵称和 PIN 即完成注册，无需邮箱/手机号
+- **数据隔离** — 每位画者独立数据目录（画像 / 画作 / 反思 / 图片全部分离），互不可见
+- **跨设备登录** — 换设备或清缓存，输入昵称 + PIN 即回到自己的画，进度不丢
+- **PIN 安全存储** — 服务端仅存加盐哈希，不存明文
+
+### 🏠 首页 · 画者成长空间
+
+- **第一封信** — 新画者收到小绘的欢迎信，承载身份叙事与成长约定
+- **画者名片** — 当前等级 / 心流银行 / 连续天数 / 画作档案一目了然
+- **成长旅程** — 新手期 → 熟练期的阶段地图，每个阶段有明确目标
+- **探索进度** — 累积式方向标签（0/6），画一张贴一个标签，永不扣分
+- **心流银行** — 断签不归零的软性激励，把「坚持」转化为「积累」
 
 ### 🧠 AI 绘画反馈
 
@@ -77,7 +92,9 @@ python3 app.py
 
 ### 🏆 成长系统
 
-- **里程碑成就** — 第 1/5/10/25/50 张触发专属庆祝卡片 + 成就弹窗
+- **小成就面板** — 探索成就 + 里程碑双轨收集：点亮方向、连续打卡、到达里程碑都会落进你的成就册
+- **里程碑成就** — 第 1/5/10/25/50 张触发专属庆祝卡片 + 成就弹窗 + 烟花
+- **探索方向标签** — 每张画被 AI 贴上最合适的方向标签，点亮探索进度，累积式永不扣分
 - **连胜打卡** — 连续绘画天数追踪
 - **成长关卡** — 400 关渐进式练习体系（20 大关 × 20 小关，含 Boss 挑战，预备上线）
 
@@ -121,7 +138,7 @@ python3 app.py
 | 后端 | Flask + LLM API（视觉语言模型） |
 | 前端 | 纯 HTML + CSS + JavaScript（无框架） |
 | 流式反馈 | Server-Sent Events (SSE) |
-| 数据存储 | 本地 JSON 文件 |
+| 数据存储 | 本地 JSON 文件（按用户独立目录） |
 | 离线 | Service Worker + Cache API |
 | 图片处理 | Pillow（服务端压缩） |
 
@@ -187,7 +204,8 @@ from orchestrator import run
 profile = {"name": "小伙伴", "exploration": {"progress": 0, "explored_areas": {}}}
 record_context = {"record_id": "demo-001", "image_relpath": "demo.jpg", "timestamp": "2026-08-12", "note": "", "theme": "风景"}
 
-for event in run(Path("demo.jpg"), profile, [], record_context):
+# nickname 指定画者（多用户），缺省 "default"；数据读写均按用户隔离
+for event in run(Path("demo.jpg"), profile, [], record_context, nickname="demo"):
     print(event.decode())
 # data: {"type":"first_impression","message":"小绘正在仔细看你的画…"}
 # data: {"type":"agent_done","agent":"perception","summary":"识别到：风景 + edge突出",...}
@@ -212,6 +230,7 @@ for event in run(Path("demo.jpg"), profile, [], record_context):
 
 | 方法 | 路径 | 说明 |
 |:-----|:-----|:-----|
+| POST | `/api/account` | 昵称 + PIN 注册 / 登录（多用户账号） |
 | POST | `/api/analyze/stream` | 上传画作 → 多 Agent 编排 → SSE 流式 5 层反馈（2.0 主链路） |
 | POST | `/api/analyze` | 画作分析（单次返回，兼容 1.0） |
 | GET | `/api/records` | 画作记录列表 |
@@ -224,25 +243,31 @@ for event in run(Path("demo.jpg"), profile, [], record_context):
 
 ```
 ├── app.py               # Flask 瘦入口（蓝图组装 + 启动）
-├── config.py            # 配置与基础设施（路径 / 模型常量 / client）
+├── config.py            # 配置与基础设施（路径 / 模型常量 / client / 多用户目录函数）
 ├── routes/              # 业务路由 Blueprint（analyze / records / user / content）
-├── data_store/          # 数据层包（events / records / profile / progress / masters / content / community）
+├── data_store/          # 数据层包（events / records / profile / users / progress / masters / content / community）
 ├── ai_service/          # AI 分析服务包（analyze / prompts / stream）
 ├── agents/              # 多 Agent（感知 / 评估 / 记忆 / 合成）
-├── orchestrator.py      # 编排器（Agent 调度 + SSE 事件流）
+├── orchestrator.py      # 编排器（Agent 调度 + SSE 事件流，按用户读写数据）
 ├── growth_stages.py     # 成长关卡逻辑（数据在 growth_stages_levels_*.json）
 ├── community_api.py     # 社区 Blueprint
 ├── requirements.txt     # Python 依赖
 ├── static/
 │   ├── index.html       # 前端 SPA 入口
 │   ├── css/             # 设计系统（tokens + base + 组件分文件）
-│   ├── js/              # 前端模块（state / onboarding / feedback / timeline / replay 等，按依赖顺序加载）
+│   ├── js/              # 前端模块（state / onboarding / home / journey / feedback / timeline 等，按依赖顺序加载）
 │   ├── manifest.json    # PWA 配置
 │   └── sw.js            # Service Worker
 ├── data/                # 用户数据（自动生成，不提交）
+│   └── users/{昵称}/    # 每用户独立目录（profile / records / images）
 └── .env                 # API Key（不提交）
 ```
 
 ## 项目状态
 
-> MVP 稳定版已交付（v3.5），核心循环「画 → 拍 → AI 反馈 → 记录 → 分享」链路完整，准备进入公开测试。
+> 多用户版已上线（v4.0），核心循环「画 → 拍 → AI 反馈 → 记录 → 分享」链路完整，多用户账号系统就绪，进入公开测试阶段。在线体验：[leerobert.site/flow/app](https://leerobert.site/flow/app/)
+
+### 开发质量
+
+- **PEP8 全绿** — 提交前自动 pycodestyle 检查（`.githooks/pre-commit`，违规阻止提交）
+- 数据与密钥隔离：`data/`、`.env` 均不提交，部署脚本 rsync 排除保护
