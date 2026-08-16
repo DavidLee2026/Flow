@@ -213,7 +213,8 @@ function renderAchieveList(containerId, items, current) {
     const done = current >= it.need;
     let cls = 'lock';
     if (done) cls = 'done';
-    else if (!nowSet) { cls = 'now'; nowSet = true; }
+    // 只有当前有进度（>0）才标记为「进行中」显示 cur/need；0 进度保持「需 N」（未开始）
+    else if (!nowSet && current > 0) { cls = 'now'; nowSet = true; }
     const val = done ? '已解锁 ✓' : (cls === 'now' ? `${Math.min(current, it.need)} / ${it.need}` : `需 ${it.need}`);
     return `<div class="mile-item ${cls}"><span class="mi">${it.icon}</span><span class="t"><div class="n">${it.name}</div><div class="s">${it.desc}</div></span><span class="v">${val}</span></div>`;
   }).join('');

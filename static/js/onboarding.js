@@ -98,12 +98,13 @@ async function obSendName() {
   if (_g) _g.textContent = nickname;
 
   const chat = document.getElementById('obChat');
-  const bar = document.getElementById('obInputBar');
+  const wrap = document.getElementById('obInputWrap');
   const me = document.createElement('div');
   me.className = 'ob-msg ob-msg-me ob-msg-pop';
   me.innerHTML = `<div class="ob-msg-bubble">${escapeHtml(nickname)}</div>`;
   if (chat) chat.appendChild(me);
-  if (bar) bar.style.display = 'none';
+  // 隐藏整个输入区（含头像），避免头像单独留在消息流下方
+  if (wrap) wrap.style.display = 'none';
 
   setTimeout(() => {
     const ai = document.createElement('div');
