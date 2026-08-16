@@ -20,12 +20,12 @@ const OB_STEPS = [
           <div class="ob-input-fields">
             <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
             <div class="ob-input-line2" id="obInputLine2">
-              <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN · 自由设置">
+              <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN（自由设置）">
               <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
             </div>
           </div>
         </div>
-        <div class="ob-msg-avatar ob-input-avatar" id="obInputAvatar">🎨</div>
+        <div class="ob-msg-avatar ob-input-avatar" id="obInputAvatar">新</div>
       </div>
     `,
     validate: (d) => (d.nickname) ? {nickname: d.nickname} : null,

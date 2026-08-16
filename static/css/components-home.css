@@ -101,14 +101,14 @@
 /* 底部输入栏（微信式 · 靠右不撑满 · 头像在对话框右侧） */
 .ob-input-wrap {
   display: flex;
-  align-items: flex-end;      /* 头像与对话框底部对齐 */
+  align-items: flex-start;    /* 头像与对话框顶部对齐 */
   justify-content: flex-end;  /* 整体靠右 */
   gap: 10px;
   margin-top: 16px;
 }
 .ob-input-bar {
   display: flex;
-  max-width: 78%;             /* 不撑满整行 */
+  max-width: 68%;             /* 不撑满整行，比之前更短 */
   padding: 8px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-light);
@@ -117,6 +117,8 @@
 }
 .ob-input-avatar {
   flex-shrink: 0;
+  font-size: 14px;          /* 偶数刻度 · 单字头像 */
+  font-weight: 600;
 }
 .ob-input-fields {
   flex: 1;
