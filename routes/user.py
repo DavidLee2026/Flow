@@ -32,7 +32,7 @@ def api_account():
     服务器（AUTH_PIN_REQUIRED=1）严格校验。
     """
     data = request.get_json() or {}
-    nickname = (data.get("nickname") or "").strip()[:20]
+    nickname = (data.get("nickname") or "").strip()[:8]
     pin = (data.get("pin") or "").strip()
     action = data.get("action", "login")
     if not nickname:
@@ -178,7 +178,7 @@ def api_onboarding():
         profile = load_profile(nick)
 
         if "name" in data:
-            profile["name"] = data["name"].strip()[:20]
+            profile["name"] = data["name"].strip()[:8]
 
         # 有名字即完成引导
         if profile.get("name"):
@@ -203,7 +203,7 @@ def api_profile():
         data = request.get_json()
         profile = load_profile(nick)
         if data and "name" in data:
-            profile["name"] = data["name"].strip()[:20]
+            profile["name"] = data["name"].strip()[:8]
         save_profile(nick, profile)
         return jsonify({"profile": profile})
     return jsonify({"profile": load_profile(nick)})

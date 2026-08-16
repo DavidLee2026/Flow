@@ -15,11 +15,12 @@ const OB_STEPS = [
           <div class="ob-msg-bubble">怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你</div>
         </div>
       </div>
-      <div class="ob-input-bar" id="obInputBar" style="flex-wrap:wrap">
-        <input class="ob-input" id="obName" type="text" maxlength="20" placeholder="昵称（别人能看到）" style="flex:1 1 60%">
-        <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4位PIN" style="flex:1 1 30%">
+      <div class="ob-input-bar" id="obInputBar">
+        <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）" style="flex:2 1 45%">
+        <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN" style="flex:1 1 22%">
         <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
       </div>
+      <p class="ob-input-hint">昵称 8 字以内 · PIN 直接输入 4 位数字</p>
     `,
     validate: (d) => (d.nickname) ? {nickname: d.nickname} : null,
     onMount: () => {
@@ -44,6 +45,10 @@ const OB_STEPS = [
             ? '怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你'
             : '怎么称呼你呢？设个昵称，下次回来还是你';
         }
+        const hint = document.querySelector('.ob-input-hint');
+        if (hint) hint.textContent = window._pinRequired
+          ? '昵称 8 字以内 · PIN 直接输入 4 位数字'
+          : '昵称 8 字以内（本地免密）';
         syncBtn();
       }).catch(() => { window._pinRequired = true; });
       const els = pinEl ? [nickEl, pinEl] : [nickEl];

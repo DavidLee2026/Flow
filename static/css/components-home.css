@@ -124,6 +124,12 @@
 }
 .ob-input-bar input.ob-input:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
 .ob-input-bar input.ob-input::placeholder { color: var(--color-text-tertiary); }
+.ob-input-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
 .ob-send-btn {
   flex-shrink: 0;
   padding: 8px 16px;
