@@ -98,19 +98,41 @@
   border-bottom-right-radius: 4px;
   box-shadow: 0 2px 10px rgba(123,155,110,.30);
 }
-/* 底部输入栏（微信式） */
+/* 底部输入栏（微信式 · 靠右不撑满 · 头像 + 输入域） */
 .ob-input-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   margin-top: 16px;
+  margin-left: auto;          /* 靠右，像对话消息 */
+  max-width: 78%;             /* 不撑满整行 */
   padding: 8px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-paper);
 }
-.ob-input-bar input.ob-input {
+.ob-input-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.ob-input-fields {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ob-input-fields input.ob-input {
   flex: 1;
   min-width: 0;
   padding: 8px 14px;
@@ -122,14 +144,20 @@
   outline: none;
   color: var(--color-text-primary);
 }
-.ob-input-bar input.ob-input:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
-.ob-input-bar input.ob-input::placeholder { color: var(--color-text-tertiary); }
+.ob-input-fields input.ob-input:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
+.ob-input-fields input.ob-input::placeholder { color: var(--color-text-tertiary); }
 .ob-input-line2 {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .ob-input-line2 input.ob-input { flex: 1; }
+.ob-pin-note {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .ob-send-btn {
   flex-shrink: 0;
   padding: 8px 16px;
