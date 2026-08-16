@@ -381,6 +381,10 @@ async function loadStats(showWelcome = false) {
     if (typeof renderHomeExplorationBarFromStats === 'function') {
       renderHomeExplorationBarFromStats(data);
     }
+    // 刷新首页骨架（画者档案 / 心流余额 / 探索方向 / 天数）——画完反馈后返回首页数据实时更新
+    if (typeof renderHomeTopInfo === 'function') {
+      renderHomeTopInfo(data);
+    }
 
     updateGreeting();
   } catch (e) {

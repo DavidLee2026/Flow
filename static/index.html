@@ -312,10 +312,10 @@
 <!-- ─── 反馈对话页（全屏 view · 设计版式 B 对话流） ─── -->
 <div id="feedbackPage" class="feedback-page">
   <div class="fbp-chat" id="fbChatBox">
-    <!-- 反馈页顶部 logo（点击返回首页） -->
+    <!-- 反馈页顶部 logo（点击返回首页 · 右侧显示画者天数，与首页一致） -->
     <div class="hd fb-hd" onclick="closeFeedbackPage()">
       <div class="hd-brand">✏️ 绘心 <span class="craft">Flow</span></div>
-      <span class="fb-hd-back">← 返回首页</span>
+      <span class="fb-hd-back" id="fbHdDay">画者 · 第 1 天</span>
     </div>
     <!-- 用户拍的画（右侧消息 + 识别 chip） -->
     <div class="msg user done" id="fbMsgPhoto">
@@ -550,7 +550,7 @@
 <script src="static/js/imagetracer.js?v=20260809v1"></script>
 <script src="static/js/state.js?v=20260815v3"></script>
 <script src="static/js/onboarding-steps.js?v=20"></script>
-<script src="static/js/onboarding.js?v=20260816v2"></script>
+<script src="static/js/onboarding.js?v=20260816v3"></script>
 <script src="static/js/themes.js?v=20260816v1"></script>
 <script src="static/js/camera.js?v=20260815v1"></script>
 <script src="static/js/replay/skeleton.js?v=3"></script>
@@ -559,7 +559,7 @@
 <script src="static/js/radar-chart.js?v=20260809v2"></script>
 <script src="static/js/exploration-bar.js?v=20260812v1"></script>
 <script src="static/js/growth-panel.js?v=20260814v1"></script>
-<script src="static/js/feedback-upload.js?v=21"></script>
+<script src="static/js/feedback-upload.js?v=22"></script>
 <script src="static/js/feedback-feedback.js?v=17"></script>
 <script src="static/js/feedback-ui.js?v=1"></script>
 <script src="static/js/feedback-reflection.js?v=3"></script>
@@ -569,6 +569,6 @@
 <script src="static/js/community.js?v=20260809v20"></script>
 <script src="static/js/share.js?v=20260809v20"></script>
 <script src="static/js/journey.js?v=20260812v1"></script>
-<script src="static/js/home.js?v=20260815v7"></script>
+<script src="static/js/home.js?v=20260816v1"></script>
 </body>
 </html>

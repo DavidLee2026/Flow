@@ -89,8 +89,8 @@ function renderHomeTopInfo(stats) {
   if (el('achDay')) el('achDay').textContent = dayText;
   if (el('tlDay')) el('tlDay').textContent = dayText;
 
-  // 心流余额（空状态 1 · 之后每张 +1，断签不归零）——信印章 + 银行卡片统一
-  const seedNum = Math.max(1, total);
+  // 心流余额（初始 1 · 每完成一张 +1，断签不归零）——信印章 + 银行卡片统一
+  const seedNum = 1 + total;
   if (el('homeSeedNum')) el('homeSeedNum').textContent = seedNum;
   if (el('homeFlowNum')) el('homeFlowNum').textContent = seedNum;
   if (el('homeFlowToday')) el('homeFlowToday').textContent = `今日 +${total > 0 ? 1 : 0}`;

@@ -13,6 +13,9 @@ function showFeedbackPage(file) {
   }
   const subEl = document.getElementById('fbHeadSub');
   if (subEl) subEl.textContent = `用户第 ${currentTotalDrawings} 张画 · 画者身份确认`;
+  // 反馈页右上角天数（与首页 hd-day 一致）
+  const hdDay = document.getElementById('fbHdDay');
+  if (hdDay) hdDay.textContent = `画者 · 第 ${currentTotalDrawings} 天`;
   const statusEl = document.getElementById('fbHeadStatus');
   if (statusEl) statusEl.innerHTML = '<span class="dot"></span>正在看你的画';
   // 照片状态文字：反馈页重构后为 .fb-photo-status（class），旧 id fbPhotoMeta 已移除
