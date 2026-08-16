@@ -51,17 +51,30 @@ function openModal(record) {
   // 反思区（用户对自己说的 + 小绘回应）——有则显示
   const reflEl = document.getElementById('modalReflection');
   if (reflEl) {
+    const renderRefl = (refl) => {
+      if (refl && (refl.text || refl.reply)) {
+        reflEl.style.display = '';
+        reflEl.innerHTML = `
+          <div class="detail-reflection">
+            <div class="detail-refl-title">💭 我对自己说</div>
+            ${refl.text ? `<div class="detail-refl-item user"><span class="detail-refl-tag">我</span><span class="detail-refl-text">${escapeHtml(refl.text)}</span></div>` : ''}
+            ${refl.reply ? `<div class="detail-refl-item ai"><span class="detail-refl-tag">小绘</span><span class="detail-refl-text">${escapeHtml(refl.reply)}</span></div>` : ''}
+          </div>`;
+      } else {
+        reflEl.innerHTML = ''; reflEl.style.display = 'none';
+      }
+    };
+    // 内存数据可能是画完时加载的（无反思），反思保存在后 → 从后端拉最新记录
     const refl = record.reflection;
     if (refl && (refl.text || refl.reply)) {
-      reflEl.style.display = '';
-      reflEl.innerHTML = `
-        <div class="detail-reflection">
-          <div class="detail-refl-title">💭 我对自己说</div>
-          ${refl.text ? `<div class="detail-refl-item user"><span class="detail-refl-tag">我</span><span class="detail-refl-text">${escapeHtml(refl.text)}</span></div>` : ''}
-          ${refl.reply ? `<div class="detail-refl-item ai"><span class="detail-refl-tag">小绘</span><span class="detail-refl-text">${escapeHtml(refl.reply)}</span></div>` : ''}
-        </div>`;
+      renderRefl(refl);
+    } else if (record.id) {
+      fetch(`${API_BASE}/api/timeline`).then(r => r.json()).then(d => {
+        const latest = (d.records || []).find(r => r.id === record.id);
+        renderRefl(latest && latest.reflection);
+      }).catch(() => renderRefl(null));
     } else {
-      reflEl.innerHTML = ''; reflEl.style.display = 'none';
+      renderRefl(null);
     }
   }
 
