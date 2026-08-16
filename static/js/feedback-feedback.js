@@ -181,7 +181,7 @@ function lockReflectionAfterSend() {
 function archiveChatHTML(record) {
   return `<div class="archive-flow">
     <div class="archive-pill filing"><span class="pill-icon">📋</span><span class="pill-text">已存入画者档案</span></div>
-    <div class="archive-pill flow-bank"><span class="pill-icon">🏦</span>
+    <div class="archive-pill flow-bank">
       <div class="flow-bank-mini"><svg viewBox="0 0 28 32"><rect x="4" y="4" width="20" height="24" rx="3" fill="none" stroke="var(--raw-ochre-500)" stroke-width="1.5"/><rect class="flow-bank-liquid" id="fbFlowLiquid" x="6" y="22" width="16" height="4" rx="1"/></svg></div>
       <span class="pill-text">心流余额</span><span class="pill-val" id="fbFlowVal">+1</span>
     </div>
