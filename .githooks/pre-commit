@@ -1,0 +1,21 @@
+#!/bin/bash
+# 绘心 Flow pre-commit hook · PEP8 检查
+# 提交前自动跑 pycodestyle，有违规则阻止提交（可用 git commit --no-verify 跳过）
+cd "$(git rev-parse --show-toplevel)"
+
+if [ ! -f setup.cfg ]; then
+  exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  exit 0
+fi
+
+OUTPUT=$(python3 -m pycodestyle . 2>&1)
+if [ $? -ne 0 ]; then
+  echo "❌ PEP8 检查未通过，请修复后再提交："
+  echo "$OUTPUT"
+  echo "（确认是误报可用 git commit --no-verify 跳过）"
+  exit 1
+fi
+exit 0
