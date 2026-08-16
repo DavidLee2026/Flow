@@ -43,10 +43,21 @@ function openModal(record) {
   feedbackEl.innerHTML = fbHtml || '<div class="stream-layer"><div class="s-text">暂无反馈</div></div>';
 
   // 探索/雷达/里程碑/反思等 slot 暂清空（David 先看基础详情页：照片 + 5层 + 删除）
-  ['modalExplorationBar','modalMilestone','modalIdentitySlot','modalFlowBank','modalArchivePill','modalNowReview'].forEach(id => {
+  ['modalMilestone','modalIdentitySlot','modalFlowBank','modalArchivePill','modalNowReview'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.innerHTML = ''; el.style.display = 'none'; }
   });
+
+  // 探索进度（放在五维雷达上方）
+  const explorationContainer = document.getElementById('modalExplorationBar');
+  if (explorationContainer) {
+    const exploration = fbData.exploration || record.exploration;
+    if (exploration && typeof renderExplorationBar === 'function') {
+      renderExplorationBar(exploration, explorationContainer);
+    } else {
+      explorationContainer.innerHTML = ''; explorationContainer.style.display = 'none';
+    }
+  }
 
   // 五维感知雷达（有感知数据则渲染）
   const radarContainer = document.getElementById('modalRadarChart');
