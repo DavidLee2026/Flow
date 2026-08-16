@@ -50,6 +50,10 @@ COMMUNITY_FILE = DATA_DIR / "community.json"
 # ── 多用户（昵称 + PIN）：每用户独立数据目录 ──────────
 USERS_FILE = DATA_DIR / "users.json"
 
+# 是否需要 PIN 登录：本地开发默认免 PIN（AUTH_PIN_REQUIRED=0），
+# 服务器需在 .env 设 AUTH_PIN_REQUIRED=1 启用 PIN 保护。
+AUTH_PIN_REQUIRED = os.environ.get("AUTH_PIN_REQUIRED", "0") == "1"
+
 
 def user_dir(nickname: str):
     """每个用户的独立数据目录：data/users/{nickname}/"""
@@ -67,8 +71,12 @@ def user_records_file(nickname: str):
 
 
 def user_images_dir(nickname: str):
-    return user_dir(nickname) / "images"
+    d = user_dir(nickname) / "images"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
 def user_share_images_dir(nickname: str):
-    return user_dir(nickname) / "share_images"
+    d = user_dir(nickname) / "share_images"
+    d.mkdir(parents=True, exist_ok=True)
+    return d

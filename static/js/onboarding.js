@@ -66,10 +66,12 @@ function renderObStep() {
 async function obSendName() {
   const nickEl = document.getElementById('obName');
   const pinEl = document.getElementById('obPin');
-  if (!nickEl || !pinEl) return;
+  if (!nickEl) return;
   const nickname = nickEl.value.trim();
-  const pin = pinEl.value.trim();
-  if (!nickname || pin.length !== 4) return;
+  if (!nickname) return;
+  // 本地免 PIN 模式（window._pinRequired === false）：PIN 可空
+  const pin = (pinEl && window._pinRequired !== false) ? pinEl.value.trim() : '';
+  if (window._pinRequired !== false && pin.length !== 4) return;
 
   // 先注册，昵称已存在则登录
   let res = await fetch(`${API_BASE}/api/account`, {

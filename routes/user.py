@@ -2,7 +2,7 @@
 import json
 from datetime import date, timedelta, datetime
 from flask import Blueprint, request, jsonify
-from config import IMAGES_DIR, TRACKING_FILE, COMMUNITY_FILE, user_images_dir
+from config import IMAGES_DIR, TRACKING_FILE, COMMUNITY_FILE, user_images_dir, AUTH_PIN_REQUIRED
 from data_store import (
     load_records, save_records, load_profile, save_profile, save_community_posts,
     calc_streak, calc_max_streak, _record_date, get_drawing_stage, get_funnel_stats, log_event,
@@ -18,19 +18,31 @@ def _cur_user() -> str:
     return unquote(request.headers.get("X-User", "")).strip() or "default"
 
 
+@bp.route("/api/account/mode")
+def api_account_mode():
+    """前端获取登录模式：本地免 PIN / 服务器需 PIN"""
+    return jsonify({"pin_required": AUTH_PIN_REQUIRED})
+
+
 @bp.route("/api/account", methods=["POST"])
 def api_account():
-    """昵称 + PIN 注册 / 登录"""
+    """昵称 + PIN 注册 / 登录
+
+    本地开发（AUTH_PIN_REQUIRED=0）免 PIN：注册自动补默认 PIN，登录不校验；
+    服务器（AUTH_PIN_REQUIRED=1）严格校验。
+    """
     data = request.get_json() or {}
     nickname = (data.get("nickname") or "").strip()[:20]
     pin = (data.get("pin") or "").strip()
     action = data.get("action", "login")
-    if not nickname or not pin:
-        return jsonify({"ok": False, "error": "昵称和 PIN 不能为空"})
+    if not nickname:
+        return jsonify({"ok": False, "error": "昵称不能为空"})
+    if AUTH_PIN_REQUIRED and not pin:
+        return jsonify({"ok": False, "error": "PIN 不能为空"})
     if action == "register":
         if user_exists(nickname):
             return jsonify({"ok": False, "error": "该昵称已存在，请直接登录"})
-        register_user(nickname, pin)
+        register_user(nickname, pin or "0000")
         profile = load_profile(nickname)
         profile["name"] = nickname
         profile["onboarding_done"] = True
@@ -39,13 +51,16 @@ def api_account():
         log_event("account_register", {"name": nickname})
         return jsonify({"ok": True, "nickname": nickname})
     # 登录校验
-    if verify_user(nickname, pin):
-        profile = load_profile(nickname)
-        if not profile.get("onboarding_done"):
-            profile["onboarding_done"] = True
-            save_profile(nickname, profile)
-        return jsonify({"ok": True, "nickname": nickname})
-    return jsonify({"ok": False, "error": "昵称或 PIN 不对"})
+    if AUTH_PIN_REQUIRED:
+        if not verify_user(nickname, pin):
+            return jsonify({"ok": False, "error": "昵称或 PIN 不对"})
+    elif not user_exists(nickname):
+        return jsonify({"ok": False, "error": "昵称或 PIN 不对"})
+    profile = load_profile(nickname)
+    if not profile.get("onboarding_done"):
+        profile["onboarding_done"] = True
+        save_profile(nickname, profile)
+    return jsonify({"ok": True, "nickname": nickname})
 
 
 @bp.route("/api/stats")

@@ -21,17 +21,33 @@ const OB_STEPS = [
         <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
       </div>
     `,
-    validate: (d) => (d.nickname && d.pin) ? {nickname: d.nickname, pin: d.pin} : null,
+    validate: (d) => (d.nickname) ? {nickname: d.nickname} : null,
     onMount: () => {
       const nickEl = document.getElementById('obName');
       const pinEl = document.getElementById('obPin');
       const btn = document.getElementById('obSendBtn');
-      if (!nickEl || !pinEl) return;
+      if (!nickEl) return;
       // 不自动 focus：避免 onboarding 一显示就弹键盘导致 iOS 滚动
+      const bubbles = document.querySelectorAll('#obChat .ob-msg-ai .ob-msg-bubble');
       const syncBtn = () => {
-        if (btn) btn.disabled = !(nickEl.value.trim() && pinEl.value.trim().length === 4);
+        if (btn) {
+          const pinOk = window._pinRequired === false || (pinEl && pinEl.value.trim().length === 4);
+          btn.disabled = !(nickEl.value.trim() && pinOk);
+        }
       };
-      [nickEl, pinEl].forEach(el => {
+      // 获取登录模式：本地免 PIN（隐藏 PIN 框）/ 服务器需 PIN
+      fetch(`${API_BASE}/api/account/mode`).then(r => r.json()).then(m => {
+        window._pinRequired = !!(m && m.pin_required);
+        if (pinEl) pinEl.style.display = window._pinRequired ? '' : 'none';
+        if (bubbles.length >= 2) {
+          bubbles[1].textContent = window._pinRequired
+            ? '怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你'
+            : '怎么称呼你呢？设个昵称，下次回来还是你';
+        }
+        syncBtn();
+      }).catch(() => { window._pinRequired = true; });
+      const els = pinEl ? [nickEl, pinEl] : [nickEl];
+      els.forEach(el => {
         el.addEventListener('focus', () => {
           const ob = document.getElementById('onboardingOverlay');
           if (!ob) return;
