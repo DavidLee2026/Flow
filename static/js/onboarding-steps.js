@@ -15,16 +15,17 @@ const OB_STEPS = [
           <div class="ob-msg-bubble">怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你</div>
         </div>
       </div>
-      <div class="ob-input-bar" id="obInputBar">
-        <div class="ob-input-avatar" id="obInputAvatar">画</div>
-        <div class="ob-input-fields">
-          <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
-          <div class="ob-input-line2" id="obInputLine2">
-            <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN">
-            <span class="ob-pin-note">用户自由设置</span>
-            <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
+      <div class="ob-input-wrap" id="obInputWrap">
+        <div class="ob-input-bar" id="obInputBar">
+          <div class="ob-input-fields">
+            <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
+            <div class="ob-input-line2" id="obInputLine2">
+              <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN · 自由设置">
+              <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
+            </div>
           </div>
         </div>
+        <div class="ob-msg-avatar ob-input-avatar" id="obInputAvatar">🎨</div>
       </div>
     `,
     validate: (d) => (d.nickname) ? {nickname: d.nickname} : null,
@@ -52,8 +53,6 @@ const OB_STEPS = [
         }
         const line2 = document.getElementById('obInputLine2');
         if (line2) line2.style.justifyContent = window._pinRequired ? 'flex-start' : 'flex-end';
-        const note = document.querySelector('.ob-pin-note');
-        if (note) note.style.display = window._pinRequired ? '' : 'none';
         syncBtn();
       }).catch(() => { window._pinRequired = true; });
       const els = pinEl ? [nickEl, pinEl] : [nickEl];
