@@ -78,8 +78,8 @@ function renderHomeTopInfo(stats) {
   // 信的内容随画作数演进（0张欢迎版 / ≥5张"五张了"版 · 对齐 v6c-v8d2-a-5zhang）
   if (el('homeLetterBody')) {
     el('homeLetterBody').innerHTML = total >= 5
-      ? '五张了，<span class="hl">画者</span>。<br>从第一笔的犹豫，到能画出自己认得出的东西——<span class="hl">这中间每一笔，都算数</span>。<br>这几天，你悄悄练会了线条、形状，还有<span class="hl">和自己安静相处的方式</span>。<br>今天想画什么，还由你自己决定。<span class="hl">画下去，你会惊讶于自己的变化</span>。'
-      : '欢迎来到绘心 Flow。我是小绘，<span class="hl">你纸笔绘画路上的画友</span>。<br>在这里，没有打分，只有看见——画得歪歪扭扭也没关系，<span class="hl">哪怕只是一条线，都是你此刻想说的话</span>。<br>找一张纸、一支笔，画下<span class="hl">此刻想画的东西</span>，拍给我看。我会认真看你的每一笔，告诉你我看到了什么、<span class="hl">你哪一笔已经悄悄有了自己的味道</span>。<br>不用画得像，画下去，就有惊喜。';
+      ? '五张了，画者。从第一笔的犹豫，到能画出自己认得出的东西——<span class="hl">这中间每一笔，都算数</span>。这几天，你悄悄练会了线条、形状，还有和自己安静相处的方式。今天想画什么，还由你自己决定。画下去，你会惊讶于自己的变化。'
+      : '欢迎来到绘心 Flow。我是小绘，你纸笔绘画路上的画友。这里没有打分，只有看见——画得歪歪扭扭也没关系，<span class="hl">哪怕只是一条线，都是你此刻想说的话</span>。找一张纸、一支笔，画下此刻想画的东西，拍给我看。我会认真看你的每一笔，告诉你我看到了什么，也看到你已经悄悄长出的味道。不用画得像，画下去，就有惊喜。';
   }
   if (el('homeTip')) {
     el('homeTip').innerHTML = total >= 5
