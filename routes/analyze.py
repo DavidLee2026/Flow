@@ -155,13 +155,23 @@ def api_check_drawing():
                 return True
             return False  # 未给出明确词 → 保守拦截（让用户确认）
 
-        # 双层交叉判定：mini + lite 各判一次，任一判非手绘 → 触发前端软确认。
-        # 两模型盲区互补：mini 能拦示意图/符号图，lite 能拦屏幕线描/渲染图，
-        # 任一不信任都让用户确认，最大化保护真实手绘不误伤。
-        r_mini = _judge(LLM_MODEL)
-        r_lite = _judge(CHECK_DRAWING_MODEL)
-        is_drawing = r_mini and r_lite
-        print(f"[check-drawing] 双层判定 mini={r_mini} lite={r_lite} → is_drawing={is_drawing}", flush=True)
+        # 双模型 ×2 交叉判定：mini + lite 各判 2 次（并行），任一判非手绘 → 触发软确认。
+        # 4 次全判画作才放行，漏拦率降到单次波动的四次方；
+        # 某次判定失败保守按非画作处理（走软确认，用户可确认继续，不误伤真画）。
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _judge_safe(model):
+            try:
+                return _judge(model)
+            except Exception as e:
+                print(f"[check-drawing] {model} 判定失败，按非画作处理: {e}", flush=True)
+                return False
+
+        with ThreadPoolExecutor(max_workers=4) as _ex:
+            _futures = [_ex.submit(_judge_safe, m) for m in (LLM_MODEL, LLM_MODEL, CHECK_DRAWING_MODEL, CHECK_DRAWING_MODEL)]
+            _results = [f.result() for f in _futures]
+        is_drawing = all(_results)
+        print(f"[check-drawing] 双模型×2判定 mini={_results[0]},{_results[1]} lite={_results[2]},{_results[3]} → is_drawing={is_drawing}", flush=True)
         return jsonify({"is_drawing": is_drawing})
     except Exception as e:
         print(f"[check-drawing] 检测失败: {e}，默认放行", flush=True)
