@@ -71,7 +71,43 @@ function clearFeedbackContainers() {
 
 // ─── Upload → Analyze（SSE）───
 // source: 'camera' 拍照 / 'gallery' 选照片（区分反馈页顶部文案）
+// ⚠️ 2026-08-17 修复：识别拦截必须放在主流程（拍照/相册/系统相机都汇聚到这里），
+//    之前只在 submitDrawing（死代码，从不被主流程调用）里做 check-drawing，导致真机从不拦截。
+let pendingUpload = null;
+
 async function uploadImage(file, source) {
+  // ═══ 识别拦截：先判断是不是手绘画作（统一入口，全量拦截） ═══
+  const compressedFile = await compressImage(file);
+  const gate = await checkDrawingGate(compressedFile);
+  if (gate === 'intercepted') {
+    // 已弹软确认，等用户决定（重拍 / 是我画的）
+    pendingUpload = { file, compressedFile, source };
+    return;
+  }
+  await proceedUpload(file, compressedFile, source);
+}
+
+async function checkDrawingGate(compressedFile) {
+  // 返回 'pass'（通过）或 'intercepted'（已弹确认等待用户）
+  const form = new FormData();
+  form.append('image', compressedFile);
+  try {
+    const r = await fetch(`${API_BASE}/api/check-drawing`, { method: 'POST', body: form });
+    const d = await r.json();
+    if (d.is_drawing === false) {
+      showDrawingConfirm();
+      return 'intercepted';
+    }
+    return 'pass';
+  } catch (e) {
+    // 检测失败：保守弹软确认（不让用户卡死，也不静默放行）
+    console.warn('[check-drawing] 检测失败，转软确认:', e);
+    showDrawingConfirm();
+    return 'intercepted';
+  }
+}
+
+async function proceedUpload(file, compressedFile, source) {
   const isCamera = source === 'camera';
   showFeedbackPage(file);
   // 用户消息文案区分：画者拍下 / 画者选择
@@ -79,8 +115,6 @@ async function uploadImage(file, source) {
   if (sub) sub.textContent = isCamera ? '画者拍下这张画' : '画者选择了这张画';
   stopFeedbackAutoScroll();
   clearFeedbackContainers();
-  // 客户端压缩
-  const compressedFile = await compressImage(file);
   // ═══ flowfb-b：收到消息 → 识别仪 → 5层（重现块暂隐藏） ═══
   await botSay('收到！我收到你的画了，正在仔细看…');
   // 识别仪：AI 看画过程动画（flowfb-c 移植）· 与 SSE 感知并行，感知完成时收尾
@@ -140,6 +174,42 @@ async function uploadImage(file, source) {
     document.getElementById('cameraInput').value = '';
     document.getElementById('uploadInput').value = '';
   }
+}
+
+// ─── 识别软确认弹窗（非画作 → 重拍一张 / 是我画的） ───
+function showDrawingConfirm() {
+  const overlay = document.getElementById('confirmOverlay');
+  if (!overlay) return;
+  const dialog = overlay.querySelector('.confirm-dialog');
+  if (!dialog) return;
+  dialog.innerHTML = `
+    <div class="confirm-icon">🤔</div>
+    <div class="confirm-title">这张是你亲手画的吗？</div>
+    <div class="confirm-desc">小绘认真看了看，这张不太像手绘的画作。<br><br>
+      小绘只想给你亲手画的作品反馈 🎨<br>
+      如果选错了照片，可以重拍一张。</div>
+    <div class="confirm-actions">
+      <button class="btn btn-md btn-cancel" id="drawingRetakeBtn">重拍一张</button>
+      <button class="btn btn-md btn-primary" id="drawingConfirmBtn">是我画的</button>
+    </div>
+  `;
+  overlay.classList.add('visible');
+  const retake = document.getElementById('drawingRetakeBtn');
+  if (retake) retake.onclick = () => {
+    pendingUpload = null;
+    document.getElementById('cameraInput').value = '';
+    document.getElementById('uploadInput').value = '';
+    closeConfirm();
+  };
+  const confirmBtn = document.getElementById('drawingConfirmBtn');
+  if (confirmBtn) confirmBtn.onclick = () => {
+    closeConfirm();
+    if (pendingUpload) {
+      const { file, compressedFile, source } = pendingUpload;
+      pendingUpload = null;
+      proceedUpload(file, compressedFile, source);
+    }
+  };
 }
 
 // ─── 流式逐层渲染（flowfb-b 5层卡片） ───
