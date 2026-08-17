@@ -73,17 +73,11 @@ function clearFeedbackContainers() {
 // source: 'camera' 拍照 / 'gallery' 选照片（区分反馈页顶部文案）
 // ⚠️ 2026-08-17 修复：识别拦截必须放在主流程（拍照/相册/系统相机都汇聚到这里），
 //    之前只在 submitDrawing（死代码，从不被主流程调用）里做 check-drawing，导致真机从不拦截。
-let pendingUpload = null;
-
 async function uploadImage(file, source) {
   // ═══ 识别拦截：先判断是不是手绘画作（统一入口，全量拦截） ═══
   const compressedFile = await compressImage(file);
   const gate = await checkDrawingGate(compressedFile);
-  if (gate === 'intercepted') {
-    // 已弹软确认，等用户决定（重拍 / 是我画的）
-    pendingUpload = { file, compressedFile, source };
-    return;
-  }
+  if (gate === 'intercepted') return;  // 已弹确认，等用户重拍/重选
   await proceedUpload(file, compressedFile, source);
 }
 
@@ -176,7 +170,7 @@ async function proceedUpload(file, compressedFile, source) {
   }
 }
 
-// ─── 识别软确认弹窗（非画作 → 重拍一张 / 是我画的） ───
+// ─── 识别拦截弹窗（非画作 → 重拍一张 / 重新选一张画） ───
 function showDrawingConfirm() {
   const overlay = document.getElementById('confirmOverlay');
   if (!overlay) return;
@@ -184,31 +178,29 @@ function showDrawingConfirm() {
   if (!dialog) return;
   dialog.innerHTML = `
     <div class="confirm-icon">🤔</div>
-    <div class="confirm-title">这张是你亲手画的吗？</div>
-    <div class="confirm-desc">小绘认真看了看，这张不太像手绘的画作。<br><br>
-      小绘只想给你亲手画的作品反馈 🎨<br>
-      如果选错了照片，可以重拍一张。</div>
+    <div class="confirm-title">这张不是手绘的画作哦</div>
+    <div class="confirm-desc">小绘认真看了看，这张不太像你亲手画的作品。<br><br>
+      请重新拍一张，或换一张你手绘的画 🎨</div>
     <div class="confirm-actions">
       <button class="btn btn-md btn-cancel" id="drawingRetakeBtn">重拍一张</button>
-      <button class="btn btn-md btn-primary" id="drawingConfirmBtn">是我画的</button>
+      <button class="btn btn-md btn-primary" id="drawingReselectBtn">重新选一张画</button>
     </div>
   `;
   overlay.classList.add('visible');
+  // 重拍：清空选择，回到拍照
   const retake = document.getElementById('drawingRetakeBtn');
   if (retake) retake.onclick = () => {
-    pendingUpload = null;
     document.getElementById('cameraInput').value = '';
     document.getElementById('uploadInput').value = '';
     closeConfirm();
   };
-  const confirmBtn = document.getElementById('drawingConfirmBtn');
-  if (confirmBtn) confirmBtn.onclick = () => {
+  // 重新选：清空选择并重新打开相册
+  const reselect = document.getElementById('drawingReselectBtn');
+  if (reselect) reselect.onclick = () => {
+    document.getElementById('cameraInput').value = '';
+    document.getElementById('uploadInput').value = '';
     closeConfirm();
-    if (pendingUpload) {
-      const { file, compressedFile, source } = pendingUpload;
-      pendingUpload = null;
-      proceedUpload(file, compressedFile, source);
-    }
+    if (typeof openUpload === 'function') openUpload();
   };
 }
 
