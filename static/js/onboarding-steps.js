@@ -6,8 +6,9 @@ const OB_STEPS = [
     sub: '3 步开始你的第一幅画',
     render: () => `
       <div class="ob-scene">
-        <div class="ob-scene-icon">✏️</div>
-        <h2 class="ob-scene-title">绘心 Flow<br>是纸笔绘画的<br>AI 陪伴者</h2>
+        <div class="ob-scene-title-card">
+          <h2 class="ob-scene-title">纸笔绘画的<br>AI 陪伴者</h2>
+        </div>
         <div class="ob-scene-steps">
           <div class="ob-scene-step">
             <span class="ob-scene-num">1</span>
@@ -22,7 +23,10 @@ const OB_STEPS = [
             <div class="ob-scene-txt"><b>拍下来，AI 画友给你反馈</b></div>
           </div>
         </div>
-        <div class="ob-scene-quote">不用画得像，不用画得好。<br>画下去，就是胜利。</div>
+        <blockquote class="ob-scene-quote">
+          <p class="ob-scene-quote-line">不用画得像，不用画得好。</p>
+          <p class="ob-scene-quote-line ob-scene-quote-hit">画下去，就是胜利。</p>
+        </blockquote>
         <button class="ob-btn primary" id="obSceneBtn">我知道了，开始吧</button>
       </div>
     `,

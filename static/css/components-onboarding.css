@@ -459,15 +459,102 @@ body.pre-path .header {
     display: none !important;
 }
 
-/* ── Onboarding 场景说明屏（新人入口 · 纸笔绘画的 AI 陪伴者） ── */
+/* ── Onboarding 场景说明屏（新人入口 · 纸笔绘画的 AI 陪伴者） ──
+   设计语言「温纸手记」：主视觉（纸上题字）→ 三步纸卡堆叠 → 情感金句 → 行动按钮
+   动效与品牌头协调：fadeUp 级联（时序接续 components-community.css 的 .ob-content 入场） */
 .ob-scene{display:flex;flex-direction:column;align-items:center;text-align:center;}
-.ob-scene-icon{font-size:56px;line-height:1;margin-bottom:16px;}
-.ob-scene-title{font-family:var(--font-display);font-size:22px;font-weight:600;line-height:1.4;color:var(--color-text-primary);margin-bottom:28px;}
-.ob-scene-steps{width:100%;display:flex;flex-direction:column;gap:14px;margin-bottom:28px;text-align:left;}
-.ob-scene-step{display:flex;align-items:center;gap:14px;}
-.ob-scene-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--color-primary);color:var(--color-text-inverse);font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;}
-.ob-scene-txt{display:flex;flex-direction:column;gap:2px;}
-.ob-scene-txt b{font-size:16px;font-weight:600;color:var(--color-text-primary);}
-.ob-scene-sub{font-size:14px;color:var(--color-text-secondary);}
-.ob-scene-quote{margin:0 0 28px;padding:14px 18px;border-radius:var(--radius-md);background:var(--color-primary-bg);border-left:3px solid var(--color-primary);font-size:16px;font-weight:600;line-height:1.7;color:var(--color-primary);}
-.ob-scene .ob-btn{font-size:16px;}
+
+/* 主视觉：纸卡承载标题（品牌区已展示铅笔图标，此屏不再重复，改用纸感标题卡） */
+.ob-scene-title-card{
+  width:100%;
+  background:var(--color-bg-card);
+  border:1px solid var(--color-border-light);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-card);
+  padding:var(--space-xs) var(--space-lg);
+  margin-bottom:var(--space-sm);
+  animation:fadeUp .5s var(--ease-out) .62s both;
+}
+.ob-scene .ob-scene-title{
+  font-family:var(--font-display);
+  font-size:var(--font-size-2xl);
+  font-weight:600;
+  line-height:1.28;
+  letter-spacing:1px;
+  color:var(--color-text-primary);
+  margin:0;
+  text-align:center;
+}
+
+/* 三步玩法：纸卡堆叠 + 手写衬线序号（主角区块） */
+.ob-scene-steps{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-xs);
+  margin-bottom:var(--space-sm);
+  text-align:left;
+}
+.ob-scene-step{
+  display:flex;
+  align-items:center;
+  gap:var(--space-md);
+  background:var(--color-bg-card);
+  border:1px solid var(--color-border-light);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-paper);
+  padding:var(--space-xs) var(--space-md);
+}
+.ob-scene-step:nth-child(1){animation:fadeUp .5s var(--ease-out) .72s both;}
+.ob-scene-step:nth-child(2){margin-left:var(--space-sm);animation:fadeUp .5s var(--ease-out) .8s both;}
+.ob-scene-step:nth-child(3){margin-left:calc(-1 * var(--space-xs));animation:fadeUp .5s var(--ease-out) .88s both;}
+.ob-scene-num{
+  flex:0 0 30px;
+  font-family:var(--font-display);
+  font-size:var(--font-size-2xl);
+  font-weight:600;
+  line-height:1;
+  color:var(--color-primary);
+  text-align:center;
+  transform:rotate(-6deg);
+}
+.ob-scene-txt{display:flex;flex-direction:column;gap:var(--space-xs);}
+.ob-scene-txt b{font-size:var(--font-size-base);font-weight:600;line-height:1.4;color:var(--color-text-primary);}
+.ob-scene-sub{font-size:var(--font-size-xs);line-height:1.4;color:var(--color-text-secondary);}
+
+/* 情感金句：落笔定音的题词（这屏的情绪落点） */
+.ob-scene-quote{
+  width:100%;
+  margin:0 0 var(--space-sm);
+  padding:var(--space-xs) var(--space-md);
+  text-align:center;
+  animation:fadeUp .5s var(--ease-out) .96s both;
+}
+.ob-scene-quote::before{
+  content:"";
+  display:block;
+  width:48px;
+  height:3px;
+  border-radius:2px;
+  background:var(--color-primary);
+  opacity:.55;
+  margin:0 auto var(--space-xs);
+}
+.ob-scene-quote-line{
+  margin:0;
+  font-family:var(--font-display);
+  font-size:18px;   /* 偶数刻度 18（工作令允许刻度，无对应 token，显式声明） */
+  line-height:1.6;
+  color:var(--color-text-secondary);
+}
+.ob-scene-quote-hit{
+  font-weight:600;
+  color:var(--color-primary);
+}
+
+/* 行动按钮（继承 .onboarding .ob-btn 陶土渐变主按钮，场景屏内微调节奏） */
+.ob-scene .ob-btn{
+  font-size:var(--font-size-base);
+  margin-top:var(--space-xs);
+  animation:fadeUp .5s var(--ease-out) 1.08s both;
+}
