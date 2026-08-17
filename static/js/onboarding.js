@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => document.body.classList.remove('booting'), 3000);
   // 注册 Service Worker（PWA）+ 监听更新
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
+    navigator.serviceWorker.register(`${API_BASE}/sw.js`).then(reg => {
       // 监听 SW 更新消息（由 SW postMessage 触发，非 controllerchange）
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SW_UPDATED') {
