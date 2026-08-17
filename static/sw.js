@@ -4,7 +4,7 @@
 //   - 画作图片 /data/: Network First, fallback Cache
 //   - AI 接口 /api/: Network Only（不缓存）
 
-const CACHE_NAME = 'huixin-flow-v23';
+const CACHE_NAME = 'huixin-flow-v24';
 const APP_SHELL = [
   '/',
   '/static/css/style.css?v=20260812v3',

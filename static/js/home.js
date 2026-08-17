@@ -59,6 +59,10 @@ function renderHomeTopInfo(stats) {
 
   const total = stats.total || 0;
   const streak = stats.streak || 0;
+
+  // 首页内容精简：新用户（0 张）首屏只留引导（信+主按钮），名片夹/成长旅程画完第 1 张再出现
+  if (el('homeArc')) el('homeArc').style.display = total === 0 ? 'none' : '';
+  if (el('homeJourney')) el('homeJourney').style.display = total === 0 ? 'none' : '';
   const levelTitle = (stats.level && stats.level.title) || '探索者';
   const stage = stats.stage || '新手期';
   const stageLabel = stats.stage_label || '基础';

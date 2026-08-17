@@ -130,8 +130,8 @@ function obNext() {
   if (!result) return;
   obData = {...obData, ...result};
 
-  // 名字页提前存一下
-  if (obStep === 0 && result.name) {
+  // 名字页提前存一下（step 0 是场景说明屏，名字屏在 step 1）
+  if (obStep === 1 && result.name) {
     fetch(`${API_BASE}/api/onboarding`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},

@@ -552,6 +552,7 @@
 .shoot:active{transform:scale(.97)}
 .shoot .pen{font-size:22px}
 .sub{display:block;margin:12px auto 0;font-size:14px;color:var(--raw-brown-500);padding:4px 12px;background:none;border:none;cursor:pointer;font-family:var(--font-body)}
+.cta-hint{margin-top:10px;font-size:12px;line-height:1.6;color:var(--color-text-tertiary)}
 
 /* 空状态名片夹 */
 .arc{background:linear-gradient(160deg,var(--raw-paper-100) 30%,var(--raw-ochre-100) 130%);border:1px solid var(--raw-ochre-200);

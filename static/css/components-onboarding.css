@@ -458,3 +458,16 @@ body.pre-path .bottom-nav,
 body.pre-path .header {
     display: none !important;
 }
+
+/* ── Onboarding 场景说明屏（新人入口 · 纸笔绘画的 AI 陪伴者） ── */
+.ob-scene{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.ob-scene-icon{font-size:56px;line-height:1;margin-bottom:16px;}
+.ob-scene-title{font-family:var(--font-display);font-size:22px;font-weight:600;line-height:1.4;color:var(--color-text-primary);margin-bottom:28px;}
+.ob-scene-steps{width:100%;display:flex;flex-direction:column;gap:14px;margin-bottom:28px;text-align:left;}
+.ob-scene-step{display:flex;align-items:center;gap:14px;}
+.ob-scene-num{flex:0 0 30px;height:30px;border-radius:50%;background:var(--color-primary);color:var(--color-text-inverse);font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.ob-scene-txt{display:flex;flex-direction:column;gap:2px;}
+.ob-scene-txt b{font-size:16px;font-weight:600;color:var(--color-text-primary);}
+.ob-scene-sub{font-size:14px;color:var(--color-text-secondary);}
+.ob-scene-quote{margin:0 0 28px;padding:14px 18px;border-radius:var(--radius-md);background:var(--color-primary-bg);border-left:3px solid var(--color-primary);font-size:16px;font-weight:600;line-height:1.7;color:var(--color-primary);}
+.ob-scene .ob-btn{font-size:16px;}
