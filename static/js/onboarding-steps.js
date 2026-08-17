@@ -18,10 +18,12 @@ const OB_STEPS = [
       <div class="ob-input-wrap" id="obInputWrap">
         <div class="ob-input-bar" id="obInputBar">
           <div class="ob-input-fields">
-            <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
+            <div class="ob-input-line1" id="obInputLine1">
+              <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
+              <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
+            </div>
             <div class="ob-input-line2" id="obInputLine2">
               <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN（自由设置）">
-              <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
             </div>
           </div>
         </div>
@@ -46,6 +48,9 @@ const OB_STEPS = [
       fetch(`${API_BASE}/api/account/mode`).then(r => r.json()).then(m => {
         window._pinRequired = !!(m && m.pin_required);
         if (pinEl) pinEl.style.display = window._pinRequired ? '' : 'none';
+        // 免 PIN 时隐藏 PIN 整行（昵称 + 进入按钮保持一行）；PIN 模式恢复显示
+        const line2El = document.getElementById('obInputLine2');
+        if (line2El) line2El.style.display = window._pinRequired ? '' : 'none';
         if (bubbles.length >= 2) {
           bubbles[1].textContent = window._pinRequired
             ? '怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你'

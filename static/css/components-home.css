@@ -143,6 +143,12 @@
 }
 .ob-input-fields input.ob-input:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
 .ob-input-fields input.ob-input::placeholder { color: var(--color-text-tertiary); }
+.ob-input-line1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ob-input-line1 input.ob-input { flex: 1; }
 .ob-input-line2 {
   display: flex;
   align-items: center;
