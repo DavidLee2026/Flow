@@ -397,6 +397,8 @@
   max-height: none;
   width: 100%;
   min-height: 100%;
+  /* 底部导航留白（详情页底部 menu） */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
   border-radius: 0;
   overflow-y: visible;
   animation: none;

@@ -177,6 +177,12 @@ function confirmDeleteRecord() {
 // ── 记录详情已是独立全屏页（非弹窗），不需要点击遮罩关闭 ──
 // 返回通过顶部栏「‹ 返回」按钮（onclick="closeModal()"）完成
 
+// ── 详情页底部导航：关闭详情并切换到对应 tab ──
+function rdNav(tab) {
+  closeModal();
+  if (typeof switchTab === 'function') switchTab(tab);
+}
+
 function formatTime(ts) {
   try {
     const d = new Date(ts);
