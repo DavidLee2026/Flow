@@ -81,8 +81,12 @@ async function uploadImage(file, source) {
   clearFeedbackContainers();
   // 客户端压缩
   const compressedFile = await compressImage(file);
-  // ═══ flowfb-b：收到消息 → 5层（重现块暂隐藏，后续再设计展示） ═══
+  // ═══ flowfb-b：收到消息 → 识别仪 → 5层（重现块暂隐藏） ═══
   await botSay('收到！我收到你的画了，正在仔细看…');
+  // 识别仪：AI 看画过程动画（flowfb-c 移植）· 与 SSE 感知并行，感知完成时收尾
+  const scanReader = new FileReader();
+  scanReader.onload = e => startDrawingScanner(e.target.result);
+  scanReader.readAsDataURL(compressedFile);
   // SSE 5层
   const formData = new FormData();
   formData.append('image', compressedFile);
@@ -111,6 +115,9 @@ async function uploadImage(file, source) {
         if (data.type === 'layer') {
           receivedLayers.push(data.layer);
           renderStreamingLayer(data.layer, receivedLayers.length);
+        } else if (data.type === 'agent_done' && data.agent === 'perception') {
+          // 感知 Agent 完成 → 识别仪收尾
+          completeDrawingScanner();
         } else if (data.type === 'complete') {
           completeData = data;
         } else if (data.type === 'error') {
@@ -203,4 +210,91 @@ function ensurePostFeedbackUI(record) {
   currentRecordId = record.id;
   const acts = document.getElementById('fbChatActions');
   if (acts) acts.style.display = 'flex';
+}
+
+// ─── 识别仪（flowfb-c 移植 · AI 看画过程动画） ───
+// 提交后播放"扫描线 + 锚点 + 进度"动画，模拟 AI 逐维看画；
+// 感知 Agent 完成（SSE agent_done）时快速补满并收尾，进入真实反馈。
+let _scanRunning = false;
+let _scanDim = -1;
+let _scanTimers = [];
+const SCAN_DIM_LABELS = ['边缘', '空间', '比例', '光影', '整体'];
+const SCAN_DIM_FULL = ['边缘感知', '空间感知', '比例关系', '光影意识', '整体关系'];
+
+function _resetScanUI() {
+  document.querySelectorAll('.scan-anchor').forEach(a => a.classList.remove('on'));
+  document.querySelectorAll('.sp-dim').forEach(d => d.classList.remove('on'));
+  const line = document.getElementById('scanLine'); if (line) line.classList.remove('on');
+  const spFill = document.getElementById('spFill'); if (spFill) spFill.style.width = '0%';
+  const spText = document.getElementById('spText'); if (spText) spText.textContent = '准备识别…';
+  const spNum = document.getElementById('spNum'); if (spNum) spNum.textContent = '0 / 5';
+  const tag = document.getElementById('scanTagText'); if (tag) tag.textContent = '正在识别这张画…';
+  const st = document.getElementById('scanTag'); if (st) st.classList.remove('done');
+}
+
+function _advanceScanDim(i) {
+  if (i < 0 || i > 4) return;
+  _scanDim = i;
+  const spText = document.getElementById('spText'); if (spText) spText.textContent = '正在识别 · ' + SCAN_DIM_FULL[i];
+  const spNum = document.getElementById('spNum'); if (spNum) spNum.textContent = (i + 1) + ' / 5';
+  const spFill = document.getElementById('spFill'); if (spFill) spFill.style.width = ((i + 1) * 20) + '%';
+  const dims = document.querySelectorAll('.sp-dim'); if (dims[i]) dims[i].classList.add('on');
+  const anchors = document.querySelectorAll('.scan-anchor'); if (anchors[i]) anchors[i].classList.add('on');
+}
+
+function _finishScanUI() {
+  const line = document.getElementById('scanLine'); if (line) line.classList.remove('on');
+  const spText = document.getElementById('spText'); if (spText) spText.textContent = '识别完成 ✨';
+  const spNum = document.getElementById('spNum'); if (spNum) spNum.textContent = '5 / 5';
+  const spFill = document.getElementById('spFill'); if (spFill) spFill.style.width = '100%';
+  const tag = document.getElementById('scanTagText'); if (tag) tag.textContent = '识别完成';
+  const st = document.getElementById('scanTag'); if (st) st.classList.add('done');
+}
+
+function _clearScanTimers() { _scanTimers.forEach(t => clearTimeout(t)); _scanTimers = []; }
+
+function startDrawingScanner(imageDataUrl) {
+  const wrap = document.getElementById('drawingScanner');
+  if (!wrap) return;
+  _clearScanTimers();
+  _scanRunning = true;
+  _scanDim = -1;
+  const img = document.getElementById('scanPhotoImg');
+  if (img) img.src = imageDataUrl;
+  _resetScanUI();
+  wrap.style.display = 'block';
+  requestAnimationFrame(() => {
+    const line = document.getElementById('scanLine'); if (line) line.classList.add('on');
+    // 逐维点亮（700ms 一维）→ 播完后保持"识别完成"等感知收尾
+    for (let i = 0; i < 5; i++) {
+      _scanTimers.push(setTimeout(() => { if (_scanRunning) _advanceScanDim(i); }, 700 * (i + 1)));
+    }
+    // 动画播完 → 显示完成态（等待感知 agent_done 来隐藏）
+    _scanTimers.push(setTimeout(() => { if (_scanRunning) _finishScanUI(); }, 700 * 5 + 100));
+    // 兜底：12s 无论感知是否到达都隐藏，避免卡住反馈
+    _scanTimers.push(setTimeout(() => { if (_scanRunning) { _finishScanUI(); hideDrawingScanner(); } }, 12000));
+  });
+}
+
+function completeDrawingScanner() {
+  // 感知 Agent 完成 → 停止计划动画，快速补满剩余维度后收尾
+  if (!_scanRunning) return;
+  _scanRunning = false;
+  _clearScanTimers();
+  const start = _scanDim + 1;
+  for (let j = start; j < 5; j++) {
+    _scanTimers.push(setTimeout(() => _advanceScanDim(j), 60 * (j - start)));
+  }
+  _scanTimers.push(setTimeout(() => {
+    _finishScanUI();
+    // 0.6s 后淡出识别仪，让 5 层反馈接上
+    setTimeout(hideDrawingScanner, 600);
+  }, 60 * (5 - start) + 120));
+}
+
+function hideDrawingScanner() {
+  _scanRunning = false;
+  _clearScanTimers();
+  const wrap = document.getElementById('drawingScanner');
+  if (wrap) wrap.style.display = 'none';
 }

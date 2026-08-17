@@ -4,7 +4,7 @@ import uuid
 import base64
 from datetime import datetime
 from flask import Blueprint, request, jsonify, Response
-from config import DATA_DIR, IMAGES_DIR, LLM_MODEL, client, user_images_dir
+from config import DATA_DIR, IMAGES_DIR, LLM_MODEL, CHECK_DRAWING_MODEL, client, user_images_dir
 from data_store import load_records, save_records, load_profile, get_milestone, log_event, get_recommendation
 from ai_service import analyze_drawing, _compress_image_b64
 import orchestrator
@@ -108,35 +108,60 @@ def api_check_drawing():
     image_b64 = _compress_image_b64(file)
 
     try:
-        resp = client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": (
-                                "判断这张图片是不是手绘的画作（素描/速写/涂鸦/水彩/油画等）。"
-                                "只回答一个词：drawing 或 not_drawing。"
-                            ),
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_b64}"
+        def _judge(model: str) -> bool:
+            """单模型判定：返回 True=手绘画作，False=非画作（未明确也保守拦）。"""
+            resp = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": (
+                                    "判断这张图片是不是「真实手绘的画作」。\n"
+                                    "【是画作】：素描、速写、铅笔/炭笔画、水彩、油画、彩铅、马克笔、"
+                                    "粉笔画、儿童涂鸦、简笔画。判断依据：画面有笔触或纸纹——"
+                                    "线条有深浅变化、边缘不匀，或色彩有手工晕染。"
+                                    "画得难看、歪斜、不完整都算画作。\n"
+                                    "【不是画作】：真实的照片（人物/物品/风景/产品的摄影）、"
+                                    "3D 渲染效果图、电商产品图、手机或电脑屏幕截图"
+                                    "（有明显屏幕摩尔纹、反光、像素点阵）、纯文字图表、"
+                                    "设计海报、卡通贴纸。\n"
+                                    "注意：\n"
+                                    "1. 一张画即使画得很专业、像名画，只要看得出是画笔创作，也算画作。\n"
+                                    "2. 一张照片或屏幕截图即使内容是好看的图，也不算画作。\n"
+                                    "3. 如果拿不准，倾向于 drawing。\n"
+                                    "只回答一个词：drawing 或 not_drawing。"
+                                ),
                             },
-                        },
-                    ],
-                }
-            ],
-            max_tokens=5,
-            temperature=0,
-            extra_body={"thinking": {"type": "disabled"}},
-        )
-        answer = resp.choices[0].message.content.strip().lower()
-        is_drawing = "drawing" in answer and "not" not in answer
-        print(f"[check-drawing] AI 判定: {answer} → is_drawing={is_drawing}", flush=True)
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{image_b64}"
+                                },
+                            },
+                        ],
+                    }
+                ],
+                max_tokens=10,
+                temperature=0,
+                extra_body={"thinking": {"type": "disabled"}},
+            )
+            answer = resp.choices[0].message.content.strip().lower()
+            if "not_drawing" in answer or "not drawing" in answer:
+                return False
+            elif "drawing" in answer:
+                return True
+            return False  # 未给出明确词 → 保守拦截（让用户确认）
+
+        # 双层交叉判定：mini + lite 各判一次，任一判非手绘 → 触发前端软确认。
+        # 两模型盲区互补：mini 能拦示意图/符号图，lite 能拦屏幕线描/渲染图，
+        # 任一不信任都让用户确认，最大化保护真实手绘不误伤。
+        r_mini = _judge(LLM_MODEL)
+        r_lite = _judge(CHECK_DRAWING_MODEL)
+        is_drawing = r_mini and r_lite
+        print(f"[check-drawing] 双层判定 mini={r_mini} lite={r_lite} → is_drawing={is_drawing}", flush=True)
         return jsonify({"is_drawing": is_drawing})
     except Exception as e:
         print(f"[check-drawing] 检测失败: {e}，默认放行", flush=True)

@@ -71,13 +71,13 @@
     </div>
     <div class="l-greet">你好呀，<em id="homeGreetName">未来的画者</em>。</div>
     <div class="l-body">
-      <p class="p1" id="homeLetterBody">欢迎来到绘心 Flow。这里没有打分，只有看见——画得歪歪扭扭也没关系。今天<b>想画什么就画什么</b>，哪怕只是一条线，都是你的第一笔。</p>
+      <p class="p1" id="homeLetterBody">欢迎来到绘心 Flow。拿起纸笔，画下<b>此刻想画的东西</b>，拍给我看。这里没有打分，只有看见——画得歪歪扭扭也没关系。哪怕只是一条线，都是你的第一笔。</p>
       <div class="l-seal" id="homeSeal">
         <div class="sv"><b id="homeSeedNum">1</b><span>心流余额</span></div>
         <div class="sl">断签不归零 · 第一笔余额</div>
       </div>
     </div>
-    <div class="l-tip" id="homeTip">💡 <b>今日邀请</b>：画<b>想画的任何东西</b>，这里<b>没有评判</b>，只有看见。</div>
+    <div class="l-tip" id="homeTip">💡 <b>今日邀请</b>：拿纸笔画下<b>任何想画的</b>，拍下来发给我。</div>
     <div class="l-sign">—— 小绘<small>每天都在的画画伙伴</small></div>
   </div>
 
@@ -341,6 +341,31 @@
     </div>
   <!-- Enhanced Feedback v3.1（5层结构 + 里程碑 + 深度指示器） -->
   <div id="feedbackEnhanced" class="feedback-section">
+    <!-- 识别仪（flowfb-c 移植 · AI 看画过程动画：扫描线 + 锚点 + 进度） -->
+    <div id="drawingScanner" class="drawing-scanner" style="display:none;">
+      <div class="scan-view">
+        <div class="scan-tag"><span class="scan-dot"></span><span id="scanTagText">正在识别这张画…</span></div>
+        <div class="scan-canvas">
+          <img id="scanPhotoImg" src="" alt="识别的画">
+          <div class="scan-line" id="scanLine"></div>
+          <span class="scan-anchor" id="scanAnchor0" data-label="边缘"></span>
+          <span class="scan-anchor" id="scanAnchor1" data-label="空间"></span>
+          <span class="scan-anchor" id="scanAnchor2" data-label="比例"></span>
+          <span class="scan-anchor" id="scanAnchor3" data-label="光影"></span>
+          <span class="scan-anchor" id="scanAnchor4" data-label="整体"></span>
+        </div>
+        <div class="scan-meta"><span class="scan-shot">✓ 已拍摄</span><span class="scan-obj">识别对象</span></div>
+      </div>
+      <div class="scan-progress">
+        <div class="sp-row"><span class="sp-text" id="spText">准备识别…</span><span class="sp-num" id="spNum">0 / 5</span></div>
+        <div class="sp-track"><div class="sp-fill" id="spFill"></div></div>
+        <div class="sp-dims">
+          <span class="sp-dim" data-i="0">边缘</span><span class="sp-dim" data-i="1">空间</span>
+          <span class="sp-dim" data-i="2">比例</span><span class="sp-dim" data-i="3">光影</span>
+          <span class="sp-dim" data-i="4">整体</span>
+        </div>
+      </div>
+    </div>
     <div id="fbLayersContainer"></div>
 
     <!-- 2.0 新增：五维感知雷达图（归位至反馈流内部） -->

@@ -8,11 +8,11 @@ const OB_STEPS = [
       <div class="ob-chat" id="obChat">
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
-          <div class="ob-msg-bubble">你好呀，我是你的 AI 画友 ✨，你画的每一笔，我都会认真看见 🎨</div>
+          <div class="ob-msg-bubble">你好呀，我是小绘 ✨ 去拿一张纸和一支笔，画下任何想画的，然后拍给我看——我会认真看见你的每一笔 🎨</div>
         </div>
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
-          <div class="ob-msg-bubble">怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你</div>
+          <div class="ob-msg-bubble">怎么称呼你呢？</div>
         </div>
       </div>
       <div class="ob-input-wrap" id="obInputWrap">
@@ -49,7 +49,7 @@ const OB_STEPS = [
         if (bubbles.length >= 2) {
           bubbles[1].textContent = window._pinRequired
             ? '怎么称呼你呢？设个昵称和 4 位 PIN，下次回来还是你'
-            : '怎么称呼你呢？设个昵称，下次回来还是你';
+            : '怎么称呼你呢？';
         }
         const line2 = document.getElementById('obInputLine2');
         if (line2) line2.style.justifyContent = window._pinRequired ? 'flex-start' : 'flex-end';

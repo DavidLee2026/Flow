@@ -300,24 +300,34 @@ function hideDrawingCheck() {
 }
 
 function showNotDrawingPopup() {
-  // 清空 pending 状态，允许重选
-  pendingFile = null;
-  document.getElementById('cameraInput').value = '';
-  document.getElementById('uploadInput').value = '';
-
+  // 不立即清空 pendingFile——「是我画的」需要保留文件继续提交
   const overlay = document.getElementById('confirmOverlay');
   const dialog = overlay.querySelector('.confirm-dialog');
   dialog.innerHTML = `
     <div class="confirm-icon">🤔</div>
-    <div class="confirm-title">这个不太像画作哦</div>
-    <div class="confirm-desc">看起来不是手绘的画作，是不是选错照片了？<br><br>
-      小绘只能分析手绘的作品。<br>
-      试试再画一张然后拍下来吧 🎨</div>
+    <div class="confirm-title">这张是你亲手画的吗？</div>
+    <div class="confirm-desc">小绘认真看了看，这张不太像手绘的画作。<br><br>
+      小绘只想给你亲手画的作品反馈 🎨<br>
+      如果选错了照片，可以重拍一张。</div>
     <div class="confirm-actions">
-      <button class="btn btn-md btn-primary" onclick="closeConfirm()">知道了</button>
+      <button class="btn btn-md btn-cancel" id="notDrawingRetakeBtn">重拍一张</button>
+      <button class="btn btn-md btn-primary" id="notDrawingConfirmBtn">是我画的</button>
     </div>
   `;
   overlay.classList.add('visible');
+
+  // 重拍：清空选择，返回拍照
+  document.getElementById('notDrawingRetakeBtn').onclick = () => {
+    pendingFile = null;
+    document.getElementById('cameraInput').value = '';
+    document.getElementById('uploadInput').value = '';
+    closeConfirm();
+  };
+  // 是我画的：尊重用户，继续提交反馈
+  document.getElementById('notDrawingConfirmBtn').onclick = () => {
+    closeConfirm();
+    proceedSubmit();
+  };
 }
 
 // ─── 客户端图片压缩 ───

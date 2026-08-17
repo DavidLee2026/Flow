@@ -54,6 +54,11 @@ USERS_FILE = DATA_DIR / "users.json"
 # 服务器需在 .env 设 AUTH_PIN_REQUIRED=1 启用 PIN 保护。
 AUTH_PIN_REQUIRED = os.environ.get("AUTH_PIN_REQUIRED", "0") == "1"
 
+# ── 非画作识别专用模型 ──────────────────────────────
+# check-drawing 用更强的 lite 模型（视觉理解更稳），反馈生成仍用 LLM_MODEL。
+# 可经 CHECK_DRAWING_MODEL 环境变量覆盖；未开通 lite 时可改回 mini。
+CHECK_DRAWING_MODEL = os.environ.get("CHECK_DRAWING_MODEL", "doubao-seed-2-0-lite-260428")
+
 
 def user_dir(nickname: str):
     """每个用户的独立数据目录：data/users/{nickname}/"""

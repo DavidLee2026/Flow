@@ -757,3 +757,36 @@ body.booting::after {
 /* 发送后锁定：只允许发送 1 次 */
 .feedback-page .reflection-tags.locked{pointer-events:none;opacity:.6}
 .feedback-page .reflection-write.locked{pointer-events:none;opacity:.6}
+
+/* ═══════════ 识别仪（flowfb-c 移植 · AI 看画过程动画）═══════════ */
+.feedback-page .drawing-scanner{margin-bottom:10px}
+.feedback-page .scan-view{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:14px}
+.feedback-page .scan-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--raw-ochre-700);background:var(--raw-ochre-100);border:1px solid var(--raw-ochre-200);padding:4px 12px;border-radius:var(--radius-pill);margin-bottom:10px}
+.feedback-page .scan-dot{width:7px;height:7px;border-radius:50%;background:var(--raw-ochre-500);animation:chipBlink 1.2s ease-in-out infinite}
+@keyframes chipBlink{0%,100%{opacity:.3}50%{opacity:1}}
+.feedback-page .scan-canvas{position:relative;border-radius:var(--radius-md);overflow:hidden;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300)}
+.feedback-page .scan-canvas img{width:100%;height:auto;display:block}
+.feedback-page .scan-line{position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--raw-ochre-500),transparent);box-shadow:0 0 12px rgba(217,164,65,.5);opacity:0;pointer-events:none}
+.feedback-page .scan-line.on{opacity:1;animation:scanMove 1.5s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes scanMove{0%{top:0}100%{top:calc(100% - 2px)}}
+.feedback-page .scan-anchor{position:absolute;width:16px;height:16px;border-radius:50%;border:2px solid var(--raw-ochre-500);background:rgba(217,164,65,.15);transform:translate(-50%,-50%);opacity:0;transition:all .4s var(--ease-out);pointer-events:none}
+.feedback-page .scan-anchor.on{opacity:1;background:var(--raw-ochre-500);box-shadow:0 0 0 5px rgba(217,164,65,.2),0 0 14px rgba(217,164,65,.5)}
+.feedback-page .scan-anchor::after{content:attr(data-label);position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--raw-ochre-700);white-space:nowrap;font-family:var(--font-mono)}
+.feedback-page #scanAnchor0{left:50%;top:34%}
+.feedback-page #scanAnchor1{left:50%;top:62%}
+.feedback-page #scanAnchor2{left:72%;top:60%}
+.feedback-page #scanAnchor3{left:42%;top:30%}
+.feedback-page #scanAnchor4{left:50%;top:52%}
+.feedback-page .scan-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.feedback-page .scan-shot{font-size:12px;font-weight:700;color:var(--raw-sage-700);background:var(--raw-sage-100);border:1px solid var(--raw-sage-300);padding:3px 10px;border-radius:var(--radius-pill)}
+.feedback-page .scan-obj{font-size:10px;color:var(--raw-brown-300);font-family:var(--font-mono)}
+.feedback-page .scan-progress{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:13px 15px;margin-top:12px}
+.feedback-page .sp-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.feedback-page .sp-text{font-size:14px;font-weight:600;color:var(--raw-brown-900)}
+.feedback-page .sp-num{font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--raw-ochre-700)}
+.feedback-page .sp-track{height:8px;background:var(--raw-paper-300);border-radius:999px;overflow:hidden}
+.feedback-page .sp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--raw-ochre-300),var(--raw-ochre-500),var(--raw-ochre-700));border-radius:999px;transition:width .5s var(--ease-out);box-shadow:0 0 8px rgba(217,164,65,.3)}
+.feedback-page .sp-dims{display:flex;justify-content:space-between;margin-top:8px;gap:4px}
+.feedback-page .sp-dim{flex:1;text-align:center;font-size:10px;font-weight:600;color:var(--raw-brown-300);padding:4px 0;border-radius:var(--radius-pill);transition:all .3s}
+.feedback-page .sp-dim.on{color:var(--raw-ochre-700);background:var(--raw-ochre-100);font-weight:700}
+.feedback-page .scan-tag.done .scan-dot{animation:none;opacity:.4;background:var(--raw-sage-500)}
