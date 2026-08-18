@@ -70,6 +70,10 @@ async function loadCommunityPage() {
       return;
     }
 
+    // 移除初始"加载中"提示（渲染帖子前），否则顶部一直挂加载中（David 反馈）
+    const loadingEl = feed.querySelector('.community-loading');
+    if (loadingEl) loadingEl.remove();
+
     // 追加模式渲染（2 列瀑布流，卡片带作者角标）
     feed.insertAdjacentHTML('beforeend', posts.map(post => `
       <div class="community-item" onclick="openCommunityPost('${post.id}')">
