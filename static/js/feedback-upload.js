@@ -59,7 +59,11 @@ function buildReconstructBlock() {
 }
 function fbReplay()  { closeFeedbackPage(); openCamera(); }
 function fbProfile() { closeFeedbackPage(); switchTab('timeline'); }
-function fbShare()   { showToast('分享功能暂未开放，敬请期待 🎨'); }
+function fbShare() {
+  // 打开分享预览弹窗（含「分享到社区」入口）——社区上线后恢复
+  if (!currentRecordId) { showToast('还没有可分享的画作'); return; }
+  shareMyPainting(currentRecordId);
+}
 function clearFeedbackContainers() {
   ['fbLayersContainer','radarChartContainer','explorationBarContainer','flowBankSlot','archivePillSlot','milestoneSlot'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '';
