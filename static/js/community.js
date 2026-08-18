@@ -80,7 +80,7 @@ async function loadCommunityPage() {
         <img src="${API_BASE}/data/${post.image}" alt="${escapeHtml(post.author || '')}的画" loading="lazy"
              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23f0e6e0%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2260%22 y=%2265%22 text-anchor=%22middle%22 fill=%22%23C97D5B%22 font-size=%2228%22%3E🎨%3C/text%3E%3C/svg%3E'">
         <div class="community-item-author">${escapeHtml(post.author)}</div>
-        ${post.likes > 0 ? `<div class="community-likes">❤️ ${post.likes}</div>` : ''}
+        <div class="community-likes">❤️ ${post.likes}</div>
       </div>
     `).join(''));
 

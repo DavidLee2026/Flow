@@ -469,6 +469,7 @@
   padding: 0 10px 80px;
 }
 #page-community .community-item {
+  position: relative;  /* 角标（作者/赞数）相对卡片定位 */
   break-inside: avoid;
   margin-bottom: 10px;
   aspect-ratio: auto;
@@ -482,6 +483,19 @@
   height: auto;
   object-fit: cover;
   display: block;
+}
+/* 右下爱心赞数：半透明深底胶囊，红心一眼可见（与左下作者名对称） */
+#page-community .community-likes {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  background: rgba(0,0,0,.55);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.5;
 }
 /* 左下作者角标：半透明深底白字小胶囊（与 .community-likes 同一写法） */
 #page-community .community-item-author {
