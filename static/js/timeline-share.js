@@ -107,6 +107,13 @@ function openModal(record) {
     }
   }
 
+  // 删除这幅画：填充 modalDeleteSection（位于反馈区之后，天然显示在详情页底部）并显示
+  const deleteSection = document.getElementById('modalDeleteSection');
+  if (deleteSection) {
+    deleteSection.innerHTML = '<button class="btn btn-danger" onclick="confirmDeleteRecord()">🗑 删除这幅画</button>';
+    deleteSection.style.display = '';
+  }
+
   modal.classList.add('visible');
   // 禁止底层页面滚动，防止穿透
   document.body.style.overflow = 'hidden';

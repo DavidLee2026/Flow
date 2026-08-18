@@ -456,3 +456,61 @@
   animation: brandIconBounce .8s var(--ease-spring) both;
   margin-bottom: 20px;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   v4 · 社区 2 列瀑布流（小红书式错落）
+   components-misc1.css 在 community.css 之后加载（3 列网格旧样式），
+   故统一用 #page-community 提升特异性覆盖；不触碰 misc1.css。
+   ══════════════════════════════════════════════════════════════════ */
+#page-community .community-feed {
+  display: block;
+  column-count: 2;
+  column-gap: 10px;
+  padding: 0 10px 80px;
+}
+#page-community .community-item {
+  break-inside: avoid;
+  margin-bottom: 10px;
+  aspect-ratio: auto;
+  min-height: 130px;  /* lazy 图未加载时占位，避免列高塌陷导致哨兵误触发连续翻页 */
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  box-shadow: var(--shadow-paper);
+}
+#page-community .community-item img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+/* 左下作者角标：半透明深底白字小胶囊（与 .community-likes 同一写法） */
+#page-community .community-item-author {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  max-width: 72%;
+  background: rgba(0,0,0,.55);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-xs);
+  padding: 2px 8px;
+  border-radius: 10px;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+/* 加载中 / 空态横跨两列（旧 grid-column 在 column 布局下失效） */
+#page-community .community-loading,
+#page-community .community-empty {
+  column-span: all;
+}
+/* 分页哨兵：滚动加载提示 / 到底提示 */
+#page-community .community-sentinel {
+  column-span: all;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  padding: 14px 0 4px;
+}

@@ -155,6 +155,9 @@ function switchTab(tab) {
   } else if (tab === 'ach') {
     track('ach_viewed', {});
     renderAchievements();
+  } else if (tab === 'community') {
+    track('community_viewed', {});
+    renderCommunityFeed();
   }
 }
 

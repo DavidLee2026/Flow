@@ -2,20 +2,65 @@
 // 依赖：state.js；运行时调用 timeline.js 的 openModal
 // ─── 社区 ──────────────────────────────────────────
 
+// 分页状态（进入社区页重置；滚动到底部加载下一页）
+let communityPage = 1;
+let communityHasMore = true;
+let communityLoading = false;
+let communityPostsCache = [];  // 已加载帖子的缓存（详情弹窗查用，避免分页后找不到）
+let communityObserver = null;
+let communitySentinel = null;
+const COMMUNITY_PAGE_SIZE = 20;
+
+function resetCommunityState() {
+  communityPage = 1;
+  communityHasMore = true;
+  communityLoading = false;
+  communityPostsCache = [];
+  communitySentinel = null;
+  if (communityObserver) {
+    communityObserver.disconnect();
+    communityObserver = null;
+  }
+}
+
+function setupCommunityObserver() {
+  if (communityObserver) communityObserver.disconnect();
+  if (!communityHasMore || !communitySentinel) return;
+  communityObserver = new IntersectionObserver(entries => {
+    if (entries[0] && entries[0].isIntersecting) loadCommunityPage();
+  }, { rootMargin: '240px 0px' });
+  communityObserver.observe(communitySentinel);
+}
+
 async function renderCommunityFeed() {
   const feed = document.getElementById('communityFeed');
+  resetCommunityState();
   feed.innerHTML = `
     <div class="community-loading">
       <div class="simple-waiting-dots"><span></span><span></span><span></span></div>
       <div style="font-size:13px;color:var(--color-text-tertiary);margin-top:8px;">加载中…</div>
     </div>`;
+  await loadCommunityPage();
+}
+
+async function loadCommunityPage() {
+  if (communityLoading || !communityHasMore) return;
+  communityLoading = true;
+  const feed = document.getElementById('communityFeed');
+
+  // 加载提示（哨兵）
+  if (communitySentinel) {
+    communitySentinel.textContent = '加载更多…';
+  }
 
   try {
-    const res = await fetch(`${API_BASE}/api/community`);
+    const res = await fetch(`${API_BASE}/api/community?page=${communityPage}&page_size=${COMMUNITY_PAGE_SIZE}`);
     const data = await res.json();
     const posts = data.posts || [];
+    communityPostsCache = communityPostsCache.concat(posts);
 
-    if (posts.length === 0) {
+    if (posts.length === 0 && communityPage === 1) {
+      communityHasMore = false;
       feed.innerHTML = `
         <div class="community-empty">
           <div class="community-empty-icon">🌍</div>
@@ -25,21 +70,38 @@ async function renderCommunityFeed() {
       return;
     }
 
-    // Instagram 风格 3 列网格
-    feed.innerHTML = posts.map(post => `
+    // 追加模式渲染（2 列瀑布流，卡片带作者角标）
+    feed.insertAdjacentHTML('beforeend', posts.map(post => `
       <div class="community-item" onclick="openCommunityPost('${post.id}')">
         <img src="${API_BASE}/data/${post.image}" alt="${escapeHtml(post.author || '')}的画" loading="lazy"
              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23f0e6e0%22 width=%22120%22 height=%22120%22/%3E%3Ctext x=%2260%22 y=%2265%22 text-anchor=%22middle%22 fill=%22%23C97D5B%22 font-size=%2228%22%3E🎨%3C/text%3E%3C/svg%3E'">
+        <div class="community-item-author">${escapeHtml(post.author)}</div>
         ${post.likes > 0 ? `<div class="community-likes">❤️ ${post.likes}</div>` : ''}
       </div>
-    `).join('');
+    `).join(''));
+
+    communityHasMore = !!data.has_more;
+    communityPage += 1;
+
+    // 更新末尾哨兵：还有更多 → 观察滚动；到底 → 显示提示
+    const old = communitySentinel;
+    communitySentinel = null;
+    if (old && old.parentNode) old.remove();
+    feed.insertAdjacentHTML('beforeend',
+      `<div class="community-sentinel">${communityHasMore ? '上滑加载更多' : '没有更多了'}</div>`);
+    communitySentinel = feed.lastElementChild;
+    setupCommunityObserver();
   } catch (e) {
-    feed.innerHTML = `
-      <div class="community-empty">
-        <div class="community-empty-icon">📡</div>
-        <div class="community-empty-title">无法加载社区</div>
-        <div class="community-empty-desc">请检查网络连接</div>
-      </div>`;
+    if (communityPage === 1) {
+      feed.innerHTML = `
+        <div class="community-empty">
+          <div class="community-empty-icon">📡</div>
+          <div class="community-empty-title">无法加载社区</div>
+          <div class="community-empty-desc">请检查网络连接</div>
+        </div>`;
+    }
+  } finally {
+    communityLoading = false;
   }
 }
 
@@ -96,65 +158,77 @@ function openCommunityPost(postId) {
     modalInfo.scrollTop = 0;
   }
 
-  // 加载详细信息
-  fetch(`${API_BASE}/api/community`)
-    .then(r => r.json())
-    .then(data => {
-      const post = (data.posts || []).find(p => p.id === postId);
-      if (post) {
-        const comments = post.comments || [];
-        const isLiked = (post.liked_by || []).includes(userName);
-        const likeBtnClass = isLiked ? 'btn-secondary' : 'btn-primary';
-        const likeText = isLiked ? '已赞' : '赞';
-        const likeIcon = isLiked ? '❤️' : '🤍';
-        // 去除 markdown 加粗标记
-        const cleanSummary = (post.feedback_summary || '').replace(/\*\*(.+?)\*\*/g, '$1');
+  // 加载详细信息（优先用分页缓存，避免第 2+ 页帖子 fetch 第一页找不到）
+  const renderPostDetail = (post) => {
+    const comments = post.comments || [];
+    const isLiked = (post.liked_by || []).includes(userName);
+    const likeBtnClass = isLiked ? 'btn-secondary' : 'btn-primary';
+    const likeText = isLiked ? '已赞' : '赞';
+    const likeIcon = isLiked ? '❤️' : '🤍';
+    const isAuthor = (post.author || '') === userName;
+    // 去除 markdown 加粗标记
+    const cleanSummary = (post.feedback_summary || '').replace(/\*\*(.+?)\*\*/g, '$1');
 
-        document.getElementById('communityModalInfo').innerHTML = `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-            <span class="avatar" style="font-size:20px;">🎨</span>
-            <div>
-              <div style="font-weight:600;font-size:15px;">${escapeHtml(post.author || '小伙伴')}</div>
-              <div style="font-size:12px;color:var(--color-text-tertiary);">${formatDate(post.timestamp)}</div>
-            </div>
-          </div>
-          ${cleanSummary ? `<div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;background:var(--color-bg-card);padding:10px 12px;border-radius:8px;border-left:3px solid var(--color-primary);margin-bottom:12px;">💬 ${escapeHtml(cleanSummary)}</div>` : ''}
+    document.getElementById('communityModalInfo').innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span class="avatar" style="font-size:20px;">🎨</span>
+        <div>
+          <div style="font-weight:600;font-size:15px;">${escapeHtml(post.author || '小伙伴')}</div>
+          <div style="font-size:12px;color:var(--color-text-tertiary);">${formatDate(post.timestamp)}</div>
+        </div>
+      </div>
+      ${cleanSummary ? `<div style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;background:var(--color-bg-card);padding:10px 12px;border-radius:8px;border-left:3px solid var(--color-primary);margin-bottom:12px;">💬 ${escapeHtml(cleanSummary)}</div>` : ''}
 
-          <!-- 点赞按钮 -->
-          <button class="btn ${likeBtnClass} btn-sm" id="communityLikeBtn_${post.id}" style="width:100%;margin-bottom:12px;" onclick="likeCommunityPost('${post.id}', this)" ${isLiked ? 'disabled' : ''}>
-            ${likeIcon} ${post.likes || 0} ${likeText}
-          </button>
+      <!-- 点赞按钮 -->
+      <button class="btn ${likeBtnClass} btn-sm" id="communityLikeBtn_${post.id}" style="width:100%;margin-bottom:12px;" onclick="likeCommunityPost('${post.id}', this)" ${isLiked ? 'disabled' : ''}>
+        ${likeIcon} ${post.likes || 0} ${likeText}
+      </button>
 
-          <!-- 评论区 -->
-          <div class="community-comments-section">
-            <div class="community-comments-header">
-              <span>💬 评论 (${comments.length})</span>
-            </div>
-            <div class="community-comments-list" id="communityComments_${post.id}">
-              ${comments.length > 0 ? comments.map(c => {
-                const cLiked = (c.liked_by || []).includes(userName);
-                return `
-                <div class="community-comment-item">
-                  <div class="community-comment-body">
-                    <div class="community-comment-author">${escapeHtml(c.author || '小伙伴')}</div>
-                    <div class="community-comment-content">${escapeHtml(c.content)}</div>
-                    <div class="community-comment-time">${formatDate(c.timestamp)}</div>
-                  </div>
-                  <button class="comment-like-btn ${cLiked ? 'liked' : ''}"
-                    onclick="likeCommunityComment('${post.id}','${c.id}', this)"
-                    ${cLiked ? 'disabled' : ''}>
-                    ${cLiked ? '❤️' : '🤍'}${c.likes ? ' ' + c.likes : ''}
-                  </button>
-                </div>`;
-              }).join('') : '<div class="community-comment-empty">还没有评论，来说两句吧~</div>'}
-            </div>
-            <div class="community-comment-input-row">
-              <input type="text" class="community-comment-input" id="communityCommentInput_${post.id}" placeholder="写下你的评论..." maxlength="200">
-              <button class="community-comment-send" onclick="addCommunityComment('${post.id}')">发送</button>
-            </div>
-          </div>`;
-      }
-    });
+      <!-- 评论区 -->
+      <div class="community-comments-section">
+        <div class="community-comments-header">
+          <span>💬 评论 (${comments.length})</span>
+        </div>
+        <div class="community-comments-list" id="communityComments_${post.id}">
+          ${comments.length > 0 ? comments.map(c => {
+            const cLiked = (c.liked_by || []).includes(userName);
+            return `
+            <div class="community-comment-item">
+              <div class="community-comment-body">
+                <div class="community-comment-author">${escapeHtml(c.author || '小伙伴')}</div>
+                <div class="community-comment-content">${escapeHtml(c.content)}</div>
+                <div class="community-comment-time">${formatDate(c.timestamp)}</div>
+              </div>
+              <button class="comment-like-btn ${cLiked ? 'liked' : ''}"
+                onclick="likeCommunityComment('${post.id}','${c.id}', this)"
+                ${cLiked ? 'disabled' : ''}>
+                ${cLiked ? '❤️' : '🤍'}${c.likes ? ' ' + c.likes : ''}
+              </button>
+            </div>`;
+          }).join('') : '<div class="community-comment-empty">还没有评论，来说两句吧~</div>'}
+        </div>
+        <div class="community-comment-input-row">
+          <input type="text" class="community-comment-input" id="communityCommentInput_${post.id}" placeholder="写下你的评论..." maxlength="200">
+          <button class="community-comment-send" onclick="addCommunityComment('${post.id}')">发送</button>
+        </div>
+      </div>
+
+      <!-- 删除帖子（仅作者本人可见） -->
+      ${isAuthor ? `<button class="btn btn-sm btn-danger community-delete-btn" style="width:100%;margin-top:12px;" onclick="deleteCommunityPost('${post.id}')">🗑️ 删除帖子</button>` : ''}`;
+  };
+
+  const cached = communityPostsCache.find(p => p.id === postId);
+  if (cached) {
+    renderPostDetail(cached);
+  } else {
+    // 兜底：缓存未命中（如直接刷新页面后），拉第一页大分页查找
+    fetch(`${API_BASE}/api/community?page=1&page_size=50`)
+      .then(r => r.json())
+      .then(data => {
+        const post = (data.posts || []).find(p => p.id === postId);
+        if (post) renderPostDetail(post);
+      });
+  }
 }
 
 function likeCommunityPost(postId, btn) {
@@ -265,6 +339,40 @@ async function addCommunityComment(postId) {
     sendBtn.disabled = false;
     sendBtn.textContent = '发送';
   }
+}
+
+// ─── 删除帖子（仅作者本人） ───
+function deleteCommunityPost(postId) {
+  showConfirm({
+    icon: '🗑️',
+    title: '删除这条帖子？',
+    desc: '删除后这条画作将从社区移除，<strong>不可恢复</strong>。',
+    okText: '删除',
+    onOk: async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/community/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ post_id: postId }),
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          showToast(data.error || '只能删除自己的帖子', 'error');
+          return;
+        }
+        if (data.ok) {
+          closeCommunityModal();
+          showToast('帖子已删除', 'success');
+          renderCommunityFeed();
+        } else {
+          showToast(data.error || '删除失败', 'error');
+          if (res.status === 404) closeCommunityModal();
+        }
+      } catch (e) {
+        showToast('网络错误，请重试', 'error');
+      }
+    },
+  });
 }
 
 
