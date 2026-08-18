@@ -107,6 +107,15 @@ function openModal(record) {
     }
   }
 
+  // 详情页底部操作：再画一张 + 分享（位于删除按钮上方）
+  const actionsEl = document.getElementById('modalActions');
+  if (actionsEl) {
+    actionsEl.innerHTML = `
+      <button class="btn btn-secondary btn-md" onclick="closeModal(); openCamera()">🖌️ 再画一张</button>
+      <button class="btn btn-primary btn-md" onclick="fbShare()">🌍 分享</button>`;
+    actionsEl.style.display = '';
+  }
+
   // 删除这幅画：填充 modalDeleteSection（位于反馈区之后，天然显示在详情页底部）并显示
   const deleteSection = document.getElementById('modalDeleteSection');
   if (deleteSection) {

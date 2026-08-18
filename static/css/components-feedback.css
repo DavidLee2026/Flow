@@ -407,6 +407,17 @@
 }
 
 /* ── 删除按钮区 ── */
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.modal-actions .btn {
+  flex: 1;
+  max-width: 180px;
+  font-size: var(--font-size-base);
+}
 .modal-delete-section {
   margin-top: 24px;
   padding-top: 16px;
