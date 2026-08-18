@@ -90,7 +90,8 @@ async function generateShareCard(record) {
         body: JSON.stringify({data_url: dataUrl}),
       });
       const data = await resp.json();
-      if (data.url) displayUrl = data.url;
+      // 后端返回相对路径 /data/...，需拼 API_BASE（/flow/app）前缀，否则解析到域名根 404（分享预览图显示问号）
+      if (data.url) displayUrl = data.url.startsWith('/') ? `${API_BASE}${data.url}` : data.url;
     } catch (e) {
       console.warn('分享图上传失败，回退 data URL:', e);
     }
