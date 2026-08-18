@@ -39,7 +39,10 @@ const OB_STEPS = [
   {
     title: '你好呀，我是小绘',
     sub: '怎么称呼你呢？小绘想用心记住你',
-    render: (d) => `
+    render: (d) => {
+      // PIN 行是否显示：预取未完成（undefined）或需 PIN → 显示（保守）；免 PIN → 直接隐藏，避免闪烁
+      const needPin = window._pinRequired !== false;
+      return `
       <div class="ob-chat" id="obChat">
         <div class="ob-msg ob-msg-ai">
           <div class="ob-msg-avatar">✏️</div>
@@ -57,14 +60,15 @@ const OB_STEPS = [
               <input class="ob-input" id="obName" type="text" maxlength="8" placeholder="昵称（8 字以内）">
               <button class="ob-send-btn" id="obSendBtn" disabled>进入</button>
             </div>
-            <div class="ob-input-line2" id="obInputLine2">
+            <div class="ob-input-line2" id="obInputLine2" style="${needPin ? '' : 'display:none'}">
               <input class="ob-input" id="obPin" type="password" maxlength="4" inputmode="numeric" placeholder="4 位 PIN（自由设置）">
             </div>
           </div>
         </div>
         <div class="ob-msg-avatar ob-input-avatar" id="obInputAvatar">新</div>
       </div>
-    `,
+    `;
+    },
     validate: (d) => (d.nickname) ? {nickname: d.nickname} : null,
     onMount: () => {
       const nickEl = document.getElementById('obName');
@@ -79,11 +83,9 @@ const OB_STEPS = [
           btn.disabled = !(nickEl.value.trim() && pinOk);
         }
       };
-      // 获取登录模式：本地免 PIN（隐藏 PIN 框）/ 服务器需 PIN
-      fetch(`${API_BASE}/api/account/mode`).then(r => r.json()).then(m => {
-        window._pinRequired = !!(m && m.pin_required);
+      // PIN 模式：优先用 startOnboarding 预取的结果（避免先显示 PIN 再闪烁隐藏），未就绪则兜底 fetch
+      const applyPinMode = () => {
         if (pinEl) pinEl.style.display = window._pinRequired ? '' : 'none';
-        // 免 PIN 时隐藏 PIN 整行（昵称 + 进入按钮保持一行）；PIN 模式恢复显示
         const line2El = document.getElementById('obInputLine2');
         if (line2El) line2El.style.display = window._pinRequired ? '' : 'none';
         if (bubbles.length >= 2) {
@@ -94,7 +96,15 @@ const OB_STEPS = [
         const line2 = document.getElementById('obInputLine2');
         if (line2) line2.style.justifyContent = window._pinRequired ? 'flex-start' : 'flex-end';
         syncBtn();
-      }).catch(() => { window._pinRequired = true; });
+      };
+      if (typeof window._pinRequired === 'boolean') {
+        applyPinMode();
+      } else {
+        fetch(`${API_BASE}/api/account/mode`).then(r => r.json()).then(m => {
+          window._pinRequired = !!(m && m.pin_required);
+          applyPinMode();
+        }).catch(() => { window._pinRequired = true; applyPinMode(); });
+      }
       const els = pinEl ? [nickEl, pinEl] : [nickEl];
       els.forEach(el => {
         el.addEventListener('focus', () => {

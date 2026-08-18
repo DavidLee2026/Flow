@@ -38,6 +38,13 @@ function startOnboarding() {
   obStep = 0;
   obData = {name: ''};
   document.getElementById('onboardingOverlay').classList.add('visible');
+  // 预取 PIN 模式：场景屏停留期间完成，名字屏渲染时直接按正确模式显示，
+  // 避免"先显示 PIN 行 → 2 秒后隐藏"的闪烁（David 实测发现）
+  if (typeof window._pinRequired !== 'boolean') {
+    fetch(`${API_BASE}/api/account/mode`).then(r => r.json()).then(m => {
+      window._pinRequired = !!(m && m.pin_required);
+    }).catch(() => { window._pinRequired = true; });
+  }
   // 禁止 onboarding 期间一切触摸滚动（含 input 聚焦后）
   const _obEl = document.getElementById('onboardingOverlay');
   window._obPreventTouch = e => e.preventDefault();
