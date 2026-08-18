@@ -1,18 +1,25 @@
 // ─── timeline.js · 记录页 / 日历 / 详情弹窗 / 术语弹窗 ───
 // 依赖：state.js
 // ─── Timeline ───
+// 加载完成标志：首次数据未就绪时渲染"加载中…"而非"还没有画作"空态（防空态竞态）
+let timelineLoaded = false;
+
 async function loadTimeline() {
   try {
     const res = await fetch(`${API_BASE}/api/timeline`);
     const data = await res.json();
     records = data.records || [];
+    timelineLoaded = true;
     updateHomepage();
     const active = document.querySelector('.page.active');
     if (active) {
       const id = active.id.replace('page-', '');
       if (id === 'timeline') renderTimeline();
     }
-  } catch (e) {}
+  } catch (e) {
+    // 加载失败也标记完成，避免永远停在"加载中"（此时空态是真实结果）
+    timelineLoaded = true;
+  }
 }
 
 function updateHomepage() {
@@ -30,6 +37,18 @@ let timelineGroupMode = 'grid'; // 'grid' | 'list'
 
 function renderTimeline() {
   const list = document.getElementById('timelineList');
+
+  // 数据未加载完成：显示加载中，不渲染误导性的"还没有画作"空态
+  if (!timelineLoaded) {
+    list.innerHTML = `
+      <div class="card" style="margin-top: 24px;">
+        <div class="empty-state">
+          <div class="empty-icon">🖼️</div>
+          <div class="empty-title">正在整理你的画作…</div>
+        </div>
+      </div>`;
+    return;
+  }
 
   if (!records || records.length === 0) {
     list.innerHTML = `

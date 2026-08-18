@@ -147,6 +147,10 @@ function switchTab(tab) {
   window.scrollTo(0, 0);
   if (tab === 'timeline') {
     track('timeline_viewed', {});
+    // 修复档案空态竞态：新会话首次进档案时全局 records 可能未加载
+    //（loadTimeline 是异步的，只 renderTimeline 会渲染空态"还没有画作"）。
+    // 这里强制触发 loadTimeline，完成后 active 页是 timeline 会自动重渲染。
+    if (typeof loadTimeline === 'function') loadTimeline();
     renderTimeline();
   } else if (tab === 'ach') {
     track('ach_viewed', {});

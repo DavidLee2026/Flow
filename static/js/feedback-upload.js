@@ -115,21 +115,45 @@ async function proceedUpload(file, compressedFile, source) {
   const scanReader = new FileReader();
   scanReader.onload = e => startDrawingScanner(e.target.result);
   scanReader.readAsDataURL(compressedFile);
-  // SSE 5层
+  // SSE 5层（带超时兜底 + 等待进度提示）
   const formData = new FormData();
   formData.append('image', compressedFile);
   const themeTitle = document.getElementById('themeTodayTitle')?.textContent || '';
   if (themeTitle) formData.append('theme', themeTitle);
+  let receivedLayers = [];
+  let firstLayerArrived = false;   // 是否已收到首个反馈层
+  let waitWarned = false;          // 是否已提示等待过久
+  const statusEl = document.getElementById('fbHeadStatus');
+  const updateWaitStatus = (txt) => {
+    if (statusEl) statusEl.innerHTML = `<span class="dot"></span>${txt}`;
+  };
+  // 等待进度提示：识别仪（12s 收尾）之后 SSE 首层未到，状态文案随等待递进，缓解干等焦虑
+  const progressSteps = [
+    [15, '还在看线条的走向…'],
+    [30, '再看整体的布局…'],
+    [45, '快看完了，再等一下下…']
+  ];
+  progressSteps.forEach(([sec, txt]) => {
+    setTimeout(() => { if (!firstLayerArrived && !waitWarned) updateWaitStatus(txt); }, sec * 1000);
+  });
+  // 超时兜底：60s 仍无任何反馈层 → 提示可先离场，不无限干等
+  const waitTimer = setTimeout(() => {
+    if (!firstLayerArrived && !waitWarned) {
+      waitWarned = true;
+      showWaitTooLong();
+    }
+  }, 60000);
   try {
     const response = await fetch(`${API_BASE}/api/analyze/stream`, { method: 'POST', body: formData });
     if (!response.ok) {
+      clearTimeout(waitTimer);
       const d = await response.json().catch(() => ({}));
       showError(d.error || '分析失败，请重试');
       return;
     }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '', receivedLayers = [], completeData = null;
+    let buffer = '', completeData = null;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -141,6 +165,12 @@ async function proceedUpload(file, compressedFile, source) {
         let data;
         try { data = JSON.parse(evt.slice(6)); } catch (e) { continue; }
         if (data.type === 'layer') {
+          if (!firstLayerArrived) {
+            firstLayerArrived = true;
+            clearTimeout(waitTimer);
+            const tooLong = document.querySelector('.wait-too-long');
+            if (tooLong) tooLong.remove();
+          }
           receivedLayers.push(data.layer);
           renderStreamingLayer(data.layer, receivedLayers.length);
         } else if (data.type === 'agent_done' && data.agent === 'perception') {
@@ -149,11 +179,13 @@ async function proceedUpload(file, compressedFile, source) {
         } else if (data.type === 'complete') {
           completeData = data;
         } else if (data.type === 'error') {
+          clearTimeout(waitTimer);
           showError(data.message || '分析失败');
           return;
         }
       }
     }
+    clearTimeout(waitTimer);
     // complete 后组件流
     if (completeData) finalizeStreamingFeedback(completeData, receivedLayers);
     else ensurePostFeedbackUI({ id: 'fallback_' + Date.now() });
@@ -162,6 +194,7 @@ async function proceedUpload(file, compressedFile, source) {
     try { await loadTimeline(); } catch (e) {}
     try { await loadTodayTheme(); } catch (e) {}
   } catch (err) {
+    clearTimeout(waitTimer);
     showError('网络错误，请检查服务器是否在运行');
     ensurePostFeedbackUI({ id: 'fallback_' + Date.now() });
   } finally {
@@ -272,6 +305,17 @@ function ensurePostFeedbackUI(record) {
   currentRecordId = record.id;
   const acts = document.getElementById('fbChatActions');
   if (acts) acts.style.display = 'flex';
+}
+
+// ── 反馈等待过久兜底（SSE 长时间无内容时，不让用户无限干等） ──
+function showWaitTooLong() {
+  const box = document.getElementById('fbLayersContainer');
+  if (!box) return;
+  const div = document.createElement('div');
+  div.className = 'stream-layer wait-too-long';
+  div.innerHTML = '<div class="s-text">⏳ 小绘还在认真看你的画，这次等得有点久…<br>你可以先去做别的事，稍后回来看；反馈到了会自动出现。</div>';
+  box.appendChild(div);
+  scrollChatBottom();
 }
 
 // ─── 识别仪（flowfb-c 移植 · AI 看画过程动画） ───
