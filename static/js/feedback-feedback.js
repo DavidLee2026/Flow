@@ -1,8 +1,11 @@
 // ─── AI 生成反思快选标签 ───
 function loadReflectionTags(retry = 0) {
-  const subject = document.getElementById('themeTodayTitle')?.textContent || '';
-  // 实时流程反馈层是 .stream-layer（.layer-text 仅回放模式），取不到会兜底默认标签
-  const layers = document.querySelectorAll('#fbLayersContainer .stream-layer');
+  // subject 优先用实际识别主题（currentDrawingSubject），避免用今日推荐主题生成与画作无关的标签
+  const subject = (currentDrawingSubject && currentDrawingSubject !== '这次')
+    ? currentDrawingSubject
+    : (document.getElementById('themeTodayTitle')?.textContent || '');
+  // 实时流程反馈层是 .stream-layer；V2V5 融合三幕是 .fb-layer-c，两者都要取，取不到才兜底默认标签
+  const layers = document.querySelectorAll('#fbLayersContainer .stream-layer, #fbLayersContainer .fb-layer-c');
   // 反馈层还没渲染完（SSE 流式进行中）→ 延迟重试，避免兜底标签
   if (layers.length === 0 && retry < 4) {
     setTimeout(() => loadReflectionTags(retry + 1), 600);
@@ -221,7 +224,15 @@ function animateFlowBank() {
 }
 
 // ═══ V2+V5 融合 · 三幕渲染辅助 ═══
-function fbFirstSentence(t) { if (!t) return ''; return String(t).split(/[。！？\n]/)[0].trim(); }
+// 句子切分：兼容句号/问号/叹号/分号（AI 反馈常用分号连接两个并列观察）
+function fbSplitSentences(t) { return String(t || '').split(/[。！？；;\n]/).map(s => s.trim()).filter(Boolean); }
+function fbFirstSentence(t) { const p = fbSplitSentences(t); return p.length ? p[0] : (t ? String(t).trim() : ''); }
+// 观察展开区显示小绘说之外的第二句起（小绘说=第一句，避免完全重复）；单句数据兜底返回原句
+function fbObserveRest(t) {
+  const p = fbSplitSentences(t);
+  if (p.length <= 1) return String(t || '').trim();
+  return p.slice(1).join('。');
+}
 // 结论卡（幕1 头）
 function fbConclHTML(identify, summary) {
   const identTxt = identify && identify.content ? identify.content : '';
@@ -263,6 +274,28 @@ function fbGrowBtnHTML(exploration, isFirst) {
 function fbArchiveLineHTML(record, count) {
   return `<div class="archive-line"><span>📂</span><span>已存入画者档案 · 第 <b>${count}</b> 张</span><span class="flow">💧 +1</span></div>`;
 }
+// 成长区 · 小型心流储蓄卡（对齐定稿原型 grow-card + flow-mini，替代大储蓄罐）
+function flowMiniHTML(data) {
+  const exploration = (data && data.exploration) || {};
+  const flowValue = exploration.progress || 0;
+  let statusText = '心流正在积累';
+  if (flowValue >= 70) statusText = '心流充盈，画者状态极佳';
+  else if (flowValue >= 40) statusText = '心流稳定，继续保持';
+  else statusText = '心流偏低，下次试试深呼吸';
+  return `<div class="grow-card flow-mini-card">
+    <div class="grow-row">
+      <span class="grow-ico">💧</span>
+      <div class="grow-main">
+        <div class="grow-label">心流储蓄</div>
+        <div class="grow-sub">${statusText}</div>
+      </div>
+      <span class="flow-mini">
+        <svg viewBox="0 0 22 26"><rect x="2" y="3" width="18" height="20" rx="3" fill="none" stroke="var(--raw-ochre-500)" stroke-width="1.5"/><rect x="4" y="16" width="14" height="4" rx="1" fill="var(--raw-ochre-500)" opacity=".7"/></svg>
+        +1
+      </span>
+    </div>
+  </div>`;
+}
 // 展开/收起幕
 function toggleFbAct(head) {
   const detail = head.parentElement.querySelector('.fb-act-detail');
@@ -297,7 +330,7 @@ function renderV2V5Feedback(record, opts) {
   wrap.className = 'fb-v25';
   wrap.innerHTML = `<div class="fb-act fb-act1">
     ${fbConclHTML(identify, summary)}
-    <div class="fb-act-detail" hidden>${fbLayerHTML(observe)}</div>
+    <div class="fb-act-detail" hidden>${observe ? fbLayerHTML({...observe, content: fbObserveRest(observe.content)}) : ''}</div>
   </div>
   <div class="fb-act fb-act2">
     ${fbActHeadHTML('act2', '📈', '进步与建议')}
@@ -343,10 +376,10 @@ function renderV2V5Feedback(record, opts) {
     if (full) full.toggleAttribute('hidden', !full.hasAttribute('hidden'));
   });
 
-  // 心流储蓄（成长区，重放与流式共用 renderFlowBank）
+  // 心流储蓄（成长区 · 小型卡，重放与流式共用，替代大储蓄罐）
   const flowSlot = wrap.querySelector('.flow-bank-slot');
-  if (flowSlot && typeof renderFlowBank === 'function') {
-    renderFlowBank(record.feedback_json || record, flowSlot);
+  if (flowSlot) {
+    flowSlot.innerHTML = flowMiniHTML(record.feedback_json || record);
   }
   // 反思（此刻想说：入口行 → 展开）
   bindReflectionFlow();

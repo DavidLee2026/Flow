@@ -842,6 +842,16 @@ body.booting::after {
 .feedback-page .fb-grow-full[hidden]{display:none}
 .feedback-page .fb-grow-full .exploration-bar,.feedback-page .fb-grow-full .radar-card,.feedback-page .fb-grow-full .milestone-card,.feedback-page .fb-grow-full .flow-bank{margin-bottom:8px}
 .feedback-page .fb-grow-full .flow-bank-slot{margin-bottom:8px}
+/* 成长区 · 小型心流储蓄卡（对齐定稿原型 grow-card + flow-mini · 2026-08-22） */
+.feedback-page .fb-grow-full .grow-card{background:var(--raw-paper-100);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);box-shadow:var(--shadow-paper);padding:12px 14px}
+.feedback-page .fb-grow-full .grow-card + .grow-card{margin-top:8px}
+.feedback-page .fb-grow-full .grow-row{display:flex;align-items:center;gap:10px}
+.feedback-page .fb-grow-full .grow-ico{font-size:18px;flex-shrink:0}
+.feedback-page .fb-grow-full .grow-main{flex:1;min-width:0}
+.feedback-page .fb-grow-full .grow-label{font-size:12px;font-weight:700;color:var(--raw-brown-900)}
+.feedback-page .fb-grow-full .grow-sub{font-size:12px;color:var(--raw-brown-500);margin-top:2px}
+.feedback-page .fb-grow-full .flow-mini{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--raw-ochre-700);font-weight:700;flex-shrink:0}
+.feedback-page .fb-grow-full .flow-mini svg{width:22px;height:26px}
 /* 归档行（降级为一行） */
 .feedback-page .archive-line{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;background:var(--raw-paper-200);border:1px solid var(--raw-paper-300);border-radius:var(--radius-md);font-size:12px;color:var(--raw-brown-500)}
 .feedback-page .archive-line b{color:var(--raw-sage-700)}
