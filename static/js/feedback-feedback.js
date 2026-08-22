@@ -117,24 +117,32 @@ function milestoneChatHTML(m) {
   </div>`;
 }
 function reflectionChatHTML() {
-  return `<div class="reflection-area show" id="fbReflectionArea">
-    <div class="reflection-title">💭 画完想说点什么？</div>
-    <div class="reflection-tags" id="fbReflectionTags">
-      <button class="reflection-tag-btn">正在生成标签…</button>
-      <button class="reflection-tag-btn is-custom">✍️ 自己写</button>
+  // ═══ 「此刻想说」重设计（Part B）：默认为一行轻量入口，点按展开标签+输入，完全可选 ═══
+  return `<div class="reflection-area" id="fbReflectionArea">
+    <div class="reflection-entry" id="fbReflectionEntry" role="button" tabindex="0">
+      <span class="re-ico">💬</span>
+      <span class="re-t">此刻想说？</span>
+      <span class="re-opt">可选</span>
+      <span class="re-arrow">▸</span>
     </div>
-    <div class="reflection-confirm" id="fbReflectionConfirm" style="display:none">
-      <span class="reflection-confirm-text" id="fbRConfirmText"></span>
-      <button class="reflection-confirm-btn" type="button">确认发送</button>
+    <div class="reflection-panel" id="fbReflectionPanel" style="display:none">
+      <div class="reflection-lead">画完了，此刻有什么想说的吗？说给小绘听，小绘会记进你的画者档案。</div>
+      <div class="reflection-tags" id="fbReflectionTags">
+        <button class="reflection-tag-btn">正在生成标签…</button>
+        <button class="reflection-tag-btn is-custom">✍️ 自己写</button>
+      </div>
+      <div class="reflection-confirm" id="fbReflectionConfirm" style="display:none">
+        <span class="reflection-confirm-text" id="fbRConfirmText"></span>
+        <button class="reflection-confirm-btn" type="button">确认发送</button>
+      </div>
+      <div class="reflection-write" id="fbReflectionCustomRow" style="display:none">
+        <input class="reflection-input" id="fbReflectionInput" maxlength="60" placeholder="写几句此刻的感受…">
+        <button class="reflection-send" type="button">发送</button>
+      </div>
+      <div class="reflection-response" id="fbReflectionResponse">
+        <div id="fbReflectionReply"></div>
+      </div>
     </div>
-    <div class="reflection-write" id="fbReflectionCustomRow" style="display:none">
-      <input class="reflection-input" id="fbReflectionInput" maxlength="60" placeholder="写几句此刻的感受…">
-      <button class="reflection-send" type="button">发送</button>
-    </div>
-    <div class="reflection-response" id="fbReflectionResponse">
-      <div id="fbReflectionReply"></div>
-    </div>
-    <div class="reflection-hint">选择一个标签，或自己写几句感受</div>
   </div>`;
 }
 // ─── flowfb-b 反思交互：选标签 → 确认条；自己写 → 输入框 ───
@@ -146,6 +154,8 @@ function bindReflectionFlow() {
   // 事件委托：AI 标签异步替换后仍可点击
   area.addEventListener('click', e => {
     if (area.dataset.locked) return;  // 已发送锁定，忽略（双保险，配合 CSS pointer-events）
+    // 「此刻想说」入口行 → 展开/收起面板
+    if (e.target.closest('#fbReflectionEntry')) { toggleReflectionPanel(); return; }
     const btn = e.target.closest('.reflection-tag-btn');
     if (!btn) return;
     if (btn.classList.contains('is-custom')) { showCustomReflection(); return; }
@@ -170,6 +180,19 @@ function bindReflectionFlow() {
   }
   const input = document.getElementById('fbReflectionInput');
   if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') { lockReflectionAfterSend(); sendReflection(); } });
+}
+// 「此刻想说」入口行展开/收起面板
+function toggleReflectionPanel() {
+  const entry = document.getElementById('fbReflectionEntry');
+  const panel = document.getElementById('fbReflectionPanel');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (entry) {
+    entry.classList.toggle('open', !isOpen);
+    const arrow = entry.querySelector('.re-arrow');
+    if (arrow) arrow.textContent = !isOpen ? '▾' : '▸';
+  }
 }
 // 反思发送后锁定：只允许发送 1 次（旧 confirmReflection 只锁 .r-quick-btn，需对 reflection-tag-btn 补锁）
 function lockReflectionAfterSend() {
@@ -197,17 +220,148 @@ function animateFlowBank() {
   }, 200);
 }
 
+// ═══ V2+V5 融合 · 三幕渲染辅助 ═══
+function fbFirstSentence(t) { if (!t) return ''; return String(t).split(/[。！？\n]/)[0].trim(); }
+// 结论卡（幕1 头）
+function fbConclHTML(identify, summary) {
+  const identTxt = identify && identify.content ? identify.content : '';
+  const line = summary ? `<div class="fb-concl-line"><span class="tag-mini">✨ 小绘说</span><span>${enrichText(summary)}</span></div>` : '';
+  return `<div class="fb-concl-wrap">
+    <div class="fb-concl">
+      ${identTxt ? `<div class="fb-concl-identify">${enrichText(identTxt)}</div>` : ''}
+      ${line}
+      <button class="fb-expand-btn" id="fbExpandBtn"><span>展开完整反馈</span><span class="fb-expand-arrow">▾</span></button>
+    </div>
+  </div>`;
+}
+// 三层反馈卡（完整，用于展开区）
+function fbLayerHTML(layer, side = '') {
+  if (!layer) return '';
+  const labelMap = {identify:'🎯 认出', observe:'🔍 观察', progress:'📈 进步', suggestion:'💡 建议', encourage:'✨ 期待'};
+  const label = labelMap[layer.type] || layer.type;
+  let h = `<div class="fb-layer-c ${side}" data-type="${layer.type}"><span class="s-tag">${label}</span><div class="s-text">${enrichText(layer.content)}</div>`;
+  if ((layer.type === 'observe' || layer.type === 'suggestion') && layer.tip && layer.tip.trim()) {
+    h += `<div class="fb-tip-box"><b>💡 小技巧</b>：${enrichText(layer.tip)} 💪</div>`;
+  }
+  return h + `</div>`;
+}
+// 幕标题行（可点击展开）
+function fbActHeadHTML(cls, ico, title) {
+  return `<div class="fb-act-head" data-act="${cls}"><span class="fb-act-ico">${ico}</span><span class="fb-act-title">${title}</span><span class="fb-act-arrow">▸</span></div>`;
+}
+// 我的成长折叠入口（强提示：露底 + 箭头 + 红点首次）
+function fbGrowBtnHTML(exploration, isFirst) {
+  const count = (exploration && exploration.explored_area_count) || 0;
+  return `<button class="fb-grow-btn" id="fbGrowBtn">
+    <span class="g-ico">🧭</span>
+    <span class="g-t">我的成长</span>
+    <span class="g-sub">探索 ${count} 个方向 · 雷达 · 里程碑 · 心流</span>
+    ${isFirst ? '<span class="g-dot"></span>' : '<span class="g-caret">▸</span>'}
+  </button>`;
+}
+// 归档行（降级为一行）
+function fbArchiveLineHTML(record, count) {
+  return `<div class="archive-line"><span>📂</span><span>已存入画者档案 · 第 <b>${count}</b> 张</span><span class="flow">💧 +1</span></div>`;
+}
+// 展开/收起幕
+function toggleFbAct(head) {
+  const detail = head.parentElement.querySelector('.fb-act-detail');
+  if (!detail) return;
+  const open = detail.getAttribute('hidden') !== null;
+  detail.toggleAttribute('hidden', !open);
+  const arrow = head.querySelector('.fb-act-arrow');
+  if (arrow) arrow.textContent = open ? '▸' : '▾';
+}
+
+// ═══ V2+V5 融合 · 公共三幕渲染（流式与回放共用，保证双路径一致） ═══
+function renderV2V5Feedback(record, opts) {
+  const layers = opts.layers || [];
+  const byType = {};
+  layers.forEach(l => { if (l && l.type && !byType[l.type]) byType[l.type] = l; });
+  const identify = byType.identify, observe = byType.observe, progress = byType.progress,
+        suggestion = byType.suggestion, encourage = byType.encourage;
+  const exploration = opts.exploration, perception = opts.perception, m = opts.milestone;
+
+  // 一句话总评 + 识别主题
+  const summary = fbFirstSentence(observe ? observe.content : (encourage ? encourage.content : ''));
+  if (identify && identify.content) {
+    const mt = identify.content.match(/画的是(?:一个|一只|一幅)?(.+?)[对吧呢？\?]/);
+    if (mt && mt[1]) currentDrawingSubject = mt[1].trim();
+  }
+
+  const box = document.getElementById('fbLayersContainer');
+  if (box) box.innerHTML = '';
+
+  // ═══ 对话流外壳 × 三幕（首屏只出 1 个结论气泡） ═══
+  const wrap = document.createElement('div');
+  wrap.className = 'fb-v25';
+  wrap.innerHTML = `<div class="fb-act fb-act1">
+    ${fbConclHTML(identify, summary)}
+    <div class="fb-act-detail" hidden>${fbLayerHTML(observe)}</div>
+  </div>
+  <div class="fb-act fb-act2">
+    ${fbActHeadHTML('act2', '📈', '进步与建议')}
+    <div class="fb-act-detail" hidden>${fbLayerHTML(progress)}${fbLayerHTML(suggestion)}</div>
+  </div>
+  <div class="fb-act fb-act3">
+    ${fbActHeadHTML('act3', '🚀', '接下来')}
+    <div class="fb-act-detail" hidden>
+      ${fbLayerHTML(encourage)}
+      <div class="fb-grow-wrap">
+        ${fbGrowBtnHTML(exploration, true)}
+        <div class="fb-grow-full" hidden>
+          ${exploration ? explorationHTML(exploration) : ''}
+          ${perception ? radarCardHTML(perception) : ''}
+          ${m ? milestoneChatHTML(m) : ''}
+          <div class="flow-bank-slot"></div>
+        </div>
+      </div>
+      ${reflectionChatHTML()}
+      ${fbArchiveLineHTML(record, currentTotalDrawings)}
+    </div>
+  </div>`;
+  box.appendChild(wrap);
+  scrollChatBottom();
+
+  // ── 绑定交互（用户动作驱动展开：呼吸阀） ──
+  wrap.querySelectorAll('.fb-act-head').forEach(head => head.addEventListener('click', () => toggleFbAct(head)));
+  const expandBtn = wrap.querySelector('#fbExpandBtn');
+  if (expandBtn) expandBtn.addEventListener('click', () => {
+    const detail = wrap.querySelector('.fb-act1 .fb-act-detail');
+    if (detail) {
+      const nowOpen = !detail.hasAttribute('hidden');
+      detail.toggleAttribute('hidden', nowOpen); // force=true 收起 / false 打开
+      const arrow = expandBtn.querySelector('.fb-expand-arrow');
+      if (arrow) arrow.textContent = nowOpen ? '▴' : '▾';
+    }
+    const a2 = wrap.querySelector('.fb-act2');
+    if (a2) a2.classList.add('peek');  // 幕2 露头引导
+  });
+  const growBtn = wrap.querySelector('.fb-grow-btn');
+  if (growBtn) growBtn.addEventListener('click', () => {
+    const full = wrap.querySelector('.fb-grow-full');
+    if (full) full.toggleAttribute('hidden', !full.hasAttribute('hidden'));
+  });
+
+  // 心流储蓄（成长区，重放与流式共用 renderFlowBank）
+  const flowSlot = wrap.querySelector('.flow-bank-slot');
+  if (flowSlot && typeof renderFlowBank === 'function') {
+    renderFlowBank(record.feedback_json || record, flowSlot);
+  }
+  // 反思（此刻想说：入口行 → 展开）
+  bindReflectionFlow();
+  setTimeout(() => loadReflectionTags(), 300);
+  return wrap;
+}
+
 function finalizeStreamingFeedback(completeData, receivedLayers) {
   const record = completeData.record || {id: 'fallback_' + Date.now()};
 
-  // 补全可能遗漏的层
+  // 补全可能遗漏的层（不再逐条弹出，收集后三幕呈现）
+  const allLayers = [...(receivedLayers || [])];
   if (record.feedback_json && record.feedback_json.layers) {
     const fullLayers = record.feedback_json.layers;
-    if (fullLayers.length > receivedLayers.length) {
-      for (let i = receivedLayers.length; i < fullLayers.length; i++) {
-        renderStreamingLayer(fullLayers[i], i + 1);
-      }
-    }
+    for (let i = allLayers.length; i < fullLayers.length; i++) allLayers.push(fullLayers[i]);
   }
 
   currentTotalDrawings = completeData.total_drawings || (window.records ? records.length : 0) || 1;
@@ -221,22 +375,13 @@ function finalizeStreamingFeedback(completeData, receivedLayers) {
     (record.feedback_json && record.feedback_json.exploration);
   const m = completeData.milestone || record.milestone;
 
-  // ═══ flowfb-b 组件顺序：探索 → 雷达 → 里程碑 → 反思 → 归档 ═══
-  (async () => {
-    try { await botComponent(explorationHTML(exploration), () => animateExploration(exploration)); } catch (e) { console.error('flow explore:', e); }
-    try { await botComponent(radarCardHTML(perception), null); } catch (e) { console.error('flow radar:', e); }
-    if (m) {
-      // 里程碑统一用对话流内卡片展示（不再弹顶部恭喜弹窗，避免与反馈信息样式不同步）
-      try { await botComponent(milestoneChatHTML(m), null); } catch (e) { console.error('flow milestone:', e); }
-    }
-    try { await botComponent(reflectionChatHTML(), () => { bindReflectionFlow(); setTimeout(() => loadReflectionTags(), 300); }); } catch (e) { console.error('flow reflection:', e); }
-    try { await botComponent(archiveChatHTML(record), () => animateFlowBank()); } catch (e) { console.error('flow archive:', e); }
-    // 操作按钮 + ← 回到首页（归档后显示）
-    const acts = document.getElementById('fbChatActions');
-    if (acts) acts.style.display = 'flex';
-    scrollChatBottom();
-    setTimeout(() => stopFeedbackAutoScroll(), 2000);
-  })();
+  renderV2V5Feedback(record, {layers: allLayers, exploration, perception, milestone: m});
+
+  // 操作按钮 + ← 回到首页
+  const acts = document.getElementById('fbChatActions');
+  if (acts) acts.style.display = 'flex';
+  scrollChatBottom();
+  setTimeout(() => stopFeedbackAutoScroll(), 2000);
 
   track('ai_feedback_viewed', {record_id: record.id});
 }
@@ -352,106 +497,32 @@ function renderEnhancedFeedback(record) {
     if (eb) eb.textContent = s < 10 ? `${s}s` : `${Math.round(s)}s`;
   }
 
-  // 里程碑卡片
+  // 清掉旧的独立容器（三幕后统一走 renderV2V5Feedback，不再单独渲染）
   document.getElementById('milestoneSlot').innerHTML = '';
-  if (record.milestone) {
-    const m = record.milestone;
-    const mClass = `milestone-icon ${m.number <= 50 ? 'm' + m.number : 'm50'}`;
-    const cardClass = `milestone-card ${m.number <= 50 ? 'm' + m.number : 'm50'}`;
-    document.getElementById('milestoneSlot').innerHTML = `
-      <div class="${cardClass}">
-        <div class="${mClass}">${m.icon}</div>
-        <div class="milestone-body">
-          <div class="milestone-title">${escapeHtml(m.title)}</div>
-          <div class="milestone-desc">${escapeHtml(m.message)}</div>
-        </div>
-      </div>`;
-  }
+  currentRecordId = record.id;
+  currentTotalDrawings = (window.records ? records.length : 0) || 1;
 
-  // 渲染 5 层
-  const layersEl = document.getElementById('fbLayersContainer');
-  layersEl.innerHTML = '';
+  const perception = fbJson?.perception_analysis || record.perception_analysis;
+  const exploration = record.exploration || fbJson?.exploration;
+  const m = record.milestone;
+  const layers = (fbJson && fbJson.layers) || [];
 
-  // 提取绘画主题（用于反思提示文案）
-  const identifyLayer = layers.find(l => l.type === 'identify');
-  if (identifyLayer && identifyLayer.content) {
-    // 尝试从识别层内容中提取主题词
-    const match = identifyLayer.content.match(/画的是(?:一个|一只|一幅)?(.+?)[对吧呢？\?]/);
-    if (match && match[1]) {
-      currentDrawingSubject = match[1].trim();
-    }
-  }
-  // 如果没提取到，用今日主题
-  if (currentDrawingSubject === '这次') {
-    const themeTitle = document.getElementById('themeTitle')?.textContent || '';
-    if (themeTitle && themeTitle !== '画你想画的') {
-      currentDrawingSubject = themeTitle.replace(/^画一个?/, '');
-    }
-  }
+  // ═══ V2+V5 融合：与流式共用同一渲染源（双路径一致） ═══
+  renderV2V5Feedback(record, {layers, exploration, perception, milestone: m});
 
-  const LAYER_TAGS   = {identify: 'l-identify', observe: 'l-observe', progress: 'l-progress', suggestion: 'l-suggest', encourage: 'l-encourage'};
-  const LAYER_LABELS = {identify: '识别', observe: '观察', progress: '进步', suggestion: '建议', encourage: '鼓励'};
+  // 操作按钮
+  const acts = document.getElementById('fbChatActions');
+  if (acts) acts.style.display = 'flex';
 
-  layers.forEach(layer => {
-    const type = layer.type;
-    const tagClass = LAYER_TAGS[type] || '';
-    const label = LAYER_LABELS[type] || type;
-    const div = document.createElement('div');
-    div.className = 'fb-layer';
-
-    // 统一层级结构
-    let html = `<span class="layer-tag ${tagClass}">${label}</span>
-      <div class="layer-text">${enrichText(layer.content)}</div>`;
-    if ((type === 'observe' || type === 'suggestion') && layer.tip && layer.tip.trim()) {
-      html += `<div class="fb-tip-box"><strong>小技巧</strong>：${enrichText(layer.tip)}</div>`;
-    }
-    div.innerHTML = html;
-    // 身份确认语并入 identify 卡片（与流式路径一致）
-    if (type === 'identify' && layer.identity_statement) {
-      div.innerHTML = html;
-    }
-    layersEl.appendChild(div);
-  });
-
-  // 2.0 回放模式：渲染雷达图和探索进度
-  const perceptionData = record.feedback_json?.perception_analysis || record.perception_analysis;
-  const breakthroughDim = record.feedback_json?.breakthrough_dim || record.breakthrough_dim;
-  if (perceptionData && typeof renderRadarChart === 'function') {
-    const radarContainer = document.getElementById('radarChartContainer');
-    if (radarContainer) {
-      setTimeout(() => renderRadarChart(perceptionData, breakthroughDim, radarContainer), 300);
-    }
-  }
-  const explorationData = record.exploration || record.feedback_json?.exploration;
-  if (explorationData && typeof renderExplorationBar === 'function') {
-    const explorationContainer = document.getElementById('explorationBarContainer');
-    if (explorationContainer) {
-      setTimeout(() => renderExplorationBar(explorationData, explorationContainer), 600);
-    }
-  }
-
-  // 2.0 回放模式：心流银行 + 档案归档
-  const replayData = record.feedback_json || record;
-  setTimeout(() => renderFlowBank(replayData), 900);
-  setTimeout(() => renderArchivePill(replayData), 1200);
-
-  // 滚动到反馈区顶部（延迟等 DOM 渲染完成）
+  // 滚动到反馈区顶部 + 锚点跟随
   setTimeout(() => {
     const rect = container.getBoundingClientRect();
     const scrollTop = window.pageYOffset + rect.top - 12;
     window.scrollTo({ top: scrollTop, behavior: 'smooth' });
-    // 回放模式也启动锚点跟随
     startFeedbackAutoScroll();
   }, 200);
 
-  // 延迟 2 秒显示操作按钮
-
-  // 显示反思交互区
-  setTimeout(() => {
-    document.getElementById('reflectionArea').classList.add('visible');
-    resetReflectionUI();
-    const input = document.getElementById('reflectionInput');
-    if (input) input.placeholder = `比如：${currentDrawingSubject}的形状这次画准了`;
-  }, 1000);
+  // 反思交互（此刻想说，renderV2V5Feedback 内已 bindReflectionFlow）
+  track('ai_feedback_viewed', {record_id: record.id});
 }
 

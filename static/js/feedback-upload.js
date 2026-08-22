@@ -176,7 +176,7 @@ async function proceedUpload(file, compressedFile, source) {
             if (tooLong) tooLong.remove();
           }
           receivedLayers.push(data.layer);
-          renderStreamingLayer(data.layer, receivedLayers.length);
+          // ═══ V2+V5：不再逐条弹出（消灭串行轰炸），complete 后由 finalizeStreamingFeedback 三幕渲染 ═══
         } else if (data.type === 'agent_done' && data.agent === 'perception') {
           // 感知 Agent 完成 → 识别仪收尾
           completeDrawingScanner();
